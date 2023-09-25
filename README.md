@@ -1,5 +1,4 @@
-# Eticom v2
-
+# IBG Cloud - 2023
   - [Development](#development)
     - [Prerequisites](#prerequisites)
     - [Test server](#test-server)
