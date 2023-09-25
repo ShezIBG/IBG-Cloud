@@ -20,7 +20,7 @@ class API extends SharedAPI {
 			ORDER BY description;
 		");
 
-		$building_statuses = [];
+		$building_statuses = []; //Change for gitsssss
 		$history = []; // TODO: History
 
 		$dt_list = [];
