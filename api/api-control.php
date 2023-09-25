@@ -19,9 +19,9 @@ class API extends SharedAPI {
 			WHERE id IN ($building_list)
 			ORDER BY description;
 		");
-		//Added change for control status
+		
 		$building_statuses = []; 
-		$history = []; // TODO: History
+		$history = []; // TODO: History comment left from Rob
 
 		$dt_list = [];
 
