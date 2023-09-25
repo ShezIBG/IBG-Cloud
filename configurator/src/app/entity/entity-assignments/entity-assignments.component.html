@@ -1,0 +1,32 @@
+<table *ngIf="getTotal()" class="table">
+	<thead>
+		<tr>
+			<th>Assignments</th>
+			<th>Area</th>
+			<th>Type</th>
+			<th class="shrink"></th>
+		</tr>
+	</thead>
+	<tbody>
+		<ng-container *ngFor="let assignedTo of entity.getAssignedTo() | entityAssignments:entity; let mid = index">
+			<tr *ngIf="assignedTo" [ngClass]="{ 'bg-hover': hovered === mid * 2 }" (mouseenter)="hovered = mid * 2" (mouseleave)="hovered = null">
+				<td><i class="{{assignedTo.getIconClass()}}"></i> {{entity.getAssignedToInfo(assignedTo)}}</td>
+				<td>{{getAreaDescription(assignedTo)}}</td>
+				<td>{{assignedTo.getTypeDescription()}}</td>
+				<td class="shrink">
+					<a *ngIf="entity.unassignFrom" class="text-danger nowrap" (click)="entity.unassignFrom(assignedTo)"><i class="md md-remove-circle"></i> Unassign</a>
+				</td>
+			</tr>
+		</ng-container>
+		<ng-container *ngFor="let assigned of entity.assigned | entityAssignments:entity; let mid = index">
+			<tr *ngIf="assigned" [ngClass]="{ 'bg-hover': hovered === mid * 2 + 1 }" (mouseenter)="hovered = mid * 2 + 1" (mouseleave)="hovered = null">
+				<td><i class="{{assigned.getIconClass()}}"></i> {{assigned.getDescription()}} <span *ngIf="assigned.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+				<td>{{getAreaDescription(assigned)}}</td>
+				<td>{{assigned.getTypeDescription()}}</td>
+				<td class="shrink">
+					<a *ngIf="assigned.unassignFrom" class="text-danger nowrap" (click)="assigned.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+				</td>
+			</tr>
+		</ng-container>
+	</tbody>
+</table>

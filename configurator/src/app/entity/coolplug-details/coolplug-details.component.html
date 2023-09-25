@@ -1,0 +1,78 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="form-group">
+					<label>Line</label>
+					<select type="text" class="form-control" [(ngModel)]="entity.data.line" [disabled]="!entity.isUnassigned()">
+						<option value="L1">L1</option>
+						<option value="L2">L2</option>
+						<option value="L3">L3</option>
+						<option value="L4">L4</option>
+						<option value="L5">L5</option>
+						<option value="L6">L6</option>
+						<option value="L7">L7</option>
+						<option value="L8">L8</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="form-group">
+					<label>CoolPlug #</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.coolPlugId" [disabled]="!entity.isUnassigned()">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Model/Series</label>
+					<select class="form-control" [(ngModel)]="entity.data.model_series_id" (ngModelChange)="onModelChanged()">
+						<option [ngValue]="null"></option>
+						<option *ngFor="let m of entity.entityManager.entities.ac_model_series" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+					</select>
+					<div class="help-block">{{getModelDescription()}}</div>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="form-group">
+					<label>Min Setpoint (&deg;C)</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.minSetpoint">
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="form-group">
+					<label>Max Setpoint (&deg;C)</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.maxSetpoint">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Processing</label>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="entity.isActive">
+							<span [ngClass]="{ 'text-danger': !entity.isActive }">Active</span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<entity-assignments [entity]="entity"></entity-assignments>
+	</div>
+</div>

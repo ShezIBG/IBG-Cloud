@@ -1,0 +1,132 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<span *ngIf="!entity.data.is_virtual" class="subtitle">({{entity.data.ways}} {{entity.data.ways === 1 ? 'way' : 'ways'}})</span>
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<button *ngIf="!entity.data.is_virtual && entity.isLastWayEmpty()" class="btn btn-inverse pull-right" (click)="entity.removeWay()"><i class="md md-remove"></i> Way</button>
+			<button *ngIf="!entity.data.is_virtual" class="btn btn-success pull-right" (click)="entity.addWay()"><i class="md md-add"></i> Way</button>
+			<button class="btn btn-inverse pull-right" *ngIf="entity.getNextSibling()" (click)="entity.moveDown()"><i class="eticon eticon-arrow-down"></i> Move down</button>
+			<button class="btn btn-inverse pull-right" *ngIf="entity.getPrevSibling()" (click)="entity.moveUp()"><i class="eticon eticon-arrow-up"></i> Move up</button>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div [ngClass]="{ 'col-lg-3': !entity.data.is_virtual, 'col-lg-6': entity.data.is_virtual }">
+				<div class="form-group">
+					<label>Board Type</label>
+					<select class="form-control" [disabled]="!entity.canUpdateLocation() || entity.data.is_virtual" [ngModel]="entity.data.location" (ngModelChange)="entity.updateLocation($event)">
+						<ng-container *ngIf="entity.is3P()">
+							<option value="L1,2,3">3 Phase L1,2,3</option>
+						</ng-container>
+						<ng-container *ngIf="!entity.is3P()">
+							<option value="L1">Single Phase L1</option>
+							<option value="L2">Single Phase L2</option>
+							<option value="L3">Single Phase L3</option>
+						</ng-container>
+					</select>
+				</div>
+			</div>
+			<div *ngIf="!entity.data.is_virtual" class="col-lg-3">
+				<div class="form-group">
+					<label>Device Type</label>
+					<select class="form-control" [(ngModel)]="entity.data.device_type">
+						<option value="switch_board">LV Switch Board</option>
+						<option value="mccb_board">MCCB Board</option>
+						<option value="bus_bar">Bus Bar</option>
+						<option value="dist_board">Distribution Board</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div *ngIf="entity.data.is_virtual && entity.data.feed_breaker_id" class="row">
+			<div class="col-lg-12">
+				<div class="form-group">
+					<label>Feed Breaker</label>
+					<div>
+						<a (click)="jumpToFeedBreaker()" class="text-info"><i class="md md-flash-on"></i> {{getFeedBreakerDescription()}}</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div *ngIf="!entity.data.is_virtual" class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Fed from distribution board</label>
+					<select class="form-control" [(ngModel)]="distboard" (change)="entity.data.feed_breaker_id = null">
+						<option [ngValue]="null">None</option>
+						<option *ngFor="let db of distboardList" [ngValue]="db">{{getDBDescription(db)}}</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Feed breaker</label>
+					<select class="form-control" [(ngModel)]="entity.data.feed_breaker_id">
+						<option [ngValue]="null">None</option>
+						<option *ngFor="let breaker of getFeedBreakerList()" [ngValue]="breaker.data.id">{{breaker.getDescription()}}</option>
+					</select>
+					<a *ngIf="entity.data.feed_breaker_id" (click)="jumpToFeedBreaker()" class="text-info m-t-10" style="display: inline-block;"><i class="md md-flash-on"></i> View feed breaker</a>
+				</div>
+			</div>
+		</div>
+
+		<table *ngIf="!entity.data.is_virtual || entity.data.ways > 0" class="table">
+			<thead>
+				<tr>
+					<th>Location</th>
+					<th>Amp</th>
+					<th>Breaker</th>
+					<th>Assigned to</th>
+					<th>Feeds</th>
+					<th class="shrink"></th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let way of entity.ways; let w = index;">
+					<ng-container *ngFor="let breaker of way; let l = index;">
+						<tr *ngIf="breaker" [ngClass]="{ 'bg-hover': hovered === w + '-' + l }" (mouseenter)="hovered = w + '-' + l" (mouseleave)="hovered = null">
+							<td>W{{breaker.data.way}}{{breaker.data.location}}</td>
+							<td>{{breaker.data.amp_rating ? breaker.data.amp_rating : '&ndash;'}}</td>
+							<td><a (click)="editBreaker(breaker)"><i class="md md-edit"></i> {{breaker.data.long_description}}</a></td>
+							<td *ngIf="breaker.assigned.length"><a (click)="breaker.getCT().jumpTo(app)" class="text-info"><i class="md md-arrow-forward"></i> {{breaker.getAssignedToInfo(breaker.getCT())}}</a></td>
+							<td *ngIf="!breaker.assigned.length">&ndash;</td>
+							<td>
+								<a *ngIf="breaker.getFeedDB() as db; else nofeedbreaker" class="text-info" (click)="jumpToFeedDB(breaker)"><i class="md md-flash-on"></i> <i class="{{db.getIconClass()}}"></i> {{db.getDescription()}} <span *ngIf="db.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></a>
+								<ng-template #nofeedbreaker>&ndash;</ng-template>
+							</td>
+							<td class="shrink">
+								<a *ngIf="breaker.assigned[0]?.unassignFrom" class="text-danger nowrap" (click)="breaker.assigned[0].unassignFrom(breaker)"><i class="md md-remove-circle"></i> Unassign</a>
+							</td>
+							<td class="shrink">
+								<entity-delete *ngIf="!entity.data.is_virtual" type="link" [entity]="breaker"></entity-delete>
+							</td>
+						</tr>
+						<tr *ngIf="!breaker" [ngClass]="{ 'bg-hover': hovered === w + '-' + l }" (mouseenter)="hovered = w + '-' + l" (mouseleave)="hovered = null">
+							<td>W{{w + 1}}L{{entity.is3P() ? (l + 1) : entity.l}}</td>
+							<td>&ndash;</td>
+							<td>
+								<a (click)="addBreaker(w + 1, entity.is3P() ? (l + 1) : entity.l, 12)" class="text-success"><i class="md md-add"></i>W{{w + 1}}L{{entity.is3P() ? (l + 1) : entity.l}}</a>
+								&nbsp;&nbsp;&nbsp;
+								<a *ngIf="entity.is3P() && l === 0 && !way[0] && !way[1] && !way[2]" (click)="addBreaker(w + 1, 0, 3)" class="text-success"><i class="md md-add"></i>W{{w + 1}}L1,2,3</a></td>
+							<td>&ndash;</td>
+							<td>&ndash;</td>
+							<td class="shrink"></td>
+							<td class="shrink"></td>
+						</tr>
+					</ng-container>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+</div>

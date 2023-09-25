@@ -1,0 +1,95 @@
+<div class="flex-parent-row p-t-15 p-l-15 fill">
+	<div class="flex-weight-1 widget card-box m-b-15 m-r-15 p-0">
+		<div class="flex-parent-column fill">
+			<div class="padded flex-weight-1 scrollable">
+				<h3>Review your changes</h3>
+
+				<p *ngIf="!changes.deletedTypes.length && !changes.modifiedTypes.length && !changes.addedTypes.length">No changes have been made.</p>
+
+				<table *ngIf="changes.deletedTypes.length" class="table">
+					<thead>
+						<tr>
+							<th class="text-danger">Deleted items</th>
+							<th>ID</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container *ngFor="let type of changes.deletedTypes">
+							<tr class="bg-danger text-white" (click)="toggle('deleted', type)" style="cursor:pointer">
+								<td><i class="md" [ngClass]="{ 'md-chevron-right': !isExpanded('deleted', type), 'md-expand-more': isExpanded('deleted', type) }"></i> {{app.entityManager.getGroupName(type)}} <span class="subtitle">({{changes.deletedEntities[type].length}} {{changes.deletedEntities[type].length === 1 ? 'item' : 'items'}})</span></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<ng-container *ngIf="isExpanded('deleted', type)">
+								<tr *ngFor="let entity of changes.deletedEntities[type]">
+									<td><i class="{{entity.getIconClass()}}"></i> {{entity.getTypeDescription()}}</td>
+									<td>{{entity.data.id}}</td>
+									<td>{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+								</tr>
+							</ng-container>
+						</ng-container>
+					</tbody>
+				</table>
+
+				<table *ngIf="changes.modifiedTypes.length" class="table">
+					<thead>
+						<tr>
+							<th class="text-warning">Modified items</th>
+							<th>ID</th>
+							<th>Description</th>
+							<th>Changes</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container *ngFor="let type of changes.modifiedTypes">
+							<tr class="bg-warning text-white" (click)="toggle('modified', type)" style="cursor:pointer">
+								<td><i class="md" [ngClass]="{ 'md-chevron-right': !isExpanded('modified', type), 'md-expand-more': isExpanded('modified', type) }"></i> {{app.entityManager.getGroupName(type)}} <span class="subtitle">({{changes.modifiedEntities[type].length}} {{changes.modifiedEntities[type].length === 1 ? 'item' : 'items'}})</span></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<ng-container *ngIf="isExpanded('modified', type)">
+								<tr *ngFor="let modified of changes.modifiedEntities[type]">
+									<td><i class="{{modified.entity.getIconClass()}}"></i> {{modified.entity.getTypeDescription()}}</td>
+									<td>{{modified.entity.data.id}}</td>
+									<td>{{modified.entity.getDescription()}} <span *ngIf="modified.entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+									<td>{{modified.changes | json}}</td>
+								</tr>
+							</ng-container>
+						</ng-container>
+					</tbody>
+				</table>
+
+				<table *ngIf="changes.addedTypes.length" class="table">
+					<thead>
+						<tr>
+							<th class="text-success">New items</th>
+							<th>ID</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container *ngFor="let type of changes.addedTypes">
+							<tr class="bg-success text-white" (click)="toggle('added', type)" style="cursor:pointer">
+								<td><i class="md" [ngClass]="{ 'md-chevron-right': !isExpanded('added', type), 'md-expand-more': isExpanded('added', type) }"></i> {{app.entityManager.getGroupName(type)}} <span class="subtitle">({{changes.addedEntities[type].length}} {{changes.addedEntities[type].length === 1 ? 'item' : 'items'}})</span></td>
+								<td></td>
+								<td></td>
+							</tr>
+							<ng-container *ngIf="isExpanded('added', type)">
+								<tr *ngFor="let entity of changes.addedEntities[type]">
+									<td><i class="{{entity.getIconClass()}}"></i> {{entity.getTypeDescription()}}</td>
+									<td>{{entity.data.id}}</td>
+									<td>{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+								</tr>
+							</ng-container>
+						</ng-container>
+					</tbody>
+				</table>
+			</div>
+			<div *ngIf="changes.deletedTypes.length || changes.modifiedTypes.length || changes.addedTypes.length" class="padded">
+				<button class="btn btn-primary pull-right" [disabled]="app.commitRunning" (click)="app.commitBuilding(changes)"><i class="md md-save"></i> Commit Changes</button>
+			</div>
+		</div>
+	</div>
+</div>

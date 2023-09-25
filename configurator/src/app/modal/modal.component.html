@@ -1,0 +1,20 @@
+<div class="modal fade" [ngClass]="{ 'in': animate }" style="display:block">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button *ngIf="canClose" type="button" class="close" (click)="closeClicked()"><i class="md md-close"></i></button>
+				<h4 class="modal-title">{{modalTitle}} <span class="subtitle">{{subtitle}}</span></h4>
+			</div>
+			<div class="modal-body">
+				<form (ngSubmit)="submitModal()">
+					<ng-content></ng-content>
+					<input type="submit" style="display: none;">
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button *ngFor="let button of buttons" class="btn btn-{{button.type}}" (click)="buttonClicked(button)">{{button.name}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal-backdrop fade" [ngClass]="{ 'in': animate }"></div>

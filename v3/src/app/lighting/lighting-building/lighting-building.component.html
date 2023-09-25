@@ -1,0 +1,134 @@
+<div *ngIf="data" class="layout-dashboard">
+
+	<div class="flex-row">
+
+		<div class="flex-col">
+
+			<div class="widget">
+				<header>
+					<h2>Building Details</h2>
+					<hr>
+				</header>
+				<div class="flex-row">
+					<div class="flex-1" [style.background]="'url(\'' + data.building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+					<div class="flex-1 scrollable" [innerHtml]="getAddress(data.building)"></div>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>
+						Weekly Schedules
+						<a class="btn btn-primary btn-sm pull-right" routerLink="schedules">Edit Schedules</a>
+					</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table *ngIf="data.schedules.length" class="table table-hover vam">
+						<thead>
+							<tr>
+								<th>Schedule Name</th>
+								<th class="text-center text-small">Lights / Nodes</th>
+								<th class="text-right">Next Event</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let s of data.schedules">
+								<td>{{s.description}}</td>
+								<td class="text-center text-small">{{s.light_count}} / {{s.node_count}}</td>
+
+								<td *ngIf="s.next_event" class="text-right">{{s.next_event | mySQLDateToISO | date:'shortDate'}} {{s.next_event | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!s.next_event" class="text-right">None</td>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="!data.schedules.length" class="text-warning">No schedules found.</p>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>Building Status</h2>
+					<hr>
+				</header>
+				<div class="flex-row flex-center">
+					<table class="table no-border vam text-center" style="min-width: 80%;">
+						<tbody>
+							<tr>
+								<td [ngClass]="{ 'text-muted': !data.device_statuses.light_on }">
+									<span class="text-primary h1"><i class="eticon eticon-bulb-alt"></i></span>
+									<span class="h2">{{data.device_statuses.light_on || 0}}</span>
+									{{data.device_statuses.light_on !== 1 ? 'lights' : 'light'}} on
+								</td>
+								<td [ngClass]="{ 'text-muted': !data.device_statuses.light_off }">
+									<span class="text-muted h1"><i class="eticon eticon-bulb-alt"></i></span>
+									<span class="h2">{{data.device_statuses.light_off || 0}}</span>
+									{{data.device_statuses.light_off !== 1 ? 'lights' : 'light'}} off
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-col">
+
+			<div class="widget">
+				<header>
+					<h2>
+						List of Devices
+						<a class="btn btn-primary btn-sm pull-right" routerLink="devices">View Devices</a>
+					</h2>
+					<hr>
+				</header>
+				<div class="flex-0">
+					<table class="table vam no-top-border">
+						<tr *ngFor="let item of data.device_types; let index = index">
+							<td class="shrink">
+								<span *ngIf="item.category_icon" class="badge-icon" [style.background]="ChartjsComponent.getColor(index)">{{item.category_icon}}</span>
+								<span *ngIf="!item.category_icon" class="badge-icon" [style.background]="ChartjsComponent.getColor(index)"><i class="eticon eticon-bulb-alt"></i></span>
+							</td>
+							<td><b>{{item.category}}</b></td>
+							<td class="shrink text-right">{{item.light_count}}x</td>
+						</tr>
+					</table>
+				</div>
+				<div>
+					<app-chartjs class="fill" style="left: 40px; right: 40px; top: 20px; bottom: 40px;" [names]="typeNames" [data]="typeValues" [options]="typeOptions"></app-chartjs>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-col">
+
+			<div class="widget">
+				<header>
+					<h2>User History</h2>
+					<hr>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover no-top-border vam">
+						<tr *ngFor="let item of data.history">
+							<td class="shrink">
+								<app-gravatar [email]="item.user_email" size="55"></app-gravatar>
+							</td>
+							<td>
+								<div [innerHtml]="item.html"></div>
+								<div class="m-t-10">
+									<span>{{item.user_name}}</span>
+									<span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

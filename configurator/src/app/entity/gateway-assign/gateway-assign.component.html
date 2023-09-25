@@ -1,0 +1,194 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}: {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span>
+			<span *ngIf="screen.assignables.length && entity.data.type !== 'MB30' && entity.data.type !== 'RS32'" class="pull-right text-success" style="font-size:14px;">Assigning: {{screen.assignables[0].getDescription()}}</span>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<table *ngIf="entity.hasBus('modbus')" class="table">
+			<thead>
+				<tr>
+					<th>Modbus #</th>
+					<th>Assigned devices</th>
+					<th>Area</th>
+					<th>Type</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngIf="entity.modbus.length">
+					<tr *ngFor="let device of entity.modbus; let mid = index" [ngClass]="{ 'bg-hover': hovered === mid }" (mouseenter)="hovered = mid" (mouseleave)="hovered = null">
+						<ng-container *ngIf="device">
+							<td>{{mid + 1}}</td>
+							<td><i class="{{device.getIconClass()}}"></i> {{device.getDescription()}} <span *ngIf="device.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+							<td>{{getAreaDescription(device)}}</td>
+							<td>{{device.getTypeDescription()}}</td>
+							<td class="shrink">
+								<a class="text-danger nowrap" (click)="device.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+							</td>
+						</ng-container>
+						<ng-container *ngIf="!device">
+							<td>{{mid + 1}}</td>
+							<td>&ndash;</td>
+							<td>&ndash;</td>
+							<td>&ndash;</td>
+							<td class="shrink">
+								<a *ngIf="screen.assignables.length" class="text-success nowrap" (click)="assignOne(mid + 1)"><i class="md md-add-circle"></i> Assign</a>
+							</td>
+						</ng-container>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+		<table *ngIf="entity.hasBus('mbus')" class="table">
+			<thead>
+				<tr>
+					<th>M-Bus Master</th>
+					<th>Area</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let device of entity.assigned" [ngClass]="{ 'bg-hover': hovered === device }" (mouseenter)="hovered = device" (mouseleave)="hovered = null">
+					<td><i class="{{device.getIconClass()}}"></i> {{device.getDescription()}} <span *ngIf="device.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+					<td>{{getAreaDescription(device)}}</td>
+					<td class="shrink">
+						<a *ngIf="!screen.assignables.length" class="text-danger nowrap" (click)="device.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+						<a *ngIf="screen.assignables.length" class="text-warning nowrap" (click)="assignReplace()"><i class="md md-add-circle"></i>Replace with {{screen.assignables[0].getDescription()}} <span *ngIf="screen.assignables[0].getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></a>
+					</td>
+				</tr>
+				<tr *ngIf="!entity.assigned.length">
+					<td>&ndash;</td>
+					<td>&ndash;</td>
+					<td class="shrink">
+						<a *ngIf="screen.assignables.length" class="text-success nowrap" (click)="assignReplace()"><i class="md md-add-circle"></i>Assign {{screen.assignables[0].getDescription()}} <span *ngIf="screen.assignables[0].getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<table *ngIf="entity.hasBus('dali')" class="table">
+			<thead>
+				<tr>
+					<th>DALI Address</th>
+					<th>Assigned devices</th>
+					<th>Area</th>
+					<th>Type</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngIf="entity.dali.length">
+					<tr *ngFor="let device of entity.dali; let mid = index" [ngClass]="{ 'bg-hover': hovered === mid }" (mouseenter)="hovered = mid" (mouseleave)="hovered = null">
+						<ng-container *ngIf="device">
+							<td>{{mid}}</td>
+							<td><i class="{{device.getIconClass()}}"></i> {{device.getDescription()}} <span *ngIf="device.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+							<td>{{getAreaDescription(device)}}</td>
+							<td>{{device.getLightTypeDescription()}}</td>
+							<td class="shrink">
+								<a class="text-danger nowrap" (click)="device.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+							</td>
+						</ng-container>
+						<ng-container *ngIf="!device">
+							<td>{{mid}}</td>
+							<td>&ndash;</td>
+							<td>&ndash;</td>
+							<td>&ndash;</td>
+							<td class="shrink">
+								<a *ngIf="screen.assignables.length" class="text-success nowrap" (click)="assignOne(mid)"><i class="md md-add-circle"></i> Assign</a>
+							</td>
+						</ng-container>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+		<ng-container *ngIf="entity.hasBus('rs485')" class="table">
+			<div *ngIf="screen.assignables.length" class="panel panel-border panel-success">
+				<div class="panel-heading">
+
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-md-6">
+							<span class="text-success">Assigning {{screen.assignables[0].getDescription()}} <span *ngIf="screen.assignables[0].getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span><br>&nbsp;</span>
+						</div>
+						<div class="col-md-6">
+							<button class="btn btn-success pull-right" (click)="assignRS485()"><i class="md md-add-circle"></i> Assign</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-2 col-md-6">
+							<div class="form-group">
+								<label>RS-485 #</label>
+								<input type="text" class="form-control text-right" [(ngModel)]="rs485id" (input)="rs485error = ''" desktopfocus>
+							</div>
+						</div>
+						<div class="col-lg-4 col-md-6">
+							<div class="form-group">
+								<label>Device type</label>
+								<select class="form-control" [(ngModel)]="catalogue" (change)="rs485error = ''; catalogueItemChanged()">
+									<option *ngFor="let cat of getCatalogueItems()" [ngValue]="cat">{{cat.getDescription()}}</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-4 col-md-6">
+							<div class="form-group">
+								<label>Value multiplier</label>
+								<input type="text" class="form-control text-right" [(ngModel)]="multiplier" (input)="rs485error = ''">
+							</div>
+						</div>
+						<div class="col-lg-2 col-md-6">
+							<div class="form-group">
+								<label>Unit</label>
+								<select class="form-control" [(ngModel)]="unit" (change)="rs485error = ''">
+									<option value="kWh">kWh</option>
+									<option value="M3">m3</option>
+									<option value="Litres">litres</option>
+									<option value="ft3">ft3</option>
+									<option value="btu">BTU</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<p *ngIf="rs485error" class="text-danger">{{rs485error}}</p>
+				</div>
+			</div>
+			<table class="table vam">
+				<thead>
+					<tr>
+						<th>RS-485 #</th>
+						<th>Assigned devices</th>
+						<th>Area</th>
+						<th>Monitored by</th>
+						<th class="shrink nowrap">Multiplier</th>
+						<th class="shrink nowrap">Unit</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<ng-container *ngFor="let item of entity.assigned">
+						<tr *ngIf="item.getRS485Device() as device" [ngClass]="{ 'bg-hover': hovered === item }" (mouseenter)="hovered = item" (mouseleave)="hovered = null">
+							<td>{{item.getBusID('rs485')}}</td>
+							<td><i class="{{item.getIconClass()}}"></i> {{item.getDescription()}} <span *ngIf="item.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+							<td>{{getAreaDescription(item)}}</td>
+							<td>{{device.getDescription()}}</td>
+							<td class="shrink"><input class="form-control text-right" style="width: 100px;" [(ngModel)]="device.value_multiplier"></td>
+							<td class="shrink">
+								<select class="form-control" style="width: 100px;" [(ngModel)]="device.data.unit">
+									<option value="kWh">kWh</option>
+									<option value="M3">m3</option>
+									<option value="Litres">litres</option>
+									<option value="ft3">ft3</option>
+									<option value="btu">BTU</option>
+								</select>
+							</td>
+							<td class="shrink">
+								<a class="text-danger nowrap" (click)="item.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+							</td>
+						</tr>
+					</ng-container>
+				</tbody>
+			</table>
+		</ng-container>
+	</div>
+</div>

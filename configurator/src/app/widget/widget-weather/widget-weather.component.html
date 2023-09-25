@@ -1,0 +1,34 @@
+<div class="flex-parent-column fill">
+	<header class="text-center"><h3>Weather</h3></header>
+	<div class="flex-weight-1">
+		<div class="fill">
+			<div class="container v-center">
+				<div class="row">
+					<div class="col-lg-7">
+						<div class="container">
+							<div class="row">
+								<div class="col-xs-6 text-center">
+									<weather-icon type="{{weather.data.icon}}" width="100" height="100"></weather-icon>
+								</div>
+								<div class="col-xs-6">
+									<br>
+									<h2 class="m-t-0 text-muted"><b> {{weather.data.temperature}}&deg;</b></h2>
+									<p class="text-muted">{{weather.data.summary}}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-5">
+						<div class="row">
+							<div *ngFor="let day of weather.data.forecast" class="col-xs-4 text-center">
+								<h4 class="text-muted m-t-0">{{day.day}}</h4>
+								<weather-icon type="{{day.icon}}" width="35" height="35"></weather-icon>
+								<h4 class="text-muted">{{day.temperature}}&deg;</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

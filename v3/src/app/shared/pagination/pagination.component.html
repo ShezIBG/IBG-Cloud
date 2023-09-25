@@ -1,0 +1,18 @@
+<nav *ngIf="pagination">
+	<ul class="pagination pull-right">
+		<ng-container *ngFor="let size of pagination.pageSizeList">
+			<li [ngClass]="{ active: size === pagination.pageSize }" (click)="pagination.pageSize = size"><a>{{size}}</a></li>
+		</ng-container>
+	</ul>
+
+	<ul class="pagination">
+		<li [ngClass]="{ disabled: pagination.page === 1 }" (click)="pagination.prevPage()"><a><i class="fa fa-angle-double-left"></i></a></li>
+		<ng-container *ngFor="let page of pagination.getTabs()">
+			<li *ngIf="page !== null" [ngClass]="{ active: page === pagination.page }" (click)="pagination.page = page"><a>{{page}}</a></li>
+			<li *ngIf="page === null" class="disabled"><a>...</a></li>
+		</ng-container>
+		<li [ngClass]="{ disabled: pagination.page === pagination.pageCount }" (click)="pagination.nextPage()"><a><i class="fa fa-angle-double-right"></i></a></li>
+	</ul>
+
+	<span class="counter text-muted">{{pagination.count}} {{pagination.count === 1 ? 'item' : 'items'}}</span>
+</nav>

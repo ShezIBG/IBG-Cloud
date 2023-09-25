@@ -1,0 +1,140 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Basic details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Entity name</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.name" appDesktopFocus>
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<p class="text-info"><i class="md md-info"></i> Leave address fields blank to use your default address.</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.address_line_1">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_2">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_3">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Town</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.posttown">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Postcode</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.postcode">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">VAT registration number</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.vat_reg_number">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Visibility</label>
+				<div class="col-sm-5">
+					<div class="checkbox checkbox-danger">
+						<label>
+							<input type="checkbox" [(ngModel)]="details.archived">
+							<span [ngClass]="{ 'text-danger': details.archived }">Archived</span>
+						</label>
+					</div>
+					<ng-container *ngIf="details.archived">
+						<p class="text-danger m-t-10"><i class="md md-info"></i> Archived entities will be hidden from the list by default and no new contracts can be created for them.</p>
+						<p *ngIf="archiveWarnings.length" class="text-warning">
+							<i class="md md-warning"></i> Warning
+						</p>
+						<ul *ngIf="archiveWarnings.length" class="text-warning">
+							<li *ngFor="let line of archiveWarnings">{{line}}</li>
+						</ul>
+						<p *ngIf="archiveWarnings.length === 0" class="text-success"><i class="md md-check"></i> No issues found, entity can be archived.</p>
+					</ng-container>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3>Bank details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Bank name</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.bank_name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Sort code</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.bank_sort_code" (change)="formatSortCode()">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Account number</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.bank_account_number">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3>Entity logo</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<p class="text-info"><i class="md md-info"></i> Leave blank to use your default logo.</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Logo image</label>
+				<div class="col-sm-5">
+					<div class="img-container">
+						<input type="file" class="hidden" (change)="uploadImage()" #fileInput>
+						<ng-container *ngIf="!details.image_id">
+							<div class="image-drop" [ngClass]="{ active: draggedOver }" (dragover)="fileDragOver($event)" (dragleave)="draggedOver = false" (drop)="fileDrop($event)">
+								No image
+							</div>
+							<button class="btn btn-primary " [disabled]="disabled" (click)="changeImage()"><i class="md md-add"></i> Add image</button>
+						</ng-container>
+						<ng-container *ngIf="details.image_id">
+							<img [src]="imageUrl" style="width: 100%;">
+							<button class="btn btn-default" [disabled]="disabled" (click)="changeImage()"><i class="md md-edit"></i> Change</button>
+							<button class="btn btn-danger" [disabled]="disabled" (click)="removeImage()"><i class="md md-remove"></i> Remove</button>
+						</ng-container>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

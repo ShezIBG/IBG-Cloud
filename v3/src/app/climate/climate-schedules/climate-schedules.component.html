@@ -1,0 +1,204 @@
+<div class="layout-dashboard myContainer-moveRight">
+
+	<div *ngIf="data" class="flex-row">
+		<div class="flex-0 flex-col theme-dark" style="min-width: 440px; max-width: 440px;">
+			<div class="widget">
+				<header>
+					<h2>
+						Weekly Schedules
+						<button class="btn btn-primary btn-sm pull-right" (click)="addSchedule()"><i class="md md-add"></i></button>
+					</h2>
+				</header>
+				<div *ngIf="data.schedules.length" class="scrollable p-t-0">
+					<table *ngIf="data.schedules.length" class="table table-hover no-border">
+						<thead>
+							<tr class="alt-header">
+								<th>Schedule Name</th>
+								<th class="text-right">Units</th>
+								<th class="shrink nowrap"></th>
+								<th class="text-right">Next Event</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let s of data.schedules" class="selectable" [ngClass]="{ 'bg-primary': selectedSchedule === s.id }" (click)="selectSchedule(s.id)">
+								<td>{{s.description}}</td>
+								<td class="text-right">{{s.device_count}}</td>
+
+								<td class="shrink nowrap">
+									<i *ngIf="isScheduleOutOfRange(s)" class="md md-warning text-warning" title="Set points out of range."></i>
+								</td>
+
+								<td *ngIf="s.next_event" class="text-right">{{s.next_event | mySQLDateToISO | date:'shortDate'}} {{s.next_event | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!s.next_event" class="text-right">None</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div *ngIf="!data.schedules.length">
+					<p>No schedules found.</p>
+				</div>
+			</div>
+		</div>
+
+		<div *ngIf="!selectedSchedule" class="flex-2 widget">
+			<header>
+				<h2>Schedule Details</h2>
+				<hr>
+			</header>
+			<div>Please select a schedule.</div>
+		</div>
+		<div *ngIf="selectedSchedule && schedule" class="flex-2 widget">
+			<header>
+				<h2>
+					{{schedule.record.description}}
+					<button *ngIf="!edit" class="btn btn-default btn-sm pull-right" (click)="edit = !edit"><i class="md md-edit"></i> Edit Schedule</button>
+					<button *ngIf="edit && dirty" class="btn btn-primary btn-sm pull-right" (click)="saveSchedule()"><i class="md md-check"></i> Save Schedule</button>
+				</h2>
+				<hr>
+			</header>
+			<div class="scrollable" [ngClass]="{ 'no-edit': !edit }">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Description</label>
+						<div class="col-sm-5">
+							<input class="form-control" [(ngModel)]="schedule.record.description" (ngModelChange)="dirty = true" [disabled]="!edit">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Options</label>
+						<div class="col-sm-8">
+							<div class="checkbox checkbox-primary">
+								<label>
+									<input type="checkbox" [(ngModel)]="schedule.record.off_on_holidays" (ngModelChange)="dirty = true" [disabled]="!edit">
+									<span>Turn devices off on holidays</span>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<ng-container *ngIf="isScheduleOutOfRange(schedule.info)">
+					<p class="alert alert-warning">
+						<i class="md md-warning"></i> Some of the set points in this schedule are out of range and not supported by all assigned devices. When applying out of range set points, devices will be automatically set to their supported minimum or maximum temperatures.
+
+						<ng-container *ngIf="schedule.info.device_min_setpoint && schedule.info.device_max_setpoint && schedule.info.device_min_setpoint <= schedule.info.device_max_setpoint">
+							In order to be compatible with all assigned devices, please use set points
+							<b *ngIf="schedule.info.device_min_setpoint && schedule.info.device_max_setpoint">between {{schedule.info.device_min_setpoint}} and {{schedule.info.device_max_setpoint}} &deg;C.</b>
+							<b *ngIf="schedule.info.device_min_setpoint && !schedule.info.device_max_setpoint">above {{schedule.info.device_min_setpoint}} &deg;C.</b>
+							<b *ngIf="!schedule.info.device_min_setpoint && schedule.info.device_max_setpoint">below {{schedule.info.device_max_setpoint}} &deg;C.</b>
+						</ng-container>
+						<ng-container *ngIf="schedule.info.device_min_setpoint && schedule.info.device_max_setpoint && schedule.info.device_min_setpoint > schedule.info.device_max_setpoint">
+							<b>There is no common temperature range supported by all assigned devices.</b>
+						</ng-container>
+					</p>
+				</ng-container>
+				<hr>
+				<table class="table vam">
+					<thead>
+						<tr>
+							<th style="width: 16.66%;">Time</th>
+							<th class="text-center" style="width: 16.66%;">On/Off</th>
+							<th class="text-right" style="width: 16.66%;">Set point</th>
+							<th style="width: 16.66%;">Mode</th>
+							<th style="width: 16.66%;">Fan speed</th>
+							<th style="width: 16.66%;">Louvre</th>
+							<th class="shrink">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container *ngFor="let day of days">
+							<tr class="info">
+								<td colspan="7">
+									<span class="h2" *ngIf="day === 'mon'">Monday</span>
+									<span class="h2" *ngIf="day === 'tue'">Tuesday</span>
+									<span class="h2" *ngIf="day === 'wed'">Wednesday</span>
+									<span class="h2" *ngIf="day === 'thu'">Thursday</span>
+									<span class="h2" *ngIf="day === 'fri'">Friday</span>
+									<span class="h2" *ngIf="day === 'sat'">Saturday</span>
+									<span class="h2" *ngIf="day === 'sun'">Sunday</span>
+								</td>
+							</tr>
+
+							<tr *ngFor="let item of getFilteredItems(day)">
+								<ng-container *ngIf="edit">
+									<td [ngClass]="{ 'has-error': !item.time }">
+										<div class="input-group">
+											<span class="input-group-addon"><i class="md md-access-time"></i></span>
+											<input atp-time-picker class="form-control" [(ngModel)]="item.time" (ngModelChange)="dirty = true">
+										</div>
+									</td>
+									<td class="text-center">
+										<p-inputSwitch [(ngModel)]="item.ac_onoff" (ngModelChange)="dirty = true"></p-inputSwitch>
+									</td>
+									<td [ngClass]="{ 'has-error': item.ac_onoff && !item.ac_setpoint }">
+										<div *ngIf="item.ac_onoff" class="input-group">
+											<input class="form-control text-right" [(ngModel)]="item.ac_setpoint" (ngModelChange)="dirty = true">
+											<span class="input-group-addon">&deg;C</span>
+										</div>
+									</td>
+									<td [ngClass]="{ 'has-error': item.ac_onoff && !item.ac_mode }">
+										<select *ngIf="item.ac_onoff" class="form-control" [(ngModel)]="item.ac_mode" (ngModelChange)="dirty = true">
+											<option *ngFor="let o of modeOptions" [ngValue]="o.id">{{o.desc}}</option>
+										</select>
+									</td>
+									<td [ngClass]="{ 'has-error': item.ac_onoff && !item.ac_fanspeed }">
+										<select *ngIf="item.ac_onoff" class="form-control" [(ngModel)]="item.ac_fanspeed" (ngModelChange)="dirty = true">
+											<option *ngFor="let o of fanOptions" [ngValue]="o.id">{{o.desc}}</option>
+										</select>
+									</td>
+									<td [ngClass]="{ 'has-error': item.ac_onoff && !item.ac_swing }">
+										<select *ngIf="item.ac_onoff" class="form-control" [(ngModel)]="item.ac_swing" (ngModelChange)="dirty = true">
+											<option *ngFor="let o of louvreOptions" [ngValue]="o.id">{{o.desc}}</option>
+										</select>
+									</td>
+									<td class="shrink">
+										<a *ngIf="edit" class="text-danger text-large" (click)="deleteItem(item)"><i class="md md-close"></i></a>
+									</td>
+								</ng-container>
+
+								<ng-container *ngIf="!edit">
+									<td>
+										<i class="md md-access-time"></i> {{item.time}}
+									</td>
+									<td class="text-center">
+										<p-inputSwitch [(ngModel)]="item.ac_onoff" disabled></p-inputSwitch>
+									</td>
+									<td class="text-right">
+										{{item.ac_setpoint}} <span *ngIf="item.ac_setpoint">&deg;C</span>
+									</td>
+									<td>
+										<select *ngIf="item.ac_onoff" class="form-control" [(ngModel)]="item.ac_mode" disabled>
+											<option *ngFor="let o of modeOptions" [ngValue]="o.id">{{o.desc}}</option>
+										</select>
+									</td>
+									<td>
+										<select *ngIf="item.ac_onoff" class="form-control" [(ngModel)]="item.ac_fanspeed" disabled>
+											<option *ngFor="let o of fanOptions" [ngValue]="o.id">{{o.desc}}</option>
+										</select>
+									</td>
+									<td>
+										<select *ngIf="item.ac_onoff" class="form-control" [(ngModel)]="item.ac_swing" disabled>
+											<option *ngFor="let o of louvreOptions" [ngValue]="o.id">{{o.desc}}</option>
+										</select>
+									</td>
+									<td class="shrink">
+										<a *ngIf="edit" class="text-danger text-large" (click)="deleteItem(item)"><i class="md md-close"></i></a>
+									</td>
+								</ng-container>
+							</tr>
+							<tr *ngIf="edit">
+								<td colspan="7">
+									<a class="text-success" (click)="addItem(day)"><i class="md md-add"></i> Add item</a>
+								</td>
+							</tr>
+						</ng-container>
+					</tbody>
+				</table>
+
+				<p *ngIf="edit" class="text-right">
+					<button class="btn btn-danger" (click)="deleteSchedule()"><i class="md md-delete"></i> Delete schedule</button>
+				</p>
+			</div>
+		</div>
+	</div>
+
+</div>

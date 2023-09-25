@@ -1,0 +1,34 @@
+<div class="fill flex-parent-column">
+	<header class="text-center">
+		<h3>Assignments</h3>
+	</header>
+	<div style="padding: 0;">
+		<ul class="nav nav-pills nav-pills-small">
+			<li [ngClass]="{ active: tab === 'unassigned' }"><a class="text-white" (click)="tab = 'unassigned'">Unassigned</a></li>
+			<li [ngClass]="{ active: tab === 'assigned' }"><a class="text-white" (click)="tab = 'assigned'">Assigned</a></li>
+		</ul>
+	</div>
+	<div class="flex-weight-1 padded scrollable">
+
+		<table *ngIf="tab === 'unassigned'" class="table">
+			<tr *ngFor="let item of unassignedList">
+				<td class="shrink"><i class="{{item.icon}}"></i></td>
+				<td>{{item.description}} &nbsp; <span class="text-danger">{{item.count}}</span></td>
+			</tr>
+			<tr *ngIf="!unassignedList.length">
+				<td class="text-success">No unassigned devices found.</td>
+			</tr>
+		</table>
+
+		<table *ngIf="tab === 'assigned'" class="table">
+			<tr *ngFor="let item of assignedList">
+				<td class="shrink"><i class="{{item.icon}}"></i></td>
+				<td>{{item.description}} &nbsp; <span class="text-white">{{item.count}}</span></td>
+			</tr>
+			<tr *ngIf="!assignedList.length">
+				<td class="text-warning">No assigned devices found.</td>
+			</tr>
+		</table>
+
+	</div>
+</div>

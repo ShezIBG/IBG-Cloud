@@ -1,0 +1,65 @@
+<ng-container *ngIf="warehouseList">
+	<div class="card-box">
+		<div class="row">
+			<div class="col-md-4">
+				<label>Warehouse</label>
+				<select class="form-control" [(ngModel)]="warehouse" (change)="refreshLocations()">
+					<option *ngFor="let o of warehouseList" [ngValue]="o.id">{{o.description}}</option>
+				</select>
+				<p *ngIf="showCost" class="m-t-10 m-b-0">Total cost of stock: <b>{{totalStockCost | decimal:2:2:true:'GBP'}}</b></p>
+			</div>
+			<div class="col-md-8">
+				<label>Search</label>
+				<div class="input-group">
+					<span class="input-group-addon"><i class="md md-search"></i></span>
+					<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search" appDesktopFocus>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="list" class="card-box">
+		<table class="table table-striped table-hover vam">
+			<thead>
+				<tr>
+					<th class="shrink"></th>
+					<th class="shrink nowrap">Location</th>
+					<th class="shrink nowrap text-right">In Stock</th>
+					<th>Model / Manufacturer</th>
+					<th class="shrink nowrap">SKU</th>
+
+					<ng-container *ngIf="showCost">
+						<th class="text-right">Unit cost</th>
+						<th class="text-right">Total cost</th>
+					</ng-container>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['sku', 'manufacturer_sku', 'model', 'manufacturer_name', 'location'] | pagination:pagination" [ngClass]="{ 'danger': stockTooFew(item), 'success': stockTooMany(item) }">
+					<td class="shrink">
+						<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+					</td>
+					<td class="shrink nowrap">{{item.location}}</td>
+					<td class="shrink nowrap text-right">{{item.qty}}</td>
+					<td>
+						<div>{{item.model}}</div>
+						<div class="text-small">{{item.manufacturer_name}}</div>
+					</td>
+					<td class="shrink nowrap">
+						<div>{{item.sku}}</div>
+						<div class="text-small">{{item.manufacturer_sku}}</div>
+					</td>
+
+					<ng-container *ngIf="showCost">
+						<td class="text-right">{{item.unit_cost | decimal:2:2:true:'GBP'}}</td>
+						<td class="text-right">{{item.total_cost | decimal:2:2:true:'GBP'}}</td>
+					</ng-container>
+				</tr>
+				<tr *ngIf="!pagination.count">
+					<td [attr.colspan]="showCost ? 7 : 5">No products found.</td>
+				</tr>
+			</tbody>
+		</table>
+		<app-pagination [pagination]="pagination"></app-pagination>
+	</div>
+</ng-container>

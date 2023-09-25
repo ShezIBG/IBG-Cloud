@@ -1,0 +1,16 @@
+<table>
+	<tr>
+		<td>
+			<div class="btn-group btn-group-justified">
+				<a class="btn btn-rounded" [ngClass]="{ 'btn-default': project.stage !== 'cancelled', 'btn-danger btn-solid': project.stage === 'cancelled' }" (click)="updateStage('cancelled')">Cancelled</a>
+				<a class="btn btn-rounded" [ngClass]="{ 'btn-default': project.stage !== 'lead', 'btn-warning btn-solid': project.stage === 'lead' }" (click)="updateStage('lead')">Lead</a>
+				<a class="btn btn-rounded" [ngClass]="{ 'btn-default': project.stage !== 'survey', 'btn-info btn-solid': project.stage === 'survey' }" (click)="updateStage('survey')">Survey</a>
+				<a class="btn btn-rounded" [ngClass]="{ 'btn-default': project.stage !== 'quote', 'btn-info btn-solid': project.stage === 'quote' }" (click)="updateStage('quote')">Quote</a>
+				<a class="btn btn-rounded" [ngClass]="{ 'btn-default': project.stage !== 'build', 'btn-inverse btn-solid': project.stage === 'build' }" (click)="updateStage('build')">Build</a>
+				<a class="btn btn-rounded" [ngClass]="{ 'btn-default': project.stage !== 'install', 'btn-inverse btn-solid': project.stage === 'install' }" (click)="updateStage('install')">Install</a>
+				<a class="btn btn-rounded" [ngClass]="{ 'btn-default': project.stage !== 'complete', 'btn-success btn-solid': project.stage === 'complete' }" (click)="updateStage('complete')">Complete</a>
+			</div>
+		</td>
+		<td *ngIf="project.id && project.id !== 'new'" class="shrink nowrap p-l-20"><a (click)="showStageHistory()"><i class="md md-search"></i> Stage history</a></td>
+	</tr>
+</table>

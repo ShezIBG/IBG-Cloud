@@ -1,0 +1,11 @@
+<ng-container *ngIf="isMovableEntity(entity) && entity.canMove()">
+	<div *ngIf="type === 'toolbar'" class="btn-group pull-right">
+		<button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown"><i class="fa fa-arrows"></i> Area</button>
+		<ul class="dropdown-menu" role="menu" style="height: auto; max-height: 300px; overflow-x: hidden;">
+			<ng-container *ngFor="let floor of getFloors()">
+				<li class="dropdown-header">{{floor.getDescription()}}</li>
+				<li *ngFor="let area of getAreas(floor)" [ngClass]="{ disabled: entity.getParent() === area }"><a (click)="moveToArea(area)">{{area.getDescription()}}</a></li>
+			</ng-container>
+		</ul>
+	</div>
+</ng-container>

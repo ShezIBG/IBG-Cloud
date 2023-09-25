@@ -1,0 +1,272 @@
+@import "variables.less";
+
+i.ei {
+	text-rendering: geometricPrecision;
+	line-height: inherit;
+	vertical-align: bottom;
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+i.eticon {
+	line-height: inherit;
+}
+
+::-webkit-scrollbar {
+    height: 12px;
+    width: 12px;
+    background: darken(@dark, 2.5%);
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: darken(@muted, 25%);
+	border: 2px solid darken(@dark, 2.5%);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: @muted;
+}
+
+.jstree-default {
+	.jstree-clicked,.jstree-wholerow-clicked  {
+		background: fade(@primary,40%);
+		box-shadow: none;
+		color: @white;
+	}
+
+	.jstree-hovered ,.jstree-wholerow-hovered{
+		background: fade(@primary,20%);
+		box-shadow: none;
+	}
+
+	.jstree-clicked > .jstree-checkbox, .jstree-checked > .jstree-checkbox {
+		background-position: -228px -4px;
+	}
+}
+
+.bg-hover {
+	background: fade(@primary,20%);
+}
+
+.control-border {
+	border: 2px solid fade(@white,20%);
+}
+
+.select-list {
+	background-color: transparent;
+	box-shadow: none;
+	border: 2px solid fade(@white,20%);
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+
+	li {
+		padding: 0;
+
+		a {
+			padding: 5px 10px;
+			color: inherit;
+			display: block;
+
+			&.hovered {
+				background: fade(@primary,20%);
+			}
+
+			&.selected {
+				background: fade(@primary,40%);
+				color: @white !important;
+			}
+		}
+	}
+
+	li.header {
+		color: darken(@muted, 25%);
+		background: darken(@dark, 2.5%);
+		padding: 5px;
+	}
+}
+
+.flex-parent-row {
+	position: relative;
+	display: flex !important;
+	flex-direction: row;
+
+	> * { position: relative; }
+}
+
+.flex-parent-column {
+	position: relative;
+	display: flex !important;
+	flex-direction: column;
+
+	> * {
+		position: relative;
+		max-height: 100vh; // Weird Safari resize work-around (100% height did not shrink with window size)
+	}
+}
+
+.flex-weight-1 {
+	flex: 1;
+}
+
+.generate-flex-weights(4);
+
+.generate-flex-weights(@n, @i: 1) when (@i =< @n) {
+  .flex-weight-@{i} {
+    flex: @i;
+  }
+  .generate-flex-weights(@n, (@i + 1));
+}
+
+.widget {
+	overflow: hidden;
+}
+
+.tree-device-width {
+	width: 300px;
+}
+
+.tree-assign-width {
+	width: 450px;
+}
+
+.toolbox-height {
+	height: 200px;
+}
+
+.scrollable {
+	overflow: auto;
+}
+
+.scrollable-x {
+	overflow: auto hidden;
+}
+
+.scrollable-y {
+	overflow: hidden auto;
+}
+
+.padded { padding: 10px; }
+
+.fill {
+	margin: 0 !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+
+	&.padded, > .padded { margin: 0; }
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+.v-center {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 100%;
+}
+
+.nav-pills li a {
+	color: rgba(255, 255, 255, 0.4);
+	border-radius: 0 !important;
+	padding: 10px 10px;
+}
+
+.nav-pills li:first-child {
+	margin-left: 10px;
+}
+
+.nav-pills li a:hover {
+	color: #f4bb49 !important;
+}
+
+.nav-pills li.active a:hover {
+	background: none !important;
+}
+
+.nav-pills li.active a {
+	color: #fff;
+	background: none !important;
+	border-bottom: 2px solid #f4bb49;
+}
+
+.nav-pills-small {
+	border-bottom:1px solid rgba(255, 255, 255, 0.07);
+
+	li, li a { line-height: normal !important; }
+}
+
+a { cursor: pointer; color: @primary; }
+a:hover, a:focus { color: darken(@primary, 10%); }
+a.text-success:hover, a.text-success:focus { color: darken(@success, 10%); }
+a.text-warning:hover, a.text-warning:focus { color: darken(@warning, 10%); }
+a.text-danger:hover, a.text-danger:focus { color: darken(@danger, 10%); }
+a.text-info:hover, a.text-info:focus { color: darken(@info, 10%); }
+
+table.shrink th, table.shrink td, th.shrink, td.shrink { width: 1%; }
+table.vam th, table.vam td, th.vam, td.vam { vertical-align: middle !important; }
+
+.bg-dark { background: @dark; }
+
+.subtitle { font-size: 80%; opacity: 0.5; }
+
+.card-box header {
+	background: lighten(@dark, 2%);
+	padding-left: 10px;
+	padding-right: 10px;
+
+	h3 { font-weight: 300; }
+	.btn {
+		position: relative;
+		top: -2px;
+		left: 3px;
+	}
+	.btn.pull-right { margin-left: 10px; }
+}
+
+.card-box header+div, .widget-padding {
+	padding: 28px 20px 0 20px;
+}
+
+.floorplan-icon {
+	position:absolute;
+	cursor: pointer;
+	background: @warning;
+	color: #fff;
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	margin: -20px 0 0 -20px;
+	padding: 0;
+	font-size: 28px;
+	box-shadow: 3px 3px 15px 0px rgba(0,0,0,0.5);
+	text-align: center;
+
+	.direction {
+		width: 0;
+		height: 0;
+		border-top: 5px solid transparent;
+		border-bottom: 5px solid transparent;
+		border-left: 5px solid #000;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		padding: 0;
+		margin: -5px 0 0 0;
+		transform-origin: 0 50%;
+	}
+}
+
+// Calendar fix
+.form-group .ui-calendar {
+	display: block;
+
+	input { padding: 6px 12px; }
+}

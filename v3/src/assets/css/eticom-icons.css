@@ -1,0 +1,164 @@
+
+@font-face {
+    font-family: "eticom-icons";
+    src: url("../fonts/eticom-icons.eot?89da686147928399a2db9cb26eca4bdd?#iefix") format("embedded-opentype"),
+url("../fonts/eticom-icons.woff?89da686147928399a2db9cb26eca4bdd") format("woff"),
+url("../fonts/eticom-icons.ttf?89da686147928399a2db9cb26eca4bdd") format("truetype"),
+url("../fonts/eticom-icons.svg?89da686147928399a2db9cb26eca4bdd#eticom-icons") format("svg");
+}
+
+i.ei[class^="ei-"]:before, i.ei[class*=" ei-"]:before {
+    font-family: eticom-icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.ei-ac-auto:before {
+    content: "\f101";
+}
+.ei-ac-cool:before {
+    content: "\f102";
+}
+.ei-ac-dry:before {
+    content: "\f103";
+}
+.ei-ac-fan:before {
+    content: "\f104";
+}
+.ei-ac-faulty:before {
+    content: "\f105";
+}
+.ei-ac-heat:before {
+    content: "\f106";
+}
+.ei-ac-inactive:before {
+    content: "\f107";
+}
+.ei-action:before {
+    content: "\f108";
+}
+.ei-aircon:before {
+    content: "\f109";
+}
+.ei-area-light-o:before {
+    content: "\f10a";
+}
+.ei-area-light:before {
+    content: "\f10b";
+}
+.ei-area:before {
+    content: "\f10c";
+}
+.ei-arrow-left-right:before {
+    content: "\f10d";
+}
+.ei-billpoint:before {
+    content: "\f10e";
+}
+.ei-building-2:before {
+    content: "\f10f";
+}
+.ei-building:before {
+    content: "\f110";
+}
+.ei-bulb:before {
+    content: "\f111";
+}
+.ei-calendar-o:before {
+    content: "\f112";
+}
+.ei-climate:before {
+    content: "\f113";
+}
+.ei-clipboard-tick-o:before {
+    content: "\f114";
+}
+.ei-control:before {
+    content: "\f115";
+}
+.ei-device:before {
+    content: "\f116";
+}
+.ei-exit-o:before {
+    content: "\f117";
+}
+.ei-exit:before {
+    content: "\f118";
+}
+.ei-fail-c:before {
+    content: "\f119";
+}
+.ei-fail-o:before {
+    content: "\f11a";
+}
+.ei-fault:before {
+    content: "\f11b";
+}
+.ei-floor:before {
+    content: "\f11c";
+}
+.ei-floorplan:before {
+    content: "\f11d";
+}
+.ei-gateway:before {
+    content: "\f11e";
+}
+.ei-history:before {
+    content: "\f11f";
+}
+.ei-lamp-o:before {
+    content: "\f120";
+}
+.ei-lamp:before {
+    content: "\f121";
+}
+.ei-light-group-o:before {
+    content: "\f122";
+}
+.ei-map-marker-o:before {
+    content: "\f123";
+}
+.ei-monitor:before {
+    content: "\f124";
+}
+.ei-override:before {
+    content: "\f125";
+}
+.ei-pass-c:before {
+    content: "\f126";
+}
+.ei-pass-o:before {
+    content: "\f127";
+}
+.ei-power:before {
+    content: "\f128";
+}
+.ei-reorder:before {
+    content: "\f129";
+}
+.ei-router:before {
+    content: "\f12a";
+}
+.ei-schedule:before {
+    content: "\f12b";
+}
+.ei-search-outline:before {
+    content: "\f12c";
+}
+.ei-site:before {
+    content: "\f12d";
+}
+.ei-status:before {
+    content: "\f12e";
+}
+.ei-warning-c:before {
+    content: "\f12f";
+}
+.ei-warning-o:before {
+    content: "\f130";
+}

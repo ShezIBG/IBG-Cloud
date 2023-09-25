@@ -1,0 +1,20 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			SmoothPower Unit
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Serial No.</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.serial" readonly>
+				</div>
+			</div>
+		</div>
+		<entity-assignments [entity]="entity"></entity-assignments>
+	</div>
+</div>

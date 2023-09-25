@@ -1,0 +1,28 @@
+<div class="flex-parent-column fill">
+	<header>
+		<h4><i class="{{building.getIconClass()}}"></i> {{building.getDescription()}} <span *ngIf="building.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></h4>
+	</header>
+	<div class="jstree jstree-default flex-weight-1 scrollable p-0">
+		<ul class="jstree-container-ul">
+			<ng-template #recursive let-list>
+				<li *ngFor="let entity of list | tag:'assign-tree' | assignFilter | entitySort; last as isLast" class="{{entity.getScrollClass()}}" [ngClass]="{ 'jstree-node': true, 'jstree-open': isOpen(entity), 'jstree-closed': !isOpen(entity), 'jstree-leaf': !entity.assigned.length, 'jstree-last': isLast }">
+					<i class="jstree-icon jstree-ocl" (click)="toggleNode(entity)"></i>
+					<a class="jstree-anchor" [ngClass]="{ 'jstree-hovered': hover === entity, 'jstree-clicked': screen.treeEntity === entity }" (mouseenter)="hover = entity" (mouseleave)="hover = null" (click)="screen.selectTreeEntity(entity)">
+						<i class="jstree-icon jstree-themeicon jstree-themeicon-custom" [ngClass]="entity.getIconClass()"></i>
+						<ng-container *ngIf="(entity.type === 'floor') || !entity.assigned.length">
+							{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span>
+						</ng-container>
+						<ng-container *ngIf="(entity.type !== 'floor') && entity.assigned.length">
+							<strong>{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></strong>
+							<span class="subtitle">({{entity.assigned.length}})</span>
+						</ng-container>
+					</a>
+					<ul *ngIf="entity.assigned.length" class="jstree-children">
+						<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: entity.assigned }"></ng-container>
+					</ul>
+				</li>
+			</ng-template>
+			<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: building.assigned }"></ng-container>
+		</ul>
+	</div>
+</div>

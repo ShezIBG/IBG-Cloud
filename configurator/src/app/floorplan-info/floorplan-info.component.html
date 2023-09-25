@@ -1,0 +1,13 @@
+<div class="flex-parent-column">
+	<header>
+		<h4><i class="{{entity.getIconClass()}}"></i> {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></h4>
+	</header>
+	<div style="padding: 10px;">
+		<div *ngIf="entity.type === 'area'" class="checkbox checkbox-primary">
+			<label>
+				<input type="checkbox" [(ngModel)]="entity.custom_floorplan" (ngModelChange)="reloadArea()">
+				<span>Area-specific floorplan</span>
+			</label>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,28 @@
+#header {
+	background-color: #4a90e2;
+	background-image: none;
+}
+
+#module-nav ul li a {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+#module-nav ul li a:hover, #module-nav ul li a.active {
+	color: #fff;
+}
+
+.header-nav>ul>li>a {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.header-nav>ul>li.active>a, .header-nav>ul>li>a:hover {
+	color: #fff;
+}
+
+.btn-header-profile>.logout {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-header-profile>.logout:hover {
+	color: #fff;
+}

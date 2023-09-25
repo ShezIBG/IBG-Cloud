@@ -1,0 +1,172 @@
+<app-modal *ngIf="data" [modalTitle]="data.record.description" size="large" [buttons]="buttons" (event)="modalHandler($event)">
+	<ul class="nav nav-pills nav-pills-small">
+		<li [ngClass]="{ active: tab === 'details' }"><a (click)="setTab('details')">Details</a></li>
+		<li [ngClass]="{ active: tab === 'holds' }"><a (click)="setTab('holds')">Temporary holds <span *ngIf="data.holds.length" class="badge badge-danger">{{data.holds.length}}</span></a></li>
+		<li [ngClass]="{ active: tab === 'history' }"><a (click)="setTab('history')">History</a></li>
+	</ul>
+	<div *ngIf="tab === 'details'" class="container" style="min-height: 400px;">
+		<div class="row">
+			<div class="col-md-6">
+				<h3>Device Details</h3>
+				<table class="table vam">
+					<tbody>
+						<tr><th class="text-right shrink nowrap">Description</th><td>{{data.record.description}}</td></tr>
+
+						<tr *ngIf="data.info.manufacturer_description"><th class="text-right shrink nowrap">Manufacturer</th><td>{{data.info.manufacturer_description}}</td></tr>
+						<tr *ngIf="data.info.model_series"><th class="text-right shrink nowrap">Model</th><td>{{data.info.model_series}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Type</th><td>{{data.info.category}}</td></tr>
+
+						<tr><th class="text-right shrink nowrap">Building</th><td>{{data.location.building_description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Block</th><td>{{data.location.floor_description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Area</th><td>{{data.location.area_description}}</td></tr>
+
+						<tr>
+							<th class="text-right shrink nowrap">Schedule</th>
+							<td>
+								<select class="form-control" [(ngModel)]="data.record.weekly_schedule_id" (ngModelChange)="refreshButtons()">
+									<option [ngValue]="null">None</option>
+									<option *ngFor="let s of data.schedules" [ngValue]="s.id">{{s.description}}</option>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<h3>Current Status</h3>
+				<table class="table">
+					<tbody>
+						<tr>
+							<th class="text-right shrink nowrap">Status</th>
+							<td>{{data.record.ac_onoff === 1 ? 'On' : 'Off'}}</td>
+						</tr>
+						<tr *ngIf="data.record.ac_setpoint">
+							<th class="text-right shrink nowrap">Set point</th>
+							<td>{{data.record.ac_setpoint}} &deg;C</td>
+						</tr>
+						<tr *ngIf="data.record.ac_room_temp">
+							<th class="text-right shrink nowrap">Room temperature</th>
+							<td>{{data.record.ac_room_temp}} &deg;C</td>
+						</tr>
+						<tr *ngIf="data.record.ac_fanspeed">
+							<th class="text-right shrink nowrap">Fan speed</th>
+							<td>{{fanIndex[data.record.ac_fanspeed]?.desc}}</td>
+						</tr>
+						<tr *ngIf="data.record.ac_mode">
+							<th class="text-right shrink nowrap">Operation mode</th>
+							<td>{{modeIndex[data.record.ac_mode]?.desc}}</td>
+						</tr>
+						<tr *ngIf="data.record.ac_swing">
+							<th class="text-right shrink nowrap">Louvre position</th>
+							<td [innerHTML]="louvreIndex[data.record.ac_swing]?.desc"></td>
+						</tr>
+						<tr class="primary">
+							<th class="text-right shrink nowrap">Set point range</th>
+							<td *ngIf="data.record.min_setpoint && data.record.max_setpoint">{{data.record.min_setpoint}} - {{data.record.max_setpoint}} &deg;C</td>
+							<td *ngIf="data.record.min_setpoint && !data.record.max_setpoint">&gt; {{data.record.min_setpoint}} &deg;C</td>
+							<td *ngIf="!data.record.min_setpoint && data.record.max_setpoint">&lt; {{data.record.max_setpoint}} &deg;C</td>
+							<td *ngIf="!data.record.min_setpoint && !data.record.max_setpoint">Unlimited</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div *ngIf="data.holds.length && data.holds[0].active" class="row m-t-15">
+			<div class="col-md-12">
+				<p class="text-warning"><i class="md md-warning"></i> A hold is currently active on this device. Ends on {{data.holds[0].datetime_end | mySQLDateToISO | date:'shortDate'}} at {{data.holds[0].datetime_end | mySQLDateToISO | date:'shortTime'}}.</p>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="tab === 'holds'" class="container scrollable" style="height: 400px;">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-hover vam">
+					<thead>
+						<tr>
+							<th>Start</th>
+							<th>End</th>
+							<th class="text-center">Status</th>
+							<th class="text-center">Mode</th>
+							<th class="text-center">Fan speed</th>
+							<th class="text-center">Set point</th>
+							<th class="text-center">Louvre</th>
+							<th class="shrink"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let hold of data.holds" [ngClass]="{ warning: hold.active }">
+							<td>{{hold.datetime_start | mySQLDateToISO | date:'shortDate'}} {{hold.datetime_start | mySQLDateToISO | date:'shortTime'}}</td>
+							<td>{{hold.datetime_end | mySQLDateToISO | date:'shortDate'}} {{hold.datetime_end | mySQLDateToISO | date:'shortTime'}}</td>
+							<td class="text-center">{{hold.ac_onoff === null ? '' : (hold.ac_onoff ? 'On' : 'Off')}}</td>
+							<td class="text-center">{{hold.ac_mode === null ? '' : modeIndex[hold.ac_mode]?.desc}}</td>
+							<td class="text-center">{{hold.ac_fanspeed === null ? '' : fanIndex[hold.ac_fanspeed]?.desc}}</td>
+							<td class="text-center"><span *ngIf="hold.ac_setpoint">{{hold.ac_setpoint}} &deg;C</span></td>
+							<td class="text-center" [innerHTML]="hold.ac_swing === null ? '' : louvreIndex[hold.ac_swing]?.desc"></td>
+							<td class="text-center shrink nowrap"><a class="text-danger text-large" (click)="deleteHold(hold.id)"><i class="md md-delete"></i></a></td>
+						</tr>
+						<tr *ngIf="!data.holds.length && !newHold">
+							<td colspan="8">No scheduled holds for this device.</td>
+						</tr>
+						<tr *ngIf="!newHold">
+							<td colspan="8"><a class="text-success" (click)="addHold()"><i class="md md-add"></i> Add temporary hold</a></td>
+						</tr>
+						<tr *ngIf="newHold">
+							<td><p-calendar [(ngModel)]="newHold.datetime_start" dateFormat="dd/mm/yy" showTime="true" hourFormat="24" inputStyleClass="form-control" appendTo="body"></p-calendar></td>
+							<td><p-calendar [(ngModel)]="newHold.datetime_end" dateFormat="dd/mm/yy" showTime="true" hourFormat="24" inputStyleClass="form-control" appendTo="body"></p-calendar></td>
+							<td class="shrink"><p-inputSwitch [(ngModel)]="newHold.ac_onoff"></p-inputSwitch></td>
+							<td>
+								<select *ngIf="newHold.ac_onoff" class="form-control" style="width: auto;" [(ngModel)]="newHold.ac_mode">
+									<option *ngFor="let o of modeOptions" [ngValue]="o.id">{{o.desc}}</option>
+								</select>
+							</td>
+							<td>
+								<select *ngIf="newHold.ac_onoff" class="form-control" style="width: auto;" [(ngModel)]="newHold.ac_fanspeed">
+									<option *ngFor="let o of fanOptions" [ngValue]="o.id">{{o.desc}}</option>
+								</select>
+							</td>
+							<td>
+								<div *ngIf="newHold.ac_onoff" class="input-group" style="width: 100px;">
+									<input class="form-control text-right" [(ngModel)]="newHold.ac_setpoint">
+									<span class="input-group-addon">&deg;C</span>
+								</div>
+							</td>
+							<td>
+								<select *ngIf="newHold.ac_onoff" class="form-control" style="width: auto;" [(ngModel)]="newHold.ac_swing">
+									<option *ngFor="let o of louvreOptions" [ngValue]="o.id" [innerHTML]="o.desc"></option>
+								</select>
+							</td>
+							<td class="text-center shrink nowrap">
+								<a class="btn btn-primary btn-sm" (click)="saveHold()"><i class="md md-check"></i></a>
+							</td>
+						</tr>
+						<tr *ngIf="newHold">
+							<td colspan="8"><a class="text-danger" (click)="newHold = null"><i class="md md-close"></i> Cancel new temporary hold</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="tab === 'history'" class="container scrollable" style="height: 400px;">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Date/Time</th>
+							<th>User</th>
+							<th>Event</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of data.history">
+							<td>{{item.datetime | date:'shortDate'}} {{item.datetime | date:'shortTime'}}</td>
+							<td>{{item.user_name}}</td>
+							<td [innerHtml]="item.html"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</app-modal>

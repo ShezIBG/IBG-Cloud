@@ -1,0 +1,10 @@
+<app-mobile-building-header moduleName=""></app-mobile-building-header>
+
+<div *ngIf="moduleList" class="row">
+	<div *ngFor="let m of moduleList" class="col-xs-6 col-sm-4 col-md-3 col-lg-2 module-container">
+		<button *ngIf="m === 'electricity'" class="btn btn-primary" [routerLink]="[m]">Electricity</button>
+		<button *ngIf="m === 'control'" class="btn btn-primary" [routerLink]="[m]">Control</button>
+	</div>
+</div>
+
+<a href="/dashboard" class="btn btn-inverse btn-solid desktop">Go to desktop site</a>

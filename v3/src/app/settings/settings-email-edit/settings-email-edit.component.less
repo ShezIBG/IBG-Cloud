@@ -1,0 +1,28 @@
+.image-drop {
+	background: #ddd;
+	border: 5px dashed #bbb;
+	color: #bbb;
+	border-radius: 16px;
+	padding: 20px;
+	min-height: 100px;
+
+	&.active {
+		border-color: #3bafda;
+	}
+
+	span {
+		margin: 20px;
+		vertical-align: top;
+		display: inline-block;
+		text-align: center;
+
+		img {
+			max-width: 200px;
+			max-height: 200px;
+		}
+	}
+}
+
+.unsafe {
+	opacity: 0.5;
+}

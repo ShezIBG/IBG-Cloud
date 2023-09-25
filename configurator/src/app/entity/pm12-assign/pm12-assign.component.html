@@ -1,0 +1,43 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}: {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span>
+			<span *ngIf="screen.assignables.length" class="pull-right text-success" style="font-size:14px;">Assigning: {{screen.assignables[0].getDescription()}} <span *ngIf="screen.assignables[0].getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></span>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>CT pin</th>
+					<th>Description</th>
+					<th>Location</th>
+					<th>Assigned to</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let ct of entity.cts; let pin = index">
+					<tr *ngIf="ct?.isMainCT()" [ngClass]="{ 'bg-hover': hovered === pin }" (mouseenter)="hovered = pin" (mouseleave)="hovered = null">
+						<td>{{ct.getGroupedPin()}}</td>
+						<td>{{ct.getDescription()}} <span *ngIf="ct.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+						<td>{{ct.getGroupedLocation()}}</td>
+						<td *ngIf="ct.getAssignedTo().length">{{ct.getAssignedToInfo(ct.getAssignedTo()[0])}}</td>
+						<td *ngIf="!ct.getAssignedTo().length">&ndash;</td>
+						<td class="shrink">
+							<a *ngIf="ct.getAssignedTo().length" class="nowrap text-danger" (click)="ct.unassignFrom(ct.getAssignedTo()[0])"><i class="md md-remove-circle"></i> Unassign</a>
+							<a *ngIf="!ct.getAssignedTo().length && screen.assignables.length && ct.isAssignableTo(screen.assignables[0])" class="nowrap text-success" (click)="assignOne(ct)"><i class="md md-add-circle"></i> Assign</a>
+						</td>
+					</tr>
+					<tr *ngIf="!ct" [ngClass]="{ 'bg-hover': hovered === pin }" (mouseenter)="hovered = pin" (mouseleave)="hovered = null">
+						<td>{{pin + 1}}</td>
+						<td>&ndash;</td>
+						<td>&ndash;</td>
+						<td>&ndash;</td>
+						<td class="shrink"></td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+</div>

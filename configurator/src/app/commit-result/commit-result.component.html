@@ -1,0 +1,14 @@
+<app-modal modalTitle="Commit" [canClose]="false" [buttons]="buttons" (event)="modalHandler($event)">
+	<ng-container *ngIf="result.status === 'OK'">
+		<h3 class="text-success">Success</h3>
+		<p>{{result.message}}</p>
+	</ng-container>
+
+	<ng-container *ngIf="result.status !== 'OK'">
+		<h3 class="text-danger">Error</h3>
+		<p>{{result.message}}</p>
+		<pre style="overflow: auto; max-height: 300px;">{{result | json}}</pre>
+		<p *ngIf="!result.severe" class="text-warning"><i class="md md-warning"></i> You can close this window and try to commit your changes again.</p>
+		<p *ngIf="result.severe" class="text-danger"><i class="md md-error"></i> This is a serious error. You should not make any more changes to the building. Please notify the developers with the error log above.</p>
+	</ng-container>
+</app-modal>

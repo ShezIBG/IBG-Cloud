@@ -1,0 +1,37 @@
+.notification-container {
+	position: fixed;
+	z-index: 2000;
+	top: 20px;
+	right: 20px;
+	width: 400px;
+
+	.notification {
+		position: relative;
+		overflow: hidden;
+
+		opacity: 0;
+		max-height: 0;
+		margin-bottom: 0;
+		transition: max-height 0.5s, opacity 0.5s, margin 0.5s;
+
+		&.on {
+			opacity: 1;
+			max-height: 200px;
+			margin-bottom: 10px;
+		}
+	}
+
+	.notification-content {
+		padding: 20px 20px 20px 50px;
+
+		.icon {
+			position: absolute;
+			top: 9px;
+			left: 10px;
+			font-size: 32px;
+		}
+
+		.title { font-size: 1.2em; }
+		.message { margin-top: 10px; }
+	}
+}

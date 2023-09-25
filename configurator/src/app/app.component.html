@@ -1,0 +1,41 @@
+<!-- Show while the building is loading -->
+<div *ngIf="app.isLoading()" class="card-box m-t-15 m-l-15 m-r-15">
+	<h2>Configurator</h2>
+	Loading building...
+</div>
+
+<!-- Show if building has errors -->
+<div *ngIf="app.hasError()" class="card-box m-t-15 m-l-15 m-r-15">
+	<h2>Configurator</h2>
+	<h3 class="text-danger"><i class="md md-warning"></i> Error</h3>
+	<p>{{app.error}}</p>
+</div>
+
+<!-- Show if building has been loaded successfully -->
+
+<div *ngIf="app.isLoaded()" class="flex-parent-column fill">
+	<ul class="topnav bg-dark nav nav-pills nav-pills-small">
+		<li [ngClass]="{ active: app.selectedTab === 4 }"><a (click)="app.selectedTab = 4"><i class="md md-home"></i> Overview</a></li>
+		<li [ngClass]="{ active: app.selectedTab === 0 }"><a (click)="app.selectedTab = 0"><i class="ei ei-building"></i> Building Structure</a></li>
+		<li [ngClass]="{ active: app.selectedTab === 1 }"><a (click)="app.selectedTab = 1"><i class="ei ei-device"></i> Equipment</a></li>
+		<li [ngClass]="{ active: app.selectedTab === 5 }"><a (click)="app.selectedTab = 5"><i class="md md-grid-on"></i> Floor Plans</a></li>
+		<li [ngClass]="{ active: app.selectedTab === 2 }"><a (click)="app.selectedTab = 2"><i class="md md-link"></i> Assignments</a></li>
+		<li [ngClass]="{ active: app.selectedTab === 3 }" class="pull-right m-r-10">
+			<a (click)="app.selectedTab = 3">
+				<i class="md md-save"></i>
+				Commit Changes
+				<span *ngIf="commitAdded" class="badge badge-success">{{commitAdded}}</span>
+				<span *ngIf="commitModified" class="badge badge-warning">{{commitModified}}</span>
+				<span *ngIf="commitDeleted" class="badge badge-danger">{{commitDeleted}}</span>
+			</a>
+		</li>
+	</ul>
+	<app-overview *ngIf="app.selectedTab === 4" class="flex-weight-1"></app-overview>
+	<app-screen [hidden]="app.selectedTab !== 0" type="device" filter="structure" class="flex-weight-1"></app-screen>
+	<app-screen [hidden]="app.selectedTab !== 1" type="device" filter="equipment" class="flex-weight-1"></app-screen>
+	<app-screen [hidden]="app.selectedTab !== 2" type="assign" filter="assign" class="flex-weight-1"></app-screen>
+	<app-screen [hidden]="app.selectedTab !== 5" type="floorplan" filter="floorplan" class="flex-weight-1"></app-screen>
+	<commit-changes *ngIf="app.selectedTab === 3" class="flex-weight-1"></commit-changes>
+</div>
+
+<modal-loader></modal-loader>

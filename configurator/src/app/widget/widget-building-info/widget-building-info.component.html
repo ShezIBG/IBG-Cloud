@@ -1,0 +1,20 @@
+<div class="fill flex-parent-column">
+	<header class="text-center"><h3>Configurator <span class="subtitle">v1.0 beta</span></h3></header>
+	<div *ngIf="building" class="flex-weight-1 flex-parent-row">
+		<div class="flex-weight-1">
+			<div class="fill" style="top: 15%; left: 15%; bottom: 15%; right: 15%;">
+				<div class="fill" style="background:url('assets/img/eticom-pro-logo.png') center center no-repeat; background-size: contain;"></div>
+			</div>
+		</div>
+		<div class="flex-weight-1">
+			<div class="v-center">
+				<h3><i class="{{building.getIconClass()}}"></i> {{building.getDescription()}} <span class="subtitle">#{{building.data.id}}</span></h3>
+				<p>
+					{{building.data.address}}<br>
+					{{building.data.posttown}}<br>
+					{{building.data.postcode}}
+				</p>
+			</div>
+		</div>
+	</div>
+</div>

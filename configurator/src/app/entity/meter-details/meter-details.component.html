@@ -1,0 +1,439 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" (change)="removeWhitespace($event)" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="entity.meter_is_mid_approved">
+						<span>Meter is MID approved</span>
+					</label>
+				</div>
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="entity.monitoring_is_mid_approved">
+						<span>Monitoring setup is MID approved</span>
+					</label>
+				</div>
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="entity.is_visible">
+						<span>Meter is visible</span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Serial number</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.serial_number" (change)="serialChanged()">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="checkbox checkbox-primary" (mouseover)="showMessage(true)" (mouseleave)="showMessage(false)">
+					<label>
+						<input type="checkbox" [(ngModel)]="entity.is_supply_meter" disabled>
+						<span>Supply meter</span>
+					</label>
+				</div>
+				<div *ngIf="messageVisible" style="color:red;">Contact Developer to Activate</div>
+
+				<div class="form-group" *ngIf="entity.is_supply_meter">
+					<label>MPAN / MPRN</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.mpan" (change)="mpanChanged()">
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div *ngIf="entity.getAvailableParentMeters().length" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="entity.is_submeter">
+						<span>Sub-meter</span>
+					</label>
+				</div>
+				<div class="form-group" *ngIf="entity.is_submeter">
+					<label>Main meter</label>
+					<select class="form-control" [(ngModel)]="entity.data.parent_id" (ngModelChange)="entity.refresh()">
+						<option *ngFor="let parent of entity.getAvailableParentMeters()" [ngValue]="parent.data.id">{{getAreaDescription(parent)}} / {{parent.getDescription()}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Meter direction</label>
+					<select class="form-control" [(ngModel)]="entity.data.meter_direction">
+						<option value="import">Import</option>
+						<option value="export">Export</option>
+						<option value="import_export">Import/Export</option>
+						<option value="generation">Generation</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Monitoring bus type</label>
+					<select class="form-control" [(ngModel)]="entity.monitoring_bus_type" [disabled]="entity.data.monitoring_device_type !== 'none' || entity.hasCalculations">
+						<option *ngFor="let mbt of getMonitoringBusType()" [value]="mbt.value">{{mbt.value}}</option>
+					</select>
+					<p *ngIf="entity.data.monitoring_bus_type === 'mbus'" class="form-text">mbus (Wired & Wireless)</p>
+					<p *ngIf="entity.monitoring_bus_type === 'modbus'" class="form-text">modbus collector (NOT AWS) - no longer used</p>
+					<p *ngIf="entity.data.monitoring_bus_type === 'rs485'" class="form-text">rs485 collector</p>
+					<p *ngIf="entity.data.monitoring_bus_type === 'lora'" class="form-text">lora device to lora gateway</p>
+					<p *ngIf="entity.data.monitoring_bus_type === 'modbus_iot'" class="form-text">modbus (AWS version) - use for all modbus devices</p>
+					<p *ngIf="entity.data.monitoring_bus_type === 'simcard'" class="form-text">Iskra electric meter with WL sim</p>
+					<p *ngIf="entity.data.monitoring_bus_type === 'calculated'" class="form-text">calculated meters only</p>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Virtual area</label>
+					<select class="form-control" [(ngModel)]="entity.data.virtual_area_id" (ngModelChange)="entity.refresh()">
+						<option [ngValue]="null">Not virtualised</option>
+						<optgroup *ngFor="let floor of entity.entityManager.entities.floor | entitySort" label="{{floor.getDescription()}}">
+							<option *ngFor="let area of getAreas(floor) | entitySort" [ngValue]="area.data.id">{{area.getDescription()}}</option>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Reading unit</label>
+					<select class="form-control" [(ngModel)]="entity.data.unit">
+						<option *ngIf="['W', 'G'].indexOf(entity.data.meter_type) !== -1" value="m3">m3</option>
+						<option *ngIf="['W', 'G'].indexOf(entity.data.meter_type) !== -1" value="litres">litres</option>
+						<option *ngIf="['W', 'G'].indexOf(entity.data.meter_type) !== -1" value="ft3">ft3</option>
+						<option *ngIf="['E', 'H'].indexOf(entity.data.meter_type) !== -1" value="kWh">kWh</option>
+						<option *ngIf="['H'].indexOf(entity.data.meter_type) !== -1" value="btu">BTU</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Meter Install Date</label>
+					<p-calendar [(ngModel)]="entity.meter_install_date" dateFormat="dd/mm/yy" [showTime]="false" inputStyleClass="form-control" appendTo="body"></p-calendar>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Meter Install Time</label>
+					<input type="time" class="form-control" [(ngModel)]="entity.data.meter_install_time">
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Monitoring Start Date</label>
+					<p-calendar [(ngModel)]="entity.monitoring_start_date" dateFormat="dd/mm/yy" [showTime]="false" inputStyleClass="form-control" appendTo="body"></p-calendar>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div *ngIf="entity.data.monitoring_bus_type === 'lora'">
+						<label>Device EUI</label>
+						<input 
+							type="text" 
+							class="form-control" 
+							[(ngModel)]="entity.data.device_eui" 
+							(change)="deviceEUIChanged()" 
+							required
+							minlength="16"
+							maxlength="16"
+							pattern="[0-9A-Fa-f]{16}"
+						
+						>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div *ngIf="entity.data.monitoring_bus_type === 'modbus_iot'">
+						<label>Breakers</label>
+						<select class="form-control" [(ngModel)]="entity.data.breaker_id" (ngModelChange)="entity.refresh()">
+							<option [ngValue]="null">None</option>
+							<option *ngFor="let breaker of entity.entityManager.entities.breaker | entitySort" [ngValue]="breaker.data.id">{{ breaker.getLongDescription() }}</option>
+							<p *ngIf="entity.data.breaker_id === 'breaker.data.id'" class="form-text">{{  breaker.getLongDescription()  }}</p>
+						</select>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		<div *ngIf="entity.data.monitoring_bus_type === 'calculated' && entity.calculated_meter" class="row">
+			<div class="col-lg-12">
+				<table class="table vam">
+					<thead>
+						<tr>
+							<th>Meter calculations</th>
+							<th>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.data.operator" style="width: auto;">
+									<option *ngFor="let op of entity.calculated_meter.operators" [ngValue]="op.id">{{op.description}}</option>
+								</select>
+							</th>
+							<th class="shrink"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_a">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>Main meter</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_a = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_b">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_b = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_c">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_c = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_d">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_d = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_e">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_e = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_f">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_f = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_g">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_g = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_h">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_h = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_i">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_i = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_j">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_j = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+						<tr>
+							<td>
+								<select class="form-control" [(ngModel)]="entity.calculated_meter.meter_id_k">
+									<option [ngValue]="0">None</option>
+									<option *ngFor="let m of calculationMeters" [ngValue]="m.data.id">{{m.getDescription()}}</option>
+								</select>
+							</td>
+							<td>{{entity.calculated_meter.data.operator === 'add' ? 'Add' : 'Subtract'}}</td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="entity.calculated_meter.meter_id_k = 0"><i class="md md-clear"></i> Clear</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row" *ngIf="entity.data.monitoring_bus_type === 'lora' && entity.data.meter_type == 'E'">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div>
+						<label>Lora device type</label>
+						<select class="form-control" [(ngModel)]="entity.data.monitoring_device_type">
+							<option value="abb" selected>abb</option>
+						</select>
+						<!-- <ng-container *ngIf="entity.data.monitoring_device_type === 'abb'">
+							<p class="form-text">Eastron electric meter</p>
+						</ng-container>
+						<ng-container *ngIf="entity.data.monitoring_device_type === 'bmeter water meter iwm lr3'">
+							<p class="form-text">BMeter IWM-LR3 - pulse counter head (large)</p>
+						</ng-container>
+						<ng-container *ngIf="entity.data.monitoring_device_type === 'sensing labs pulse counter'">
+							<p class="form-text">Sensing Labs - pulse counter</p>
+						</ng-container>
+						<ng-container *ngIf="entity.data.monitoring_device_type === 'bmeter water meter rfm_lr1'">
+							<p class="form-text">BMeter RFM-LR1 - pulse counter head (small)</p>
+						</ng-container> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row" *ngIf="entity.data.monitoring_bus_type === 'lora' && entity.data.meter_type == 'W'|| entity.data.monitoring_bus_type === 'lora' && entity.data.meter_type == 'H' || entity.data.monitoring_bus_type === 'lora' && entity.data.meter_type == 'G' ">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div>
+						<label>Lora device type</label>
+
+						<select class="form-control" [(ngModel)]="entity.data.monitoring_device_type">
+							<option value="none" selected>None</option>
+							<option *ngFor="let device_lora of getMergedResult('lora'); trackBy: trackByFn" [value]="device_lora.desc">{{ device_lora.desc }}</option>
+						</select>
+						<!-- <ng-container *ngIf="entity.data.monitoring_device_type === 'abb'">
+							<p class="form-text">Eastron electric meter</p>
+						</ng-container>
+						<ng-container *ngIf="entity.data.monitoring_device_type === 'bmeter water meter iwm lr3'">
+							<p class="form-text">BMeter IWM-LR3 - pulse counter head (large)</p>
+						</ng-container>
+						<ng-container *ngIf="entity.data.monitoring_device_type === 'sensing labs pulse counter'">
+							<p class="form-text">Sensing Labs - pulse counter</p>
+						</ng-container>
+						<ng-container *ngIf="entity.data.monitoring_device_type === 'bmeter water meter rfm_lr1'">
+							<p class="form-text">BMeter RFM-LR1 - pulse counter head (small)</p>
+						</ng-container> -->
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row" *ngIf="entity.monitoring_bus_type === 'modbus_iot'">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div>
+						<label>Modbus IoT device type</label>
+						<select class="form-control" [(ngModel)]="entity.data.monitoring_device_type">
+							<option value="none" selected>None</option>
+							<option *ngFor="let device_modbus_iot of getMergedResult('modbus_iot')" [value]="device_modbus_iot.desc">{{ device_modbus_iot.desc }}</option>
+						</select>
+						<!-- <p *ngIf="entity.data.monitoring_device_type === 'modbus_iot_eastron_sdmv2_dt_4_0'" class="form-text">Eastron SDM630MCT-LoRa electric meter</p>
+						<p *ngIf="entity.data.monitoring_device_type === 'modbus_iot_eastron_quad_dt_1_0'" class="form-text">Eastron SDM630MCT-ML (3 Phase, Quad channel)</p>
+						<p *ngIf="entity.data.monitoring_device_type === 'modbus_iot_eastron_sdm230_dt_5_0'" class="form-text">Eastron SDM230 (single phase)</p> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row" *ngIf="entity.monitoring_bus_type === 'modbus'">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div >
+						<label>Modbus device type</label>
+						<!-- <input type="text" [(ngModel)]=""> -->
+						<select class="form-control" [(ngModel)]="entity.data.m_bus_type">
+							<option value="none" selected>None</option>
+							<option *ngFor="let device_modbus of getMergedResult('modbus')" [value]="device_modbus.desc">{{ device_modbus.desc }}</option>
+						</select>
+						<!-- <p *ngIf="entity.data.monitoring_device_type === 'abb'" class="form-text">Abb/Eastron</p>
+						<p *ngIf="entity.data.monitoring_device_type === 'marcom'" class="form-text">Marcom RS232 to RS485 converter</p> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div *ngIf="entity.data.monitoring_bus_type === 'rs485'">
+						<label>Rs485 device type</label>
+						<select class="form-control" [(ngModel)]="entity.data.monitoring_device_type">
+							<option value="none" selected>None</option>
+							<option *ngFor="let device_rs485 of getMergedResult('rs485')" [value]="device_rs485.desc">{{ device_rs485.desc }}</option>
+						</select>
+						<!-- <p *ngIf="entity.data.monitoring_device_type === 'direct'" class="form-text">direct connection to device</p> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div *ngIf="entity.data.monitoring_bus_type === 'simcard'">
+						<label>Simcard device type</label>
+						<select class="form-control" [(ngModel)]="entity.data.monitoring_device_type">
+							<option value="none" selected>None</option>
+							<option *ngFor="let device_simcard of getMergedResult('simcard')" [value]="device_simcard.desc">{{ device_simcard.desc }}</option>
+						</select>
+						<!-- <p *ngIf="entity.data.monitoring_device_type === 'direct'" class="form-text">direct connection Iskra AM550 Elec. meter</p> -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<div>
+						<label>Notes</label>
+						<textarea [(ngModel)]="entity.data.notes" class="form-control"></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<entity-assignments [entity]="entity"></entity-assignments>
+	</div>
+</div>

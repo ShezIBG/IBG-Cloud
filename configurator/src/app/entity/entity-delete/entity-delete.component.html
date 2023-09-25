@@ -1,0 +1,6 @@
+<ng-container *ngIf="entity?.canDelete()">
+	<button *ngIf="type === 'button'" (click)="entity.delete()" class="btn btn-danger pull-right"><i class="md md-delete"></i> Delete {{entity.getTypeDescription()}}</button>
+	<a *ngIf="type === 'link'" (click)="entity.delete()" class="text-danger" style="white-space:nowrap"><i class="md md-delete"></i> Delete</a>
+	<button *ngIf="type === 'toolbar'" (click)="entity.delete()" class="btn btn-danger pull-right"><i class="md md-delete"></i> Delete</button>
+	<a *ngIf="type === 'remove_link'" (click)="entity.delete()" class="text-danger" style="white-space:nowrap"><i class="md md-delete"></i> Remove</a>
+</ng-container>

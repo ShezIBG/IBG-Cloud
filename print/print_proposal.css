@@ -1,0 +1,251 @@
+body, html {
+	margin: 0;
+	padding: 0;
+	color: #534E46;
+}
+
+.pa { position: absolute; }
+.ib { display: inline-block; }
+.w100 { width: 100%; }
+
+.page {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	margin: 0;
+	width: 1024px;
+	height: 1449px;
+}
+
+.page {
+	padding: 40px;
+	page-break-after: always;
+}
+
+.page.cover {
+	padding: 0;
+}
+
+header {
+	position: relative;
+	padding-bottom: 8px;
+	margin-bottom: 40px;
+}
+
+header .logo {
+	display: inline-block;
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 300px;
+	height: 42px;
+}
+
+header h1.title {
+	display: inline-block;
+	position: absolute;
+	bottom: 4px;
+	right: 0;
+	font-weight: normal;
+}
+
+section.icon {
+	position: relative;
+	margin-left: 110px;
+}
+
+section .icon {
+	position: absolute;
+	left: -110px;
+	width: 72px;
+	height: 72px;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+footer {
+	font-size: 1.1em;
+	position: absolute;
+	bottom: 32px;
+	width: 944px;
+}
+
+footer .pageno {
+	float: right;
+}
+
+.svg {
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+.text-m { font-size: 1.2em; }
+
+table.vam td, table.vam th  { vertical-align: middle !important; }
+table.vab td, table.vab th  { vertical-align: bottom !important; }
+table.vatb td, table.vatb th  { vertical-align: baseline !important; }
+
+hr {
+	margin-top: 1px;
+	margin-bottom: 5px;
+	border-bottom: 1px solid #534E46;
+}
+
+/* This is a placeholder to see the column workaround for wkhtmltopdf */
+.col-text {
+	height: 1000px;
+	-webkit-columns: 0 0;
+	width: 50%;
+	-webkit-column-gap: 2em;
+}
+
+h1, h2, h3, h4, h5, h6 { font-weight: bold; }
+
+h1 { font-size: 1.7em; }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.4em; }
+h5 { font-size: 1.3em; }
+h6 { font-size: 1.2em; }
+
+h6 + hr { margin-top: -4px; }
+
+table.shrink th, table.shrink td, th.shrink, td.shrink { width: 1%; }
+
+.contact h6 { padding-bottom: 5px; }
+
+.intro h2 {
+	padding: 10px 20px;
+	background: #4E82A8;
+	color: #fff;
+	margin-bottom: 0;
+}
+
+.intro .custom-text {
+	padding: 20px;
+}
+
+.benefits .point {
+	color: #DFAC22;
+	font-weight: bold;
+}
+
+.benefits section + section {
+	margin-top: 40px;
+}
+
+.module .top-section {
+	margin-bottom: 32px;
+	overflow: hidden;
+}
+
+.module .mtable {
+	width: 100%;
+}
+
+.module .mtable td {
+	padding: 5px 10px;
+}
+
+.module .features-text > :last-child {
+	margin-bottom: 0 !important;
+}
+
+.summary h2 {
+	padding: 10px 20px;
+	background: #4e82a8;
+	color: #fff;
+	margin-bottom: 0;
+}
+
+.summary .custom-text {
+	padding: 20px;
+}
+
+.summary .table-container + .table-container {
+	margin-top: 50px;
+}
+
+.summary table td, .summary table th {
+	padding: 5px 15px;
+}
+
+.summary table.hardware td { border: 1px solid #4e82a8; }
+.summary table.hardware th { background: #4e82a8; color: #fff; font-weight: bold; }
+
+.summary table.hardware-total td { border: 1px solid #4e82a8; }
+.summary table.hardware-total th { background: #4e82a8; color: #fff; font-weight: bold; }
+
+.summary table.software td { border: 1px solid #8cb6cb; }
+.summary table.software th { background: #8cb6cb; color: #fff; font-weight: bold; }
+
+.summary table.software-total td { border: 1px solid #8cb6cb; }
+.summary table.software-total th { background: #8cb6cb; color: #fff; font-weight: bold; }
+
+.payment h2 {
+	padding: 10px 20px;
+	background: #4e82a8;
+	color: #fff;
+	margin-bottom: 0;
+}
+
+.payment .custom-text {
+	padding: 20px;
+}
+
+.terms h2 {
+	padding: 10px 20px;
+	background: #4e82a8;
+	color: #fff;
+	margin-bottom: 0;
+}
+
+.terms .custom-text {
+	padding: 20px;
+}
+
+.payback h2 {
+	padding: 10px 20px;
+	background: #F9C02D;
+	color: #fff;
+	margin-bottom: 0;
+}
+
+.payback .custom-text {
+	padding: 20px;
+}
+
+.accept h2 {
+	padding: 10px 20px;
+	background: #a9b719;
+	color: #fff;
+	margin-bottom: 0;
+}
+
+.accept table td {
+	padding: 10px 20px;
+	height: 50px;
+	border: 1px solid #534E46;
+}
+
+.accept .paybox {
+	display: inline-block;
+	text-align: right;
+	margin: 10px;
+}
+
+.accept .paybox .pay {
+	vertical-align: middle;
+	display: inline-block;
+	width: 170px;
+}
+
+.accept .paybox .box {
+	vertical-align: middle;
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	border: 1px solid #534E46;
+	margin-left: 10px;
+}

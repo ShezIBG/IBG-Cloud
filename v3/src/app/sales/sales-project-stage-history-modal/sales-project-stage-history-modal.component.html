@@ -1,0 +1,28 @@
+<app-modal modalTitle="Stage history" size="large" [buttons]="['0|Close']" (event)="modalHandler($event)">
+	<div style="height: 600px; overflow-y: auto;">
+		<table *ngIf="history !== null" class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th class="shrink nowrap">Date/time</th>
+					<th class="text-center">Stage</th>
+					<th>User</th>
+					<th>Notes</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of history">
+					<td class="shrink nowrap">{{item.datetime | mySQLDateToISO | date:'shortDate'}} {{item.datetime | mySQLDateToISO | date:'shortTime'}}</td>
+					<td class="text-center nowrap"><app-sales-project-stage-badge [stage]="item.stage"></app-sales-project-stage-badge></td>
+					<td>
+						{{item.user_name}}
+						<div *ngIf="item.user_email"><a href="mailto:{{item.user_email}}">{{item.user_email}}</a></div>
+					</td>
+					<td>{{item.notes}}</td>
+				</tr>
+				<tr *ngIf="!history.length">
+					<td colspan="4">No stage history.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</app-modal>

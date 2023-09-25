@@ -1,0 +1,58 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="form-group">
+					<label>Port</label>
+					<select type="text" class="form-control" [(ngModel)]="entity.data.port" [disabled]="!entity.isUnassigned()">
+						<option value="PON 1">PON 1</option>
+						<option value="PON 2">PON 2</option>
+						<option value="PON 3">PON 3</option>
+						<option value="PON 4">PON 4</option>
+						<option value="PON 5">PON 5</option>
+						<option value="PON 6">PON 6</option>
+						<option value="PON 7">PON 7</option>
+						<option value="PON 8">PON 8</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="form-group">
+					<label>ONU #</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.onuNumber" [disabled]="!entity.isUnassigned()">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Serial #</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.serial_no" disabled>
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="form-group">
+					<label>ONU Type</label>
+					<select class="form-control" [(ngModel)]="entity.data.type_id">
+						<option [ngValue]="null"></option>
+						<option *ngFor="let t of entity.entityManager.entities.onu_type" [ngValue]="t.data.id">{{t.getDescription()}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<entity-assignments [entity]="entity"></entity-assignments>
+	</div>
+</div>

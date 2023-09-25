@@ -1,0 +1,10 @@
+<app-modal modalTitle="Labour category details" [buttons]="buttons" (event)="modalHandler($event)">
+	<div *ngIf="data" class="form-horizontal">
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Description</label>
+			<div class="col-sm-9">
+				<input class="form-control" [(ngModel)]="data.details.description" appAutoFocus>
+			</div>
+		</div>
+	</div>
+</app-modal>

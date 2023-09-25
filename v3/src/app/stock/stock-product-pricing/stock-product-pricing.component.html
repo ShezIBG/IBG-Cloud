@@ -1,0 +1,51 @@
+<ng-container *ngIf="list">
+	<div class="card-box">
+		<div class="row">
+			<div class="col-md-6">
+				<a class="btn btn-primary" routerLink="/stock/product-config/pricing/new/{{app.selectedProductOwner}}"><i class="md md-add"></i> New pricing structure</a>
+			</div>
+			<div class="col-md-6">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="md md-search"></i></span>
+					<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card-box">
+		<p class="text-info">
+			<i class="md md-info"></i> Pricing structures are private and unique to the seller. They will never be shared with resellers.
+		</p>
+		<table class="table table-striped table-hover vam">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Description</th>
+					<th></th>
+					<th>Distribution price</th>
+					<th>Reseller price</th>
+					<th>Trade price</th>
+					<th>Retail price</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'description'] | count:count:'list'">
+					<td class="shrink">{{item.id}}</td>
+					<td class="text-primary selectable" [routerLink]="['/stock/product-config/pricing', item.id]">{{item.description}}</td>
+					<td>
+						<div *ngIf="item.product_count" class="subtitle">{{item.product_count}} {{item.product_count === 1 ? 'product' : 'products'}}</div>
+						<div *ngIf="item.subscription_count" class="subtitle">{{item.subscription_count}} {{item.subscription_count === 1 ? 'subscription' : 'subscriptions'}}</div>
+					</td>
+
+					<td *ngFor="let tier of ['distribution', 'reseller', 'trade', 'retail']">
+						<div *ngFor="let line of item[tier + '_info']" [innerHtml]="line"></div>
+					</td>
+				</tr>
+				<tr *ngIf="!count.list">
+					<td colspan="7">No pricing structures found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>

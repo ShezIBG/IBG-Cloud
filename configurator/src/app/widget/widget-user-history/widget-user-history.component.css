@@ -1,0 +1,14 @@
+span.change {
+	display: inline-block;
+	margin-right: 2px;
+	width: 10px;
+	height: 10px;
+}
+
+span.change.change-added { background: #A2B83A; }
+span.change.change-modified { background: #F7BC3B; }
+span.change.change-deleted { background: #E84F32; }
+span.change.change-none { background: #666; }
+
+table td { line-height: 1.9em !important; padding-top: 10px; padding-bottom: 10px; }
+table tr:first-child td { border-top: none !important; }

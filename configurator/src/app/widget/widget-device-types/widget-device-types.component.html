@@ -1,0 +1,19 @@
+<div class="flex-parent-column fill">
+	<header class="text-center"><h3>Device Types</h3></header>
+	<div *ngIf="types.length" class="flex-weight-1">
+		<div class="flex-parent-row fill widget-padding">
+			<div class="flex-weight-1">
+				<table class="table">
+					<tr *ngFor="let type of types; let index = index">
+						<td class="shrink"><span [ngStyle]="{ background: getChartColor(index) }" style="display: inline-block; width: 1em; height: 1em; border-radius: 50%;"></span></td>
+						<td>{{type.description}} &nbsp; <span class="text-white">{{type.count}}</span></td>
+					</tr>
+				</table>
+			</div>
+			<div class="flex-weight-1 padded">
+				<sparkline-chart class="fill" style="left: 10px; right: 10px; bottom: 20px;" [names]="names" [data]="values" [options]="{ type: 'pie' }"></sparkline-chart>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="!types.length" class="padded">No devices found.</div>
+</div>

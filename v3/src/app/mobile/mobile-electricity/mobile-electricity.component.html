@@ -1,0 +1,64 @@
+<app-mobile-building-header moduleName="electricity"></app-mobile-building-header>
+
+<ng-container *ngIf="data">
+	<select class="form-control m-b-20" [(ngModel)]="selectedTimePeriod" (ngModelChange)="reload()">
+		<option *ngFor="let tp of data.time_periods" [ngValue]="tp.id">{{tp.description}}</option>
+	</select>
+
+	<div class="card-box">
+		<h4>Overview</h4>
+		<hr>
+		<div class="row">
+			<div class="col-xs-6 text-center m-b-10">
+				<i class="eticon eticon-bolt text-large m-b-10 text-warning"></i>
+				<div class="text-small text-muted">Total power</div>
+				<b>{{data.overview_kwh | decimal:2:2:true}} kWh</b>
+			</div>
+			<div class="col-xs-6 text-center m-b-10">
+				<i class="eticon eticon-pound-sign text-large m-b-10 text-warning"></i>
+				<div class="text-small text-muted">Total cost</div>
+				<b>{{data.overview_cost | decimal:2:2:true:'GBP'}}</b>
+			</div>
+			<div class="col-xs-12 text-center">
+				<i class="eticon eticon-top-consumer text-large m-b-10 text-danger"></i>
+				<div class="text-small text-muted">Top consumer</div>
+				<b>{{data.overview_top_consumer || 'No data'}}</b>
+			</div>
+		</div>
+	</div>
+
+	<div class="card-box">
+		<h4>Your Electricity</h4>
+		<hr>
+		<table class="table table-hover vam text-small">
+			<thead>
+				<tr>
+					<th colspan="2">Category name</th>
+					<th class="text-right">kWh</th>
+					<th class="text-right">Cost</th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let category of data.your_electricity">
+					<tr class="selectable" (click)="expandedCategoryId = (expandedCategoryId !== category.category_id) ? category.category_id : null">
+						<td class="shrink p-r-0 p-l-5">
+							<i *ngIf="expandedCategoryId !== category.category_id" class="md md-chevron-right text-muted"></i>
+							<i *ngIf="expandedCategoryId === category.category_id" class="md md-expand-more text-muted"></i>
+						</td>
+						<td class="text-bold p-l-5">{{category.cat_desc}}</td>
+						<td class="text-right">{{category.kwh_used | decimal:2:2:true}}</td>
+						<td class="text-right">{{category.cost | decimal:2:2:true:'GBP'}}</td>
+					</tr>
+					<ng-container *ngIf="expandedCategoryId === category.category_id">
+						<tr *ngFor="let item of category.items" class="text-info">
+							<td class="shrink p-r-0 p-l-5"></td>
+							<td class="text-bold p-l-5">{{item.description}}</td>
+							<td class="text-right">{{item.kwh | decimal:2:2:true}}</td>
+							<td class="text-right">{{item.cost | decimal:2:2:true:'GBP'}}</td>
+						</tr>
+					</ng-container>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+</ng-container>

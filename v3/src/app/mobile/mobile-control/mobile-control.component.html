@@ -1,0 +1,38 @@
+<app-mobile-building-header moduleName="control"></app-mobile-building-header>
+
+<ng-container *ngIf="data">
+	<div class="card-box">
+		<h4>Building Status</h4>
+		<hr>
+		<table class="table vam no-top-border text-small">
+			<tbody>
+				<tr *ngFor="let item of data.device_statuses">
+					<td>{{item.description}}</td>
+					<td class="text-center"><b>{{item.status_on}}</b> <app-knx-output [knxValue]="item.on_knx"></app-knx-output></td>
+					<td class="text-center"><b>{{item.status_off}}</b> <app-knx-output [knxValue]="item.off_knx"></app-knx-output></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="card-box">
+		<h4>
+			List of Devices
+			<a class="btn btn-primary btn-sm pull-right" routerLink="devices">Devices</a>
+		</h4>
+		<hr>
+		<table class="table vam no-top-border text-small">
+			<tr *ngFor="let item of data.device_types; let index = index">
+				<td class="shrink">
+					<span *ngIf="item.icon_text" class="badge-icon" [style.background]="ChartjsComponent.getColor(index)">{{item.icon_text}}</span>
+					<span *ngIf="!item.icon_text" class="badge-icon" [style.background]="ChartjsComponent.getColor(index)"><i class="eticon eticon-plug"></i></span>
+				</td>
+				<td><b>{{item.description}}</b></td>
+				<td class="shrink text-right">{{item.item_count}}x</td>
+			</tr>
+		</table>
+		<div style="position: relative; height: 200px;">
+			<app-chartjs style="left: 40px; right: 40px; top: 20px; bottom: 40px;" [names]="typeNames" [data]="typeValues" [options]="typeOptions"></app-chartjs>
+		</div>
+	</div>
+</ng-container>

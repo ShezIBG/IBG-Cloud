@@ -1,0 +1,76 @@
+<app-modal *ngIf="data" [modalTitle]="data.record.description" size="large" [buttons]="buttons" (event)="modalHandler($event)">
+	<ul class="nav nav-pills nav-pills-small">
+		<li [ngClass]="{ active: tab === 'details' }"><a (click)="setTab('details')">Details</a></li>
+		<li [ngClass]="{ active: tab === 'history' }"><a (click)="setTab('history')">History</a></li>
+	</ul>
+	<div *ngIf="tab === 'details'" class="container" style="min-height: 400px;">
+		<div class="row">
+			<div class="col-md-6">
+				<h3>Device Details</h3>
+				<table class="table vam">
+					<tbody>
+						<tr><th class="text-right shrink nowrap">Description</th><td>{{data.record.description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Type</th><td>{{data.info.category}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Building</th><td>{{data.location.building_description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Block</th><td>{{data.location.floor_description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Area</th><td>{{data.location.area_description}}</td></tr>
+
+						<tr>
+							<th class="text-right shrink nowrap">Schedule</th>
+							<td>
+								<select class="form-control" [(ngModel)]="data.record.weekly_schedule_id" (ngModelChange)="refreshButtons()">
+									<option [ngValue]="null">None</option>
+									<option *ngFor="let s of data.schedules" [ngValue]="s.id">{{s.description}}</option>
+								</select>
+							</td>
+						</tr>
+
+						<tr>
+							<th class="text-right shrink nowrap">No. of Lights</th>
+							<td>
+								<input class="form-control text-right" style="width: 60px;" [(ngModel)]="data.record.no_of_lights" (ngModelChange)="refreshButtons()">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<h3>Current Status</h3>
+				<table class="table">
+					<tbody>
+						<tr>
+							<th class="text-right shrink nowrap">Status</th>
+							<td>{{data.record.light_onoff === 1 ? 'On' : 'Off'}}</td>
+						</tr>
+						<tr *ngIf="data.record.light_level !== null">
+							<th class="text-right shrink">Light level</th>
+							<td [innerHTML]="data.record.light_level"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="tab === 'history'" class="container scrollable" style="height: 400px;">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>Date/Time</th>
+							<th>User</th>
+							<th>Event</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of data.history">
+							<td>{{item.datetime | date:'shortDate'}} {{item.datetime | date:'shortTime'}}</td>
+							<td>{{item.user_name}}</td>
+							<td [innerHtml]="item.html"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</app-modal>

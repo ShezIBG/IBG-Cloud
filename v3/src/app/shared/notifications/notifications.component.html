@@ -1,0 +1,11 @@
+<div class="notification-container">
+	<div *ngFor="let item of list" class="card-box p-0 notification selectable" [ngClass]="{ on: item.shown }" (click)="item.remove()">
+		<div class="notification-content text-light bg-{{item.style}}">
+			<i class="icon md" [ngClass]="{ 'md-info': item.style === 'primary', 'md-error': item.style === 'danger', 'md-warning': item.style === 'warning', 'md-check': item.style === 'success' }"></i>
+			<div class="title">
+				{{item.title}}
+			</div>
+			<div *ngIf="item.message" class="message">{{item.message}}</div>
+		</div>
+	</div>
+</div>

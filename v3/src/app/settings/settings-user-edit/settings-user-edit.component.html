@@ -1,0 +1,193 @@
+<ng-container *ngIf="id === 'new' && emailCheck">
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="emailToValidate">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-9">
+					<button class="btn btn-primary pull-right" (click)="validateEmail()" [disabled]="disabled">Check email address</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+	</span>
+</ng-container>
+
+<div *ngIf="data && !data.access.data && !data.access.role" class="card-box">
+	<h2 class="text-danger">Access Denied</h2>
+	<p>You don't have permission to edit this user record.</p>
+	<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Go back</button>
+</div>
+
+<ng-container *ngIf="data && (data.access.data || data.access.role)">
+	<span class="pull-right">
+		<button *ngIf="!userId" class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>User details <span *ngIf="!data.access.data" class="subtitle">&nbsp; <i class="md md-lock"></i> Locked</span></h3>
+	<div *ngIf="data.access.data" class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.details.email_addr">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Full name</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.details.name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Mobile number</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.details.mobile_no">
+				</div>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="!data.access.data" class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.details.email_addr" readonly>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Full name</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.details.name" readonly>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<ng-container *ngIf="data.access.data && id === 'new'">
+		<h3>Password</h3>
+		<div class="card-box">
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">New password</label>
+					<div class="col-sm-4">
+						<input type="password" class="form-control" [(ngModel)]="data.details.new_password" autocomplete="new-password">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Confirm password</label>
+					<div class="col-sm-4">
+						<input type="password" class="form-control" [(ngModel)]="data.details.new_password_conf" autocomplete="new-password">
+					</div>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+
+	<ng-container *ngIf="data.access.data && id !== 'new'">
+		<h3>Change password</h3>
+		<div class="card-box">
+			<div class="form-horizontal">
+				<div *ngIf="data.current_user" class="form-group">
+					<label class="col-sm-4 control-label">Current password</label>
+					<div class="col-sm-4">
+						<!-- Burner field for autocomplete. Avoid pre-filling username to the wrong field. -->
+						<input type="text" style="width: 0; height: 0; margin: 0; padding: 0; border: none; opacity: 0; float: right;">
+						<input type="password" class="form-control" [(ngModel)]="data.details.password" autocomplete="current-password">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">New password</label>
+					<div class="col-sm-4">
+						<input type="password" class="form-control" [(ngModel)]="data.details.new_password" autocomplete="new-password">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Confirm password</label>
+					<div class="col-sm-4">
+						<input type="password" class="form-control" [(ngModel)]="data.details.new_password_conf" autocomplete="new-password">
+					</div>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+
+	<ng-container *ngIf="data.access.role">
+		<h3>Permissions</h3>
+		<div class="card-box">
+			<div class="row">
+				<div class="col-lg-10 col-lg-offset-1">
+					<button class="btn btn-primary pull-right" (click)="addLevel()" [disabled]="disabled"><i class="md md-add"></i> Add level</button>
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>Permission level</th>
+								<th>User role</th>
+								<th class="shrink"></th>
+								<th class="shrink"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let level of list" [ngClass]="{ success: level.level === highlightLevel && level.id === highlightId }">
+								<td [style.paddingLeft.px]="8 + level.depth" style="vertical-align: middle;"><i class="{{level.icon}}"></i>&nbsp; {{level.description}}</td>
+								<td>
+									<select class="form-control" [(ngModel)]="level.selected" (change)="refreshList()">
+										<optgroup *ngFor="let group of level.roles" label="{{group.group}}">
+											<option *ngFor="let role of group.items" [ngValue]="role.id">{{role.description}}</option>
+										</optgroup>
+									</select>
+								</td>
+								<td class="shrink nowrap" style="vertical-align: middle;"><a (click)="deleteLevel(level)"><i class="md md-delete"></i> Delete</a></td>
+								<td class="shrink nowrap text-center" style="vertical-align: middle;">
+									<span *ngIf="level.deleteFlag" class="badge badge-danger">Will be deleted</span>
+									<span *ngIf="!level.deleteFlag && level.original === null" class="badge badge-success">New</span>
+									<span *ngIf="!level.deleteFlag && level.original !== null && level.original !== level.selected" class="badge badge-warning">Changed</span>
+								</td>
+							</tr>
+							<tr *ngIf="list.length === 0">
+								<td colspan="4">No active user permissions.</td>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="deleteFlag" class="text-danger text-center"><i class="md md-warning"></i> Some permissions will be deleted automatically.<br>Once a user reaches admin level, their permissions cannot be restricted further.</p>
+					<table *ngIf="removed.length" class="table table-hover m-t-30">
+						<thead>
+							<tr>
+								<th class="text-danger">Deleted permissions</th>
+								<th class="text-danger">User role</th>
+								<th class="shrink"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let level of removed" [ngClass]="{ warning: level.level === highlightLevel && level.id === highlightId }">
+								<td><i class="{{level.icon}}"></i>&nbsp; {{level.description}}</td>
+								<td>
+									<ng-container *ngFor="let group of level.roles">
+										<ng-container *ngFor="let role of group.items">
+											<span *ngIf="level.selected === role.id">{{role.description}}</span>
+										</ng-container>
+									</ng-container>
+								</td>
+								<td class="shrink nowrap"><a (click)="undeleteLevel(level)"><i class="md md-undo"></i> Undo</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+
+	<button *ngIf="!userId && id !== 'new' && list.length" class="btn btn-danger" (click)="suspendUser()" [disabled]="disabled">Suspend user</button>
+	<span class="pull-right">
+		<button *ngIf="!userId" class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

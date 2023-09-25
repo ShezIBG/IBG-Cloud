@@ -1,0 +1,27 @@
+<app-modal *ngIf="data" [modalTitle]="'Testing ' + data.record.description" [buttons]="['0|Close']" (event)="modalHandler($event)">
+	<div class="container" style="min-height: 250px;">
+		<div class="row">
+			<div class="col-sm-12">
+				<p class="text-info"><i class="md md-info"></i> Starting a test run will automatically switch the light group on and off <b>every 15 seconds</b> for the duration of <b>10 minutes</b> as long as this window is open. Alternatively, you can manually switch the lights using the toggle button below.</p>
+				<p *ngIf="syncError" class="text-danger"><i class="md md-error"></i> {{syncError}}</p>
+				<p *ngIf="switchError" class="text-danger"><i class="md md-error"></i> {{switchError}}</p>
+				<p *ngIf="!isSynced" class="text-warning"><i class="md md-sync"></i> Schedules are being synced. Please wait...</p>
+				<hr>
+			</div>
+
+			<div class="col-sm-4 text-center">
+				<h4>Test control</h4>
+				<button *ngIf="!running" class="btn btn-primary" (click)="startTest()" [disabled]="!isSynced"><i class="md md-play-arrow"></i> Start Test</button>
+				<button *ngIf="running" class="btn btn-danger" (click)="stopTest()"><i class="md md-stop"></i> Stop Test</button>
+			</div>
+			<div class="col-sm-4 text-center">
+				<h4 class="m-b-15">Current light state</h4>
+				<p-inputSwitch [(ngModel)]="currentState"></p-inputSwitch>
+			</div>
+			<div class="col-sm-4 text-center">
+				<h4 class="m-b-15">Time left</h4>
+				{{Math.floor(secondsLeft / 60) | number:'2.0'}}:{{secondsLeft % 60 | number:'2.0'}}
+			</div>
+		</div>
+	</div>
+</app-modal>

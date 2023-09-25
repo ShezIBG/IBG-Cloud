@@ -1,0 +1,68 @@
+<div class="flex-parent-column fill">
+	<header class="p-0">
+		<ul class="nav nav-pills nav-pills-small">
+			<li *ngFor="let fp of floorPlans" [ngClass]="{ active: selectedFloorPlan === fp }"><a class="text-white" (click)="selectFloorPlan(fp)"><i class="{{fp.getIconClass()}}"></i> {{fp.getDescription()}}</a></li>
+			<li *ngIf="canAddFloorPlan()" [ngClass]="{ active: !selectedFloorPlan }"><a class="text-white" (click)="selectFloorPlan(null)"><i class="md md-add"></i> Floor Plan</a></li>
+		</ul>
+	</header>
+	<div *ngIf="selectedFloorPlan" class="flex-weight-1 p-0 floorplan-wrapper" style="background: #fff;">
+		<div class="fill" style="user-select:none;" #plan>
+			<div class="v-center">
+				<div class="floorplan-container">
+					<img src="{{selectedFloorPlan.getImageURL(app)}}" class="floorplan-image" style="width:100%;">
+					<ng-container *ngFor="let item of selectedFloorPlan.items">
+						<div *ngIf="item.type === 'floorplan_item'" (click)="iconClicked(item)" (mouseenter)="iconMouseEnter()" (mouseleave)="iconMouseLeave()" (mousedown)="iconMouseDown($event, item)" class="floorplan-icon" [ngClass]="{ 'bg-primary on-top': screen.detailEntity === item.getEntity(), locked: item.locked }" [style.top]="item.data.y + '%'" [style.left]="item.data.x + '%'" [style.transform]="'scale(' + (1 / scale) + ')'">
+							<i class="{{item.getIconClass()}}"></i>
+							<div *ngIf="item.isDirectional" class="direction" [ngStyle]="{ transform: 'rotate(' + item.data.direction + 'deg) translate(20px, 0px)' }"></div>
+						</div>
+					</ng-container>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="!selectedFloorPlan && canAddFloorPlan()">
+		<h4>Create new floor plan for {{entity.getDescription()}}</h4>
+		<p>Upload a new floor plan image and assign it to the current floor or area.</p>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="newDescription" desktopfocus>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Upload image file (.svg)</label>
+					<input type="file" class="form-control" #fileInput>
+				</div>
+			</div>
+		</div>
+		<button class="btn btn-success" [disabled]="newDisabled" (click)="createFloorPlan()"><i class="md md-add"></i> Create floor plan</button>
+		<hr>
+		<h4>Existing floor plans</h4>
+		<p>Assign or unassign an existing floor plan from the current floor or area.</p>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Description</th>
+					<th>Assigned To</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let fp of entity.entityManager.entities.floorplan | entitySort">
+					<td>{{fp.getDescription()}} <span *ngIf="fp.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+					<td>
+						<ng-container *ngFor="let assignment of fp.getAssignments()">
+							<div *ngIf="assignment.getEntity() as ae"><i class="{{ae.getIconClass()}}"></i> {{ae.getDescription()}}</div>
+						</ng-container>
+					</td>
+					<td class="shrink">
+						<a *ngIf="!getFloorPlanAssignment(fp)" class="nowrap text-success" (click)="assignFloorPlan(fp)"><i class="md md-add-circle"></i> Assign</a>
+						<a *ngIf="getFloorPlanAssignment(fp)" class="nowrap text-danger" (click)="unassignFloorPlan(fp)"><i class="md md-remove-circle"></i> Unassign</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -1,0 +1,32 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			Router
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>External IP address</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.ip_address">
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Phone number</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.phone_number">
+				</div>
+			</div>
+		</div>
+		<entity-assignments [entity]="entity"></entity-assignments>
+	</div>
+</div>

@@ -1,0 +1,272 @@
+[
+	{
+		"id": 1,
+		"name": "Network",
+		"items": [
+			{
+				"entity": "router",
+				"description": "Router"
+			},
+			{
+				"entity": "building_server",
+				"description": "Building Server",
+				"router_id": null,
+				"active": 1
+			}
+		]
+	},
+	{
+		"id": 2,
+		"name": "Meters",
+		"items": [
+			{
+				"entity": "gateway",
+				"description": "RS-485 Collector",
+				"pi_serial": "00000000",
+				"type": "RS32"
+			},
+			{
+				"entity": "gateway",
+				"description": "MarCom Collector",
+				"pi_serial": "00000000",
+				"type": "MAR10"
+			},
+			{
+				"entity": "meter",
+				"description": "Electricity Meter",
+				"is_supply_meter": 1,
+				"meter_direction": "import",
+				"meter_is_mid_approved": 1,
+				"meter_type": "E",
+				"monitoring_bus_type": "none",
+				"monitoring_device_type": "none",
+				"unit": "kWh",
+				"virtual_area_id": null
+			},
+			{
+				"entity": "meter",
+				"description": "Gas Meter",
+				"is_supply_meter": 1,
+				"meter_direction": "import",
+				"meter_is_mid_approved": 1,
+				"meter_type": "G",
+				"monitoring_bus_type": "none",
+				"monitoring_device_type": "none",
+				"unit": "m3",
+				"virtual_area_id": null
+			},
+			{
+				"entity": "meter",
+				"description": "Water Meter",
+				"is_supply_meter": 1,
+				"meter_direction": "import",
+				"meter_is_mid_approved": 1,
+				"meter_type": "W",
+				"monitoring_bus_type": "none",
+				"monitoring_device_type": "none",
+				"unit": "m3",
+				"virtual_area_id": null
+			},
+			{
+				"entity": "meter",
+				"description": "Heat Meter",
+				"is_supply_meter": 1,
+				"meter_direction": "import",
+				"meter_is_mid_approved": 1,
+				"meter_type": "H",
+				"monitoring_bus_type": "none",
+				"monitoring_device_type": "none",
+				"unit": "kWh",
+				"virtual_area_id": null
+			},
+			{
+				"entity": "gateway",
+				"description": "M-Bus Collector",
+				"pi_serial": "00000000",
+				"type": "MB30"
+			},
+			{
+				"entity": "mbus_master",
+				"active": 1,
+				"description": "M-Bus Master"
+			}
+		]
+	},
+	{
+		"id": 3,
+		"name": "Distribution Boards",
+		"items": [
+			{
+				"entity": "dist_board",
+				"board_type": 12,
+				"description": "1-phase DB",
+				"device_type": "dist_board",
+				"feed_breaker_id": null,
+				"is_virtual": 0,
+				"location": "L1",
+				"ways": 1
+			},
+			{
+				"entity": "dist_board",
+				"board_type": 3,
+				"description": "3-phase DB",
+				"device_type": "dist_board",
+				"feed_breaker_id": null,
+				"is_virtual": 0,
+				"location": "L1,2,3",
+				"ways": 1
+			},
+			{
+				"entity": "dist_board",
+				"board_type": 12,
+				"description": "Virtual DB",
+				"device_type": "dist_board",
+				"is_virtual": 1,
+				"location": "L1",
+				"ways": 1
+			}
+		]
+	},
+	{
+		"id": 4,
+		"name": "Electricity",
+		"items": [
+			{
+				"entity": "gateway",
+				"description": "PM12 Collector",
+				"pi_serial": "00000000",
+				"type": "EC10"
+			},
+			{
+				"entity": "gateway",
+				"description": "ABB Collector",
+				"pi_serial": "00000000",
+				"type": "ABB10"
+			},
+			{
+				"entity": "pm12",
+				"active": 1,
+				"description": "PM12 Power Monitor",
+				"location": "L1",
+				"modbus_id": 0,
+				"phase": "12"
+			},
+			{
+				"entity": "abb_meter",
+				"active": 1,
+				"bus_type": "modbus",
+				"description": "1P ABB Meter",
+				"location": "L1",
+				"modbus_id": 0,
+				"phase": "12"
+			},
+			{
+				"entity": "abb_meter",
+				"active": 1,
+				"bus_type": "modbus",
+				"description": "3P ABB Meter",
+				"location": "L1,2,3",
+				"modbus_id": 0,
+				"phase": "3"
+			},
+			{
+				"entity": "smoothpower"
+			}
+		]
+	},
+	{
+		"id": 6,
+		"name": "Emergency Lighting",
+		"add": [
+			"em_light"
+		],
+		"items": [
+			{
+				"entity": "gateway",
+				"description": "DALI Collector",
+				"pi_serial": "00000000",
+				"type": "DLC64"
+			}
+		]
+	},
+	{
+		"id": 7,
+		"name": "Fibre",
+		"items": [
+			{
+				"entity": "hes",
+				"description": "Headend Server",
+				"router_id": null,
+				"active": 0
+			},
+			{
+				"entity": "olt",
+				"description": "OLT",
+				"hes_id": 0,
+				"serial_number": "",
+				"active": 0,
+				"discovery": true
+			}
+		]
+	},
+	{
+		"id": 8,
+		"name": "Climate",
+		"items": [
+			{
+				"entity": "coolhub",
+				"description": "CooLinkHub",
+				"building_server_id": null,
+				"active": 1
+			},
+			{
+				"entity": "coolplug",
+				"description": "CoolPlug",
+				"line": "L2",
+				"coolhub_id": 0,
+				"coolplug_id": 0,
+				"model_series_id": null,
+				"active": 1
+			}
+		]
+	},
+	{
+		"id": 9,
+		"name": "Relay",
+		"items": [
+			{
+				"entity": "relay_device",
+				"description": "Relay Device",
+				"building_server_id": null,
+				"serial_number": "",
+				"local_ip_address": "",
+				"active": 1
+			},
+			{
+				"entity": "relay_end_device",
+				"description": "Relay End Device",
+				"category": "Device",
+				"category_icon": "D",
+				"state_pin_id": null,
+				"isolator_pin_id": null
+			}
+		]
+	},
+	{
+		"id": 10,
+		"name": "Lighting",
+		"items": [
+			{
+				"entity": "dali_light",
+				"ve_subnet_id": 1,
+				"dali_id": 0,
+				"building_server_id": null,
+				"description": "DALI Light",
+				"category": "Lights",
+				"category_icon": "",
+				"no_of_lights": 1,
+				"active": 1
+			}
+		]
+	}
+]

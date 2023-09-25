@@ -1,0 +1,7 @@
+{
+    "clientId": "AA15D8E97B0245EE8F4A3DFC741E880E",
+    "authorizationUrl": "YOUR_AUTHORIZATION_URL",
+    "callbackUrl": "YOUR_CALLBACK_URL",
+    "scope": "YOUR_SCOPE",
+    "state": "YOUR_STATE"
+}

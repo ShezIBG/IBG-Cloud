@@ -1,0 +1,82 @@
+<app-modal modalTitle="Clone product" [buttons]="['0|Cancel', '1|*Save and clone product']" (event)="modalHandler($event)">
+	<div *ngIf="options" class="form-horizontal">
+		<div class="form-group">
+			<label class="col-sm-3 control-label">SKU</label>
+			<div class="col-sm-8">
+				<input class="form-control" [(ngModel)]="options.sku">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Model</label>
+			<div class="col-sm-8">
+				<input class="form-control" [(ngModel)]="options.model">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Short description</label>
+			<div class="col-sm-8">
+				<input class="form-control" [(ngModel)]="options.short_description">
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Long description</label>
+			<div class="col-sm-8">
+				<textarea rows="5" class="form-control" [(ngModel)]="options.long_description"></textarea>
+			</div>
+		</div>
+		<hr>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Options</label>
+			<div class="col-sm-8">
+				<div *ngIf="options.allowed.accessories" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.accessories">
+						<span>Copy accessories</span>
+					</label>
+				</div>
+				<div *ngIf="options.allowed.alternatives" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.alternatives">
+						<span>Copy alternative products</span>
+					</label>
+				</div>
+				<div *ngIf="options.allowed.bom" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.bom">
+						<span>Copy bill of materials</span>
+					</label>
+				</div>
+				<div *ngIf="options.allowed.bundle" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.bundle">
+						<span>Copy bundle options</span>
+					</label>
+				</div>
+				<div *ngIf="options.allowed.placeholders" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.placeholders">
+						<span>Copy placeholder items</span>
+					</label>
+				</div>
+				<div *ngIf="options.allowed.labour" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.labour">
+						<span>Copy labour</span>
+					</label>
+				</div>
+				<div *ngIf="options.allowed.subscription" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.subscription">
+						<span>Copy subscriptions</span>
+					</label>
+				</div>
+				<div *ngIf="options.allowed.warehouses" class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="options.clone.warehouses">
+						<span>Copy warehouse settings</span>
+					</label>
+				</div>
+			</div>
+		</div>
+	</div>
+</app-modal>

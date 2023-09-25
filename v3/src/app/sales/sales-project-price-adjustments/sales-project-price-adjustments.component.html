@@ -1,0 +1,75 @@
+<ng-container *ngIf="data">
+	<div *ngIf="!editable" class="alert alert-info">
+		<i class="md md-info"></i> Shown in view only mode. Projects can only be edited in the <b>Lead</b> or <b>Survey</b> stage.
+	</div>
+
+	<span *ngIf="editable" class="pull-right">
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Update</button>
+	</span>
+
+	<h3>Product price adjustments</h3>
+	<div class="card-box">
+		<p class="text-info">
+			<i class="md md-info"></i> Adjustments only apply to product prices. Labour and subscriptions will not be affected.
+		</p>
+		<table class="table vam">
+			<thead>
+				<tr>
+					<th>Product</th>
+					<th>Description</th>
+					<th class="text-right">QTY</th>
+					<th class="text-right">Cost</th>
+					<th class="text-right">Price</th>
+					<th class="text-right">Margin</th>
+					<th colspan="2" class="shrink">Adjustment</th>
+					<th class="text-right">Adj. Price</th>
+					<th class="text-right">Adj. Margin</th>
+					<th class="text-right">Adj. Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let system of systems">
+					<tr class="info">
+						<th colspan="11"><h3>{{system.description}}</h3></th>
+					</tr>
+					<tr *ngFor="let item of system.items" [ngClass]="{ success: !!item.type && item.unit_price >= item.base_unit_price, danger: !!item.type && item.unit_price < item.base_unit_price }">
+						<td>
+							<div><b>{{item.sku}}</b></div>
+							<div class="text-small">{{item.model}}</div>
+						</td>
+						<td>{{item.short_description}}</td>
+						<td class="text-right">{{item.quantity | decimal:0:4:true}}</td>
+						<td class="text-right">{{item.unit_cost | decimal:2:2:true:'GBP'}}</td>
+						<td class="text-right">{{item.base_unit_price | decimal:2:2:true:'GBP'}}</td>
+						<td class="text-right">{{item.margin | decimal:2:2}}%</td>
+						<td class="shrink">
+							<select class="form-control" style="width: auto;" [(ngModel)]="item.type" (change)="recalculate(item)" [disabled]="!editable">
+								<option [ngValue]="null">None</option>
+								<optgroup label="Applied to unit price">
+									<option value="fixed_price">Fixed price &pound;</option>
+									<option value="adjustment_percentage">Adjustment %</option>
+									<option value="adjustment_pounds">Adjustment &pound;</option>
+								</optgroup>
+								<optgroup label="Applied to unit cost">
+									<option value="fixed_markup">Fixed markup %</option>
+									<option value="fixed_margin">Fixed margin %</option>
+									<option value="fixed_profit">Fixed profit &pound;</option>
+								</optgroup>
+							</select>
+						</td>
+						<td class="shrink">
+							<input *ngIf="item.type !== null" class="form-control text-right" style="width: 120px;" [(ngModel)]="item.amount" (input)="recalculate(item)" (change)="format(item)" [disabled]="!editable">
+						</td>
+						<td class="text-right">{{item.unit_price | decimal:2:2:true:'GBP'}}</td>
+						<td class="text-right">{{margin(item.unit_price, item.unit_cost) | decimal:2:2}}%</td>
+						<td class="text-right">{{item.unit_price * item.quantity | decimal:2:2:true:'GBP'}}</td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+
+	<span *ngIf="editable" class="pull-right">
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Update</button>
+	</span>
+</ng-container>

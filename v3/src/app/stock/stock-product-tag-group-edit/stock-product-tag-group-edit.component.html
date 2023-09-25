@@ -1,0 +1,84 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Tag group name</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Tag colour</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.colour">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3>Tags</h3>
+	<div class="card-box">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<button class="btn btn-primary pull-right" (click)="addTag()" [disabled]="disabled"><i class="md md-add"></i> Add tag</button>
+					<table class="table vam">
+						<thead>
+							<tr>
+								<th>Tag Name</th>
+								<th class="shrink"></th>
+								<th class="shrink"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let tag of tags" [ngClass]="{ success: highlightedTag === tag }">
+								<td><input class="form-control" [(ngModel)]="tag.name" (input)="tag.modified = true"></td>
+								<td class="shrink">
+									<span *ngIf="tag.id === 'new'" class="text-success">New</span>
+									<span *ngIf="tag.id !== 'new' && tag.modified" class="text-warning">Modified</span>
+								</td>
+								<td class="shrink nowrap">
+									<span *ngIf="tag.product_count !== 0 && tag.id !== 'new'" class="subtitle">{{tag.product_count}} {{tag.product_count === 1 ? 'product' : 'products'}}</span>
+									<a *ngIf="tag.product_count === 0 || tag.id === 'new'" class="text-danger" (click)="deleteTag(tag)"><i class="md md-delete"></i> Delete</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div *ngIf="deletedTags.length" class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<h2 class="text-danger">Deleted tags</h2>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Tag Name</th>
+								<th class="shrink"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let tag of deletedTags" [ngClass]="{ warning: highlightedTag === tag }">
+								<td>{{tag.name}}</td>
+								<td class="shrink nowrap">
+									<a class="text-danger" (click)="undeleteTag(tag)"><i class="md md-undo"></i> Undo</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<button *ngIf="id !== 'new' && !productCount" class="btn btn-danger" (click)="delete()" [disabled]="disabled">Delete</button>
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

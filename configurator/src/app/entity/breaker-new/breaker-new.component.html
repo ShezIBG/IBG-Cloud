@@ -1,0 +1,19 @@
+<app-modal modalTitle="Add breaker" subtitle=" &ndash; {{data.short_description}}" [buttons]="['Cancel', '*OK']" (event)="modalHandler($event)">
+	<div class="row">
+		<div class="col-lg-8">
+			<div class="form-group">
+				<label>Description</label>
+				<input type="text" class="form-control" [(ngModel)]="data.long_description" autofocus>
+			</div>
+		</div>
+		<div class="col-lg-4">
+			<div class="form-group">
+				<label>AMP Rating</label>
+				<select type="text" class="form-control" [(ngModel)]="data.amp_rating">
+					<option value="">N/A</option>
+					<option *ngFor="let amp of app.ampList" [ngValue]="amp">{{amp}} AMP</option>
+				</select>
+			</div>
+		</div>
+	</div>
+</app-modal>

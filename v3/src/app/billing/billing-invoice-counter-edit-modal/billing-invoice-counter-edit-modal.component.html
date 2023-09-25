@@ -1,0 +1,18 @@
+<app-modal modalTitle="Edit invoice counter" [buttons]="['0|Cancel', '1|*Update counter']" (event)="modalEvent($event)">
+	<div *ngIf="record" class="form-horizontal">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Last invoice number</label>
+			<div class="col-sm-3">
+				<input class="form-control" [(ngModel)]="record.last_no" appAutoFocus>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Next invoice number</label>
+			<div class="col-sm-3">
+				<input class="form-control" [ngModel]="nextNo" readonly>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="record && lastNo < originalLastNo" class="alert alert-danger m-t-20 m-b-0"><i class="md md-warning"></i> Setting it to a number below {{originalLastNo}} will produce duplicate invoice numbers.</div>
+</app-modal>

@@ -1,0 +1,289 @@
+<app-modal *ngIf="data" [modalTitle]="data.light.description" [icon]="data.light.type_icon" size="large" [buttons]="['Close']" (event)="modalHandler($event)">
+	<ul class="nav nav-pills nav-pills-small">
+		<li [ngClass]="{ active: tab === 'details' }"><a (click)="setTab('details')">Details</a></li>
+		<li *ngIf="data.light.floorplan_id" [ngClass]="{ active: tab === 'location' }"><a (click)="setTab('location')">Location</a></li>
+		<li [ngClass]="{ active: tab === 'history' }"><a (click)="setTab('history')">History</a></li>
+		<li [ngClass]="{ active: tab === 'repair' }"><a (click)="setTab('repair')">Repairs and Schedule</a></li>
+	</ul>
+	<div *ngIf="tab === 'details'" class="container">
+		<div class="row">
+			<div class="col-md-6">
+				<h3>Light Details</h3>
+				<table class="table">
+					<tbody>
+						<tr><th class="text-right shrink">Description</th><td>{{data.light.description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Zone No.</th><td>{{data.light.zone_number}}</td></tr>
+						<tr><th class="text-right shrink nowrap">DALI Address</th><td>{{data.light.dali_address}}</td></tr>
+						<tr>
+							<th class="text-right shrink">Group</th>
+							<td *ngIf="data.light.group_id">{{data.light.group_description}}</td>
+							<td *ngIf="!data.light.group_id" class="text-warning"><i class="md md-warning"></i> Unassigned</td>
+						</tr>
+						<tr><th class="text-right shrink">Type</th><td>{{data.light.type_description}}</td></tr>
+						<tr><th class="text-right shrink">Area</th><td>{{data.light.area_description}}<br>{{data.light.floor_description}}<br>{{data.light.building_description}}</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<h3>Current Status</h3>
+				<table class="table">
+					<tbody>
+						<tr>
+							<th class="text-right shrink">Circuit</th>
+							<td class="shrink"><i class="status-icon md md-memory"></i></td>
+							<ng-container [ngSwitch]="data.light.circuit_failure">
+								<td *ngSwitchCase="-1" class="text-danger">Fail</td>
+								<td *ngSwitchCase="0" class="text-warning">Unknown</td>
+								<td *ngSwitchCase="1" class="text-success">Pass</td>
+							</ng-container>
+						</tr>
+						<tr>
+							<th class="text-right shrink nowrap">Battery Duration</th>
+							<td><i class="status-icon md md-timelapse"></i></td>
+							<ng-container [ngSwitch]="data.light.battery_duration_failure">
+								<td *ngSwitchCase="-1" class="text-danger">Fail</td>
+								<td *ngSwitchCase="0" class="text-warning">Unknown</td>
+								<td *ngSwitchCase="1" class="text-success">Pass</td>
+							</ng-container>
+						</tr>
+						<tr>
+							<th class="text-right shrink">Battery</th>
+							<td><i class="status-icon md md-battery-alert"></i></td>
+							<ng-container [ngSwitch]="data.light.battery_failure">
+								<td *ngSwitchCase="-1" class="text-danger">Fail</td>
+								<td *ngSwitchCase="0" class="text-warning">Unknown</td>
+								<td *ngSwitchCase="1" class="text-success">Pass</td>
+							</ng-container>
+						</tr>
+						<tr>
+							<th class="text-right shrink nowrap">Emergency Lamp</th>
+							<td><i class="status-icon ei ei-control"></i></td>
+							<ng-container [ngSwitch]="data.light.emergency_lamp_failure">
+								<td *ngSwitchCase="-1" class="text-danger">Fail</td>
+								<td *ngSwitchCase="0" class="text-warning">Unknown</td>
+								<td *ngSwitchCase="1" class="text-success">Pass</td>
+							</ng-container>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<h3>Latest Tests</h3>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Test Type</th>
+
+							<th>Date/Time</th>
+							<th></th>
+
+							<th class="text-center">Test Status</th>
+							<th class="shrink text-center" title="Circuit failure"><i class="status-icon md md-memory"></i></th>
+							<th class="shrink text-center" title="Battery duration failure"><i class="status-icon md md-timelapse"></i></th>
+							<th class="shrink text-center" title="Battery failure"><i class="status-icon md md-battery-alert"></i></th>
+							<th class="shrink text-center" title="Emergency lamp failure"><i class="status-icon ei ei-control"></i></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Function Test</td>
+
+							<td *ngIf="data.light.function_test_finished_datetime">{{data.light.function_test_finished_datetime | mySQLDateToISO | date:'shortDate'}} {{data.light.function_test_finished_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+							<td *ngIf="!data.light.function_test_finished_datetime" class="text-warning"><i class="md md-warning"></i> Never</td>
+
+							<td *ngIf="data.light.function_test_age" [ngClass]="{ 'text-warning': !data.light.function_test_age_ok }"><i *ngIf="!data.light.function_test_age_ok" class="md md-warning"></i> {{data.light.function_test_age}}
+								<span *ngIf="data.light.function_test_age === 1">day ago</span>
+								<span *ngIf="data.light.function_test_age !== 1">days ago</span>
+							</td>
+							<td *ngIf="!data.light.function_test_age"></td>
+
+							<td class="text-center"><i class="{{getFlagIconClass(data.light.function_test_status)}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.function_test_status !== 0 ? data.light.ft_circuit_failure : null, 'md md-memory')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.function_test_status !== 0 ? data.light.ft_battery_duration_failure : null, 'md md-timelapse')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.function_test_status !== 0 ? data.light.ft_battery_failure : null, 'md md-battery-alert')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.function_test_status !== 0 ? data.light.ft_emergency_lamp_failure : null, 'ei ei-control')}}"></i></td>
+						</tr>
+						<tr>
+							<td>Duration Test</td>
+
+							<td *ngIf="data.light.duration_test_finished_datetime">{{data.light.duration_test_finished_datetime | mySQLDateToISO | date:'shortDate'}} {{data.light.duration_test_finished_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+							<td *ngIf="!data.light.duration_test_finished_datetime" class="text-warning"><i class="md md-warning"></i> Never</td>
+
+							<td *ngIf="data.light.duration_test_age" [ngClass]="{ 'text-warning': !data.light.duration_test_age_ok }"><i *ngIf="!data.light.duration_test_age_ok" class="md md-warning"></i> {{data.light.duration_test_age}}
+								<span *ngIf="data.light.duration_test_age === 1">day ago</span>
+								<span *ngIf="data.light.duration_test_age !== 1">days ago</span>
+							</td>
+							<td *ngIf="!data.light.duration_test_age"></td>
+
+							<td class="text-center"><i class="{{getFlagIconClass(data.light.duration_test_status)}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.duration_test_status !== 0 ? data.light.dt_circuit_failure : null, 'md md-memory')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.duration_test_status !== 0 ? data.light.dt_battery_duration_failure : null, 'md md-timelapse')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.duration_test_status !== 0 ? data.light.dt_battery_failure : null, 'md md-battery-alert')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getNullFlagIconClass(data.light.duration_test_status !== 0 ? data.light.dt_emergency_lamp_failure : null, 'ei ei-control')}}"></i></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<h3>Scheduled Tests</h3>
+				<table class="table">
+					<tbody>
+						<tr>
+							<th class="text-right shrink nowrap">Function Test</th>
+							<td *ngIf="data.light.scheduled_function_datetime">{{data.light.scheduled_function_datetime | mySQLDateToISO | date:'shortDate'}} {{data.light.scheduled_function_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+							<td *ngIf="!data.light.scheduled_function_datetime">&ndash;</td>
+						</tr>
+						<tr>
+							<th class="text-right shrink nowrap">Duration Test</th>
+							<td *ngIf="data.light.scheduled_duration_datetime">{{data.light.scheduled_duration_datetime | mySQLDateToISO | date:'shortDate'}} {{data.light.scheduled_duration_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+							<td *ngIf="!data.light.scheduled_duration_datetime">&ndash;</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<h3>Manual Tests</h3>
+				<table class="table">
+					<tbody>
+						<tr>
+							<th class="text-right shrink nowrap">Function Test</th>
+							<td *ngIf="data.light.manual_function_datetime">{{data.light.manual_function_datetime | mySQLDateToISO | date:'shortDate'}} {{data.light.manual_function_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+							<td *ngIf="!data.light.manual_function_datetime">&ndash;</td>
+						</tr>
+						<tr>
+							<th class="text-right shrink nowrap">Duration Test</th>
+							<td *ngIf="data.light.manual_duration_datetime">{{data.light.manual_duration_datetime | mySQLDateToISO | date:'shortDate'}} {{data.light.manual_duration_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+							<td *ngIf="!data.light.manual_duration_datetime">&ndash;</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="tab === 'location'" class="container">
+		<div class="row">
+			<div class="col-md-12">
+
+				<div *ngIf="data.floorplan" class="p-0 floorplan-wrapper" style="width: 100%; height: 500px;">
+					<div class="fill" style="user-select:none;" #plan>
+						<div class="v-center">
+							<div class="floorplan-container">
+								<img src="{{data.floorplan.image}}" class="floorplan-image" style="width:100%;">
+								<div *ngFor="let light of [data.light]" class="floorplan-icon text-light" [ngClass]="{ 'bg-success': light.light_status === 1, 'bg-danger': light.light_status === -1, 'bg-warning': light.light_status === 0 }" [style.top]="light.y + '%'" [style.left]="light.x + '%'" [style.transform]="'scale(' + (1 / scale) + ')'">
+									<i class="{{light.type_icon}}"></i>
+									<div *ngIf="light.direction !== null" class="direction" [ngStyle]="{ transform: 'rotate(' + light.direction + 'deg) translate(20px, 0px)' }"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="zoom-container">
+						<a class="btn btn-sm btn-primary bx-shadow" #zoomin><i class="md md-add"></i></a>
+						<a class="btn btn-sm btn-primary bx-shadow" #zoomout><i class="md md-remove"></i></a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div *ngIf="tab === 'history'" class="container scrollable" style="height: 500px;">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Date/Time</th>
+							<th>Test Type</th>
+							<th class="text-center">Test Status</th>
+							<th class="shrink text-center" title="Circuit failure"><i class="status-icon md md-memory"></i></th>
+							<th class="shrink text-center" title="Battery duration failure"><i class="status-icon md md-timelapse"></i></th>
+							<th class="shrink text-center" title="Battery failure"><i class="status-icon md md-battery-alert"></i></th>
+							<th class="shrink text-center" title="Emergency lamp failure"><i class="status-icon ei ei-control"></i></th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container *ngFor="let item of history">
+							<tr *ngIf="item.history_type === 'test' && item.ft_function_test_done_and_result_is_valid === 1">
+								<td>{{item.datetime | date:'shortDate'}} {{item.datetime | date:'shortTime'}}</td>
+								<td>Function Test</td>
+
+								<td class="text-center"><i class="{{getNullFlagIconClass(item.ft_function_test_failed)}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.ft_circuit_failure , 'md md-memory')}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.ft_battery_duration_failure, 'md md-timelapse')}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.ft_battery_failure, 'md md-battery-alert')}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.ft_emergency_lamp_failure, 'ei ei-control')}}"></i></td>
+							</tr>
+							<tr *ngIf="item.history_type === 'test' && item.dt_duration_test_done_and_result_is_valid === 1">
+								<td>{{item.datetime | date:'shortDate'}} {{item.datetime | date:'shortTime'}}</td>
+								<td>Duration Test</td>
+
+								<td class="text-center"><i class="{{getNullFlagIconClass(item.dt_duration_test_failed)}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.dt_circuit_failure, 'md md-memory')}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.dt_battery_duration_failure, 'md md-timelapse')}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.dt_battery_failure, 'md md-battery-alert')}}"></i></td>
+								<td class="shrink text-center"><i class="{{getNullFlagIconClass(item.dt_emergency_lamp_failure, 'ei ei-control')}}"></i></td>
+							</tr>
+							<tr *ngIf="item.history_type === 'log'">
+								<td>{{item.datetime | date:'shortDate'}} {{item.datetime | date:'shortTime'}}</td>
+
+								<td colspan="7" class="text-center">{{item.user_name}} &ndash; <span [innerHtml]="item.log_html"></span> </td>
+							</tr>
+						</ng-container>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="tab === 'repair'" class="container scrollable" style="height: 500px;">
+		<div class="row" style="min-height:49px;">
+			<div class="col-md-4">
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="is_repaired">
+						<span>Light has been repaired</span>
+					</label>
+				</div>
+			</div>
+			<div class="col-md-8" *ngIf="is_repaired">
+				<div class="form-group">
+					<input type="text" class="form-control" [(ngModel)]="repair_notes" placeholder="Repair details">
+				</div>
+			</div>
+		</div>
+		<div class="row" style="min-height:49px;">
+			<div class="col-md-4">
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="has_manual_function_datetime">
+						<span>Schedule <b>function test</b></span>
+					</label>
+				</div>
+			</div>
+			<div class="col-md-4" *ngIf="has_manual_function_datetime">
+				<div class="form-group">
+					<p-calendar [(ngModel)]="manual_function_datetime" dateFormat="dd/mm/yy" timeFormat="HH:mm" showTime="true" inputStyleClass="form-control" appendTo="body"></p-calendar>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="min-height:49px;">
+			<div class="col-md-4">
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="has_manual_duration_datetime">
+						<span>Schedule <b>duration test</b></span>
+					</label>
+				</div>
+			</div>
+			<div class="col-md-4" *ngIf="has_manual_duration_datetime">
+				<div class="form-group">
+					<p-calendar [(ngModel)]="manual_duration_datetime" dateFormat="dd/mm/yy" timeFormat="HH:mm" showTime="true" inputStyleClass="form-control" appendTo="body"></p-calendar>
+				</div>
+			</div>
+		</div>
+		<hr>
+		<a class="btn btn-primary" (click)="updateSchedule()" [ngClass]="{ disabled: saving }">{{is_repaired ? 'Save Repair and Schedule' : 'Update Schedule'}}</a>
+	</div>
+</app-modal>

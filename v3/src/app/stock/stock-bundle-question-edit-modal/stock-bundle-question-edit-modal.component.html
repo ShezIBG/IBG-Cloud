@@ -1,0 +1,376 @@
+<app-modal [modalTitle]="title" size="large" [buttons]="buttons" [boxed]="true" (event)="modalHandler($event)">
+	<ul class="nav nav-pills nav-pills-small m-b-20 m-t-0">
+		<li *ngFor="let tab of tabs" [ngClass]="{ active: selectedTab === tab.id }"><a (click)="selectTab(tab.id)">{{tab.description}}</a></li>
+	</ul>
+
+	<ng-container *ngIf="selectedTab === 'details'">
+
+		<div class="card-box">
+			<h2>Details</h2>
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Question</label>
+					<div class="col-sm-5">
+						<input class="form-control" [(ngModel)]="question.question" appDesktopFocus>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Type</label>
+					<div class="col-sm-3">
+						<select class="form-control" [(ngModel)]="question.type" (change)="questionTypeChanged()">
+							<option value="numeric">Numeric</option>
+							<option value="checkbox">Checkbox</option>
+							<option value="select">Select</option>
+							<option value="multi-select">Multi-select</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Default Value</label>
+					<div *ngIf="question.type === 'numeric'" class="col-sm-2">
+						<input class="form-control text-right" [(ngModel)]="question.default_value" (ngModelChange)="formatQuestionNumbers(question)">
+					</div>
+					<div *ngIf="question.type === 'checkbox'" class="col-sm-2">
+						<div class="checkbox checkbox-primary m-0">
+							<label><input type="checkbox" [ngModel]="!!question.default_value" (ngModelChange)="question.default_value = $event ? 1 : 0"><span>&nbsp;</span></label>
+						</div>
+					</div>
+					<div *ngIf="question.type === 'select'" class="col-sm-7">
+						<a *ngFor="let o of question.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(question.default_value, o.value), 'btn-info btn-solid': !getFlag(question.default_value, o.value) }" (click)="question.default_value = question.default_value === o.value ? 0 : o.value">{{o.description}}</a>
+					</div>
+					<div *ngIf="question.type === 'multi-select'" class="col-sm-7">
+						<a *ngFor="let o of question.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(question.default_value, o.value), 'btn-info btn-solid': !getFlag(question.default_value, o.value) }" (click)="question.default_value = toggleFlag(question.default_value, o.value)">{{o.description}}</a>
+					</div>
+				</div>
+				<ng-container *ngIf="question.type === 'numeric'">
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Minimum value</label>
+						<div class="col-sm-2">
+							<input class="form-control text-right" [(ngModel)]="question.min_value" (change)="formatQuestionNumbers(question)">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Maximum value</label>
+						<div class="col-sm-2">
+							<input class="form-control text-right" [(ngModel)]="question.max_value" (change)="formatQuestionNumbers(question)">
+						</div>
+					</div>
+				</ng-container>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Required?</label>
+					<div class="col-sm-2">
+						<div class="checkbox checkbox-primary m-0">
+							<label><input type="checkbox" [ngModel]="!!question.is_required" (ngModelChange)="question.is_required = $event ? 1 : 0"><span>&nbsp;</span></label>
+						</div>
+					</div>
+				</div>
+				<ng-container *ngIf="question.parent">
+					<hr>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Parent</label>
+						<div class="col-sm-5">
+							<input class="form-control" [(ngModel)]="question.parent.question" readonly>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Show question if parent</label>
+						<div class="col-sm-3">
+							<select class="form-control" [(ngModel)]="question.parent_mode">
+								<ng-container [ngSwitch]="question.parent.type">
+									<ng-container *ngSwitchCase="'numeric'">
+										<option value="set">is not 0</option>
+										<option value="value">is equal to</option>
+										<option value="range">is between</option>
+										<option value="lt">is less than</option>
+										<option value="gt">is greater than</option>
+									</ng-container>
+									<ng-container *ngSwitchCase="'checkbox'">
+										<option value="set">is checked</option>
+										<option value="value">has value of</option>
+									</ng-container>
+									<ng-container *ngSwitchCase="'select'">
+										<option value="set">is set</option>
+										<option value="value">is equal to</option>
+										<option value="any">is one of</option>
+									</ng-container>
+									<ng-container *ngSwitchCase="'multi-select'">
+										<option value="set">is set</option>
+										<option value="value">is exactly</option>
+										<option value="any">has any of</option>
+										<option value="all">has all of</option>
+									</ng-container>
+								</ng-container>
+							</select>
+						</div>
+
+						<ng-container *ngIf="question.parent.type === 'numeric' && question.parent_mode !== 'set'">
+							<div class="col-sm-2">
+								<input class="form-control text-right" [(ngModel)]="question.parent_value" (change)="formatQuestionNumbers(question)">
+							</div>
+							<ng-container *ngIf="question.parent_mode === 'range'">
+								<label class="col-sm-1 control-label" style="text-align: center;">and</label>
+								<div class="col-sm-2">
+									<input class="form-control text-right" [(ngModel)]="question.parent_max_value" (change)="formatQuestionNumbers(question)">
+								</div>
+							</ng-container>
+						</ng-container>
+
+						<div *ngIf="question.parent.type === 'checkbox' && question.parent_mode !== 'set'" class="col-sm-2">
+							<div class="checkbox checkbox-primary m-0">
+								<label><input type="checkbox" [ngModel]="!!question.parent_value" (ngModelChange)="question.parent_value = $event ? 1 : 0"><span>{{!!question.parent_value ? 'checked' : 'unchecked'}}</span></label>
+							</div>
+						</div>
+
+						<div *ngIf="question.parent.type === 'select' && question.parent_mode === 'value'" class="col-sm-5">
+							<a *ngFor="let o of question.parent.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(question.parent_value, o.value), 'btn-info btn-solid': !getFlag(question.parent_value, o.value) }" (click)="question.parent_value = question.parent_value === o.value ? 0 : o.value">{{o.description}}</a>
+						</div>
+
+						<div *ngIf="(question.parent.type === 'multi-select' && question.parent_mode !== 'set') || (question.parent.type === 'select' && question.parent_mode === 'any')" class="col-sm-5">
+							<a *ngFor="let o of question.parent.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(question.parent_value, o.value), 'btn-info btn-solid': !getFlag(question.parent_value, o.value) }" (click)="question.parent_value = toggleFlag(question.parent_value, o.value)">{{o.description}}</a>
+						</div>
+
+					</div>
+				</ng-container>
+				<hr>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Image</label>
+					<div class="col-sm-3">
+						<div class="img-container">
+							<input type="file" class="hidden" (change)="uploadImage()" #modalFileInput>
+							<ng-container *ngIf="!question.image_id">
+								<div class="image-drop" [ngClass]="{ active: draggedOver }" (dragover)="fileDragOver($event)" (dragleave)="draggedOver = false" (drop)="fileDrop($event)">
+									No image
+								</div>
+							</ng-container>
+							<ng-container *ngIf="question.image_id">
+								<img [src]="question.image_url" style="width: 100%;">
+							</ng-container>
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<ng-container *ngIf="!question.image_id">
+							<a class="btn btn-primary m-b-5" (click)="changeImage()"><i class="md md-file-upload"></i> Upload image</a><br>
+							<a class="btn btn-default m-b-5" (click)="selectTab('image')"><i class="md md-search"></i> Image from product</a>
+						</ng-container>
+						<ng-container *ngIf="question.image_id">
+							<a class="btn btn-danger m-b-5" (click)="removeImage()"><i class="md md-delete"></i> Remove image</a>
+						</ng-container>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div *ngIf="question.type === 'select' || question.type === 'multi-select'" class="card-box">
+			<h2>Select options</h2>
+			<p class="text-info"><i class="md md-info"></i> Drag to re-order select options.</p>
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th class="shrink"></th>
+						<th>Description</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody class="cdk-drop-list" (cdkDropListDropped)="optionsDrop($event)" cdkDropList>
+					<tr *ngFor="let o of question.select_options" class="cdk-drag selectable" cdkDrag>
+						<td class="shrink"><i class="md md-unfold-more"></i></td>
+						<td><input class="form-control" [(ngModel)]="o.description"></td>
+						<td class="shrink nowrap"><a class="text-danger" (click)="deleteSelectOption(o)"><i class="md md-delete"></i> Delete</a></td>
+					</tr>
+					<tr *ngIf="!question.select_options.length">
+						<td colspan="3">No select options.</td>
+					</tr>
+				</tbody>
+			</table>
+			<a class="btn btn-primary" (click)="addSelectOption()"><i class="md md-add"></i> Add select option</a>
+		</div>
+
+		<div class="card-box">
+			<h2>Products</h2>
+			<p class="text-info"><i class="md md-info"></i> Products will only be added to the bundle if the answer satisfies the condition. If a question is selected at the <b>multiply by answer</b> field, the quantity added will be multiplied by the answer for the selected question.</p>
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th colspan="2">Product</th>
+						<th class="shrink text-right nowrap">Quantity</th>
+						<th class="shrink nowrap">Multiply by answer</th>
+						<th>Condition</th>
+						<th class="shrink"></th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<ng-container *ngFor="let item of question.products">
+						<tr [ngClass]="{ danger: item.quantity === 0, primary: selectedProduct === item }">
+							<td class="shrink">
+								<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+							</td>
+							<td>
+								{{item.model}}
+								<div *ngIf="item.manufacturer_name" class="text-small">{{item.manufacturer_name}}</div>
+								<div *ngIf="item.short_description" class="text-small">{{item.short_description}}</div>
+							</td>
+							<td class="shrink"><input class="form-control text-right" style="width: 80px;" [(ngModel)]="item.quantity" (change)="formatProductNumbers(item)"></td>
+							<td>{{getQuestionMultiplyDescription(item.multiply_by_question_id)}}</td>
+							<td>{{getCondition(item)}}</td>
+							<td class="shrink nowrap"><a (click)="selectedProduct = item"><i class="md md-edit"></i> Edit</a></td>
+							<td class="shrink nowrap"><a class="text-danger" (click)="removeProduct(item)"><i class="md md-delete"></i> Delete</a></td>
+						</tr>
+						<tr *ngIf="selectedProduct === item" class="primary">
+							<td class="shrink"></td>
+							<td colspan="4">
+								<div class="form-inline">
+									<label class="form-label m-r-10">Multiply by answer: </label>
+									<select class="form-control" [(ngModel)]="item.multiply_by_question_id">
+										<optgroup label="Shortcuts">
+											<option [ngValue]="null">Don't multiply</option>
+											<option [ngValue]="question.question_id">This answer</option>
+										</optgroup>
+										<optgroup label="All questions">
+											<option *ngFor="let q of bundle.questions" [ngValue]="q.question_id === question.question_id ? -1 : q.question_id">{{'&nbsp;'.repeat(q.depth)}}{{q.question}}</option>
+										</optgroup>
+									</select>
+								</div>
+
+								<div class="form-inline m-t-10">
+									<label class="control-label m-r-10">Condition: Answer</label>
+									<select class="form-control m-r-10" [(ngModel)]="item.question_mode">
+										<ng-container [ngSwitch]="question.type">
+											<ng-container *ngSwitchCase="'numeric'">
+												<option value="set">is not 0</option>
+												<option value="value">is equal to</option>
+												<option value="range">is between</option>
+												<option value="lt">is less than</option>
+												<option value="gt">is greater than</option>
+											</ng-container>
+											<ng-container *ngSwitchCase="'checkbox'">
+												<option value="set">is checked</option>
+												<option value="value">has value of</option>
+											</ng-container>
+											<ng-container *ngSwitchCase="'select'">
+												<option value="set">is set</option>
+												<option value="value">is equal to</option>
+												<option value="any">is one of</option>
+											</ng-container>
+											<ng-container *ngSwitchCase="'multi-select'">
+												<option value="set">is set</option>
+												<option value="value">is exactly</option>
+												<option value="any">has any of</option>
+												<option value="all">has all of</option>
+											</ng-container>
+										</ng-container>
+									</select>
+
+									<ng-container *ngIf="question.type === 'numeric' && item.question_mode !== 'set'">
+										<input class="form-control text-right m-r-10" style="width: 70px;" [(ngModel)]="item.question_value" (change)="formatProductNumbers(item)">
+										<ng-container *ngIf="item.question_mode === 'range'">
+											<label class="control-label m-r-10" style="text-align: center;">and</label>
+											<input class="form-control text-right" style="width: 70px;" [(ngModel)]="item.question_max_value" (change)="formatProductNumbers(item)">
+										</ng-container>
+									</ng-container>
+
+									<div *ngIf="question.type === 'checkbox' && item.question_mode !== 'set'" class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="!!item.question_value" (ngModelChange)="item.question_value = $event ? 1 : 0"><span>{{!!item.question_value ? 'checked' : 'unchecked'}}</span></label>
+									</div>
+
+									<ng-container *ngIf="question.type === 'select' && item.question_mode === 'value'">
+										<a *ngFor="let o of question.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(item.question_value, o.value), 'btn-info btn-solid': !getFlag(item.question_value, o.value) }" (click)="item.question_value = item.question_value === o.value ? 0 : o.value">{{o.description}}</a>
+									</ng-container>
+
+									<ng-container *ngIf="(question.type === 'multi-select' && item.question_mode !== 'set') || (question.type === 'select' && item.question_mode === 'any')">
+										<a *ngFor="let o of question.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(item.question_value, o.value), 'btn-info btn-solid': !getFlag(item.question_value, o.value) }" (click)="item.question_value = toggleFlag(item.question_value, o.value)">{{o.description}}</a>
+									</ng-container>
+
+								</div>
+							</td>
+							<td colspan="2" class="shrink nowrap">
+								<a (click)="selectedProduct = null"><i class="md md-check"></i> Done</a>
+							</td>
+						</tr>
+					</ng-container>
+					<tr *ngIf="!question.products.length">
+						<td colspan="7">No products.</td>
+					</tr>
+				</tbody>
+			</table>
+			<a class="btn btn-primary" (click)="selectTab('products')"><i class="md md-add"></i> Add product</a>
+		</div>
+
+		<div *ngIf="question.counters.length" class="card-box">
+			<h2>Accumulators</h2>
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th>Description</th>
+						<th class="shrink">Add</th>
+						<th class="shrink nowrap">Multiply by answer</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let qc of question.counters">
+						<td>{{qc.counter?.description}}</td>
+						<td class="shrink"><input class="form-control text-right" style="width: 54px;" [(ngModel)]="qc.value" (change)="formatCounterNumbers(qc)"></td>
+						<td>
+							<select class="form-control" [(ngModel)]="qc.multiply_by_question_id">
+								<optgroup label="Shortcuts">
+									<option [ngValue]="null">Don't multiply</option>
+									<option [ngValue]="question.question_id">This answer</option>
+								</optgroup>
+								<optgroup label="All questions">
+									<option *ngFor="let q of bundle.questions" [ngValue]="q.question_id === question.question_id ? -1 : q.question_id">{{'&nbsp;&nbsp;&nbsp;'.repeat(q.depth)}}{{q.question}}</option>
+								</optgroup>
+							</select>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</ng-container>
+
+	<div *ngIf="selectedTab === 'products' || selectedTab === 'image'" class="card-box">
+		<h2>Products</h2>
+		<div class="input-group m-b-15">
+			<span class="input-group-addon"><i class="md md-search"></i></span>
+			<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search" appDesktopFocus>
+		</div>
+		<div class="scrollable m-b-15" style="height: 400px;">
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Model / Manufacturer</th>
+						<th>Description</th>
+						<th>SKU</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let item of listProducts | keywords:search:['sku', 'manufacturer_name', 'model', 'short_description'] | pagination:pagination" [ngClass]="{ 'text-muted': selectedTab === 'products' && hasProduct(item.id) }">
+						<td class="shrink">
+							<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+						</td>
+						<td>
+							{{item.model}}
+							<div *ngIf="item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+						</td>
+						<td class="small">{{item.short_description}}</td>
+						<td>{{item.sku}}</td>
+
+						<td *ngIf="selectedTab === 'products'" class="shrink nowrap text-center" [ngSwitch]="hasProduct(item.id)">
+							<span *ngSwitchCase="true" class="text-success"><i class="md md-check"></i> Added</span>
+							<a *ngSwitchDefault (click)="addProduct(item)"><i class="md md-add"></i> Add product</a>
+						</td>
+						<td *ngIf="selectedTab === 'image'" class="shrink nowrap">
+							<a *ngIf="item.image_id" (click)="imageFromProduct(item)"><i class="md md-image"></i> Select image</a>
+						</td>
+					</tr>
+					<tr *ngIf="!pagination.count">
+						<td colspan="5">No products found.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<app-pagination [pagination]="pagination"></app-pagination>
+	</div>
+</app-modal>

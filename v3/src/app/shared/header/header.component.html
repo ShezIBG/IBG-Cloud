@@ -1,0 +1,19 @@
+<div class="myContainer-moveRight page-title-box bx-shadow bg-theme no-print" [ngClass]="{ on: headerVisible }">
+	<div>
+		<button *ngFor="let button of buttons" class="{{button.cls}} pull-right" (click)="button.callback()"><i *ngIf="button.icon" class="{{button.icon}}"></i> {{button.text}}</button>
+		<ol *ngIf="crumbs.length > 1" class="breadcrumb">
+			<ng-container *ngFor="let crumb of crumbs; let last = last">
+				<li *ngIf="!last"><a [routerLink]="crumb.route">{{crumb.description}}</a></li>
+				<li *ngIf="last && !crumb.compact" class="active">&nbsp;</li>
+				<li *ngIf="last && crumb.compact" class="active">{{crumb.description}}</li>
+			</ng-container>
+		</ol>
+		<h2 *ngIf="crumbs.length > 0 && !crumbs[crumbs.length - 1].compact">{{crumbs[crumbs.length - 1].description}}</h2>
+		<ul *ngIf="tabs.length" class="nav nav-pills nav-pills-small" style="margin-bottom: -10px; margin-left: -10px;">
+			<ng-container *ngFor="let tab of tabs">
+				<li *ngIf="!tab.hidden && !tab.route" [ngClass]="{ active: activeTab === tab.id }" (click)="setTab(tab.id)"><a>{{tab.title}} <span *ngIf="tab.badge" class="badge {{tab.badgeClass || 'badge-default'}}">{{tab.badge}}</span></a></li>
+				<li *ngIf="!tab.hidden && tab.route" [ngClass]="{ active: activeTab === tab.id }"><a [routerLink]="tab.route">{{tab.title}} <span *ngIf="tab.badge" class="badge {{tab.badgeClass || 'badge-default'}}">{{tab.badge}}</span></a></li>
+			</ng-container>
+		</ul>
+	</div>
+</div>

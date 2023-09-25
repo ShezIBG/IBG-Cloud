@@ -1,0 +1,145 @@
+<div class="card-box">
+	<div class="row">
+		<div class="col-md-6">
+			<div class="input-group">
+				<span class="input-group-addon"><i class="md md-search"></i></span>
+				<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+			</div>
+			<div class="m-t-10">
+				<a (click)="sales.showProjectFilters = !sales.showProjectFilters">{{sales.showProjectFilters ? 'Hide' : 'Show'}} filters</a>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<a class="btn btn-primary pull-right" [routerLink]="['./new', app.selectedProductOwner || '']"><i class="md md-add"></i> New project</a>
+		</div>
+	</div>
+	<ng-container *ngIf="sales.showProjectFilters">
+		<hr>
+		<div class="form-inline">
+			<div class="form-group">
+				<div>
+					<label>Stage</label>
+					<div class="checkbox checkbox-danger">
+						<label>
+							<input type="checkbox" [(ngModel)]="stage_cancelled" (ngModelChange)="timedRefresh()">
+							<span>Cancelled</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-warning">
+						<label>
+							<input type="checkbox" [(ngModel)]="stage_lead" (ngModelChange)="timedRefresh()">
+							<span>Lead</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-default">
+						<label>
+							<input type="checkbox" [(ngModel)]="stage_survey" (ngModelChange)="timedRefresh()">
+							<span>Survey</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-default">
+						<label>
+							<input type="checkbox" [(ngModel)]="stage_quote" (ngModelChange)="timedRefresh()">
+							<span>Quote</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-inverse">
+						<label>
+							<input type="checkbox" [(ngModel)]="stage_build" (ngModelChange)="timedRefresh()">
+							<span>Build</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-inverse">
+						<label>
+							<input type="checkbox" [(ngModel)]="stage_install" (ngModelChange)="timedRefresh()">
+							<span>Install</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-success">
+						<label>
+							<input type="checkbox" [(ngModel)]="stage_complete" (ngModelChange)="timedRefresh()">
+							<span>Complete</span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<hr>
+		<div class="form-inline">
+			<div class="form-group">
+				<div>
+					<label>Visibility</label>
+					<div class="checkbox checkbox-success">
+						<label>
+							<input type="checkbox" [(ngModel)]="visibility_public" (ngModelChange)="timedRefresh()">
+							<span>Public</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-default">
+						<label>
+							<input type="checkbox" [(ngModel)]="visibility_private" (ngModelChange)="timedRefresh()">
+							<span>Private</span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+</div>
+
+<div class="card-box">
+	<table class="table table-striped table-hover">
+		<thead>
+			<tr>
+				<th class="shrink">#</th>
+				<th *ngIf="!si"></th>
+				<th>Created</th>
+				<th class="text-center">Stage</th>
+				<th>Customer</th>
+				<th>Project</th>
+				<th *ngIf="pricing" class="text-right">Grand total</th>
+				<th>Location</th>
+				<th class="nowrap">Assigned to</th>
+				<th class="text-center shrink nowrap">Visibility</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let item of list | keywords:search:['id', 'description', 'customer_name', 'posttown', 'postcode', 'user_name', 'stage'] | pagination:pagination" class="selectable" [routerLink]="['./', item.id]">
+				<td class="shrink">{{item.project_no}}</td>
+				<td *ngIf="!si" class="text-small">{{item.owner_name}}</td>
+				<td>{{item.created | mySQLDateToISO | date:'shortDate'}}</td>
+				<td class="text-center" ><app-sales-project-stage-badge [stage]="item.stage"></app-sales-project-stage-badge></td>
+				<td>
+					<b>{{item.customer_name}}</b>
+					<span *ngIf="item.customer_contact_name" class="text-small"><br><i class="md md-person"></i> {{item.customer_contact_name}} <span *ngIf="item.customer_contact_position">({{item.customer_contact_position}})</span></span>
+					<span *ngIf="item.customer_contact_mobile" class="text-small"><br><i class="md md-phone"></i> {{item.customer_contact_mobile}}</span>
+					<span *ngIf="item.customer_contact_email" class="text-small"><br><i class="md md-email"></i> {{item.customer_contact_email}}</span>
+				</td>
+				<td>
+					<b>{{item.description}}</b>
+					<span *ngIf="item.contact_name" class="text-small"><br><i class="md md-person"></i> {{item.contact_name}} <span *ngIf="item.contact_position">({{item.contact_position}})</span></span>
+					<span *ngIf="item.contact_mobile" class="text-small"><br><i class="md md-phone"></i> {{item.contact_mobile}}</span>
+					<span *ngIf="item.contact_email" class="text-small"><br><i class="md md-email"></i> {{item.contact_email}}</span>
+				</td>
+				<td *ngIf="pricing" class="text-right">
+					<ng-container *ngIf="item.grand_total !== null">
+						{{item.grand_total | decimal:2:2:true:'GBP'}}
+					</ng-container>
+				</td>
+				<td>
+					{{item.posttown}}
+					<span *ngIf="item.postcode" class="text-small"><br>{{item.postcode}}</span>
+				</td>
+				<td class="nowrap">{{item.user_name}}</td>
+				<td class="text-center shrink nowrap">
+					<span *ngIf="item.is_public" class="badge badge-success badge-sm"><i class="md md-lock-open"></i> Public</span>
+					<span *ngIf="!item.is_public" class="badge badge-default badge-sm"><i class="md md-lock"></i> Private</span>
+				</td>
+			</tr>
+			<tr *ngIf="!pagination.count">
+				<td [attr.colspan]="pricing ? 10 : 9">No projects found.</td>
+			</tr>
+		</tbody>
+	</table>
+	<app-pagination [pagination]="pagination"></app-pagination>
+</div>

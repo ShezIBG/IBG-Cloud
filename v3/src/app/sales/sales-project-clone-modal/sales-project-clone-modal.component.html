@@ -1,0 +1,40 @@
+<app-modal modalTitle="Clone project" [buttons]="['0|Cancel', '1|*Clone project']" (event)="modalHandler($event)">
+	<div *ngIf="options" class="form-horizontal">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Project description</label>
+			<div class="col-sm-7">
+				<input class="form-control" [(ngModel)]="options.description">
+			</div>
+		</div>
+		<hr>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Options</label>
+			<div class="col-sm-7">
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="clone_systems">
+						<span>Copy systems</span>
+					</label>
+				</div>
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="clone_structure">
+						<span>Copy blocks and areas</span>
+					</label>
+				</div>
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="clone_products" [disabled]="!clone_systems || !clone_structure">
+						<span>Copy products</span>
+					</label>
+				</div>
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="clone_proposal">
+						<span>Copy proposal details</span>
+					</label>
+				</div>
+			</div>
+		</div>
+	</div>
+</app-modal>

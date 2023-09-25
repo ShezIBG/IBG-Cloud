@@ -1,0 +1,101 @@
+<div *ngIf="data" class="card-box print">
+	<h2 class="m-0">
+		Detail Cost Summary
+		<app-sales-project-stage-badge [stage]="data.project.stage"></app-sales-project-stage-badge>
+		<span class="pull-right">#{{data.project.project_no}}</span>
+	</h2>
+	<hr>
+
+	<div class="large">{{data.project.customer_name}}</div>
+	<div class="large">{{data.project.description}}</div>
+
+	<table class="table table-condensed no-border">
+		<thead>
+			<tr>
+				<th></th>
+				<th class="text-center bottom-border" colspan="3">EQUIPMENT</th>
+				<ng-container *ngIf="!data.exclude_labour">
+					<th class="shrink"></th>
+					<th class="text-center bottom-border" colspan="3">LABOUR</th>
+				</ng-container>
+				<th class="shrink"></th>
+				<th class="text-center bottom-border" [attr.colspan]="data.exclude_labour ? 4 : 6">PROJECT</th>
+			</tr>
+			<tr class="bottom-border">
+				<th>System</th>
+
+				<th class="text-right">Cost</th>
+				<th class="text-right">Price</th>
+				<th class="text-right">Margin</th>
+
+				<ng-container *ngIf="!data.exclude_labour">
+					<th class="shrink"></th>
+					<th class="text-right">Cost</th>
+					<th class="text-right">Price</th>
+					<th class="text-right">Margin</th>
+				</ng-container>
+
+				<th class="shrink"></th>
+				<ng-container *ngIf="!data.exclude_labour">
+					<th class="text-right">Labour<br>Adj. Cost</th>
+					<th class="text-right">Labour<br>Adj. Price</th>
+				</ng-container>
+				<th class="text-right">Cost</th>
+				<th class="text-right">Price</th>
+				<th class="text-right">Profit</th>
+				<th class="text-right">Margin</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let item of data.systems">
+				<td>{{item.description}}</td>
+
+				<td class="text-right">{{item.equipment_cost | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{item.equipment_price | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{margin(item.equipment_price, item.equipment_cost) | decimal:2}}%</td>
+
+				<ng-container *ngIf="!data.exclude_labour">
+					<td class="shrink"></td>
+					<td class="text-right">{{item.labour_cost | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-right">{{item.labour_price | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-right">{{margin(item.labour_price, item.labour_cost) | decimal:2}}%</td>
+				</ng-container>
+
+				<td class="shrink"></td>
+				<ng-container *ngIf="!data.exclude_labour">
+					<td class="text-right">{{item.labour_adjustment_cost | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-right">{{item.labour_adjustment_price | decimal:2:2:true:'GBP'}}</td>
+				</ng-container>
+				<td class="text-right">{{item.project_cost | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{item.project_price | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{profit(item.project_price, item.project_cost) | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{margin(item.project_price, item.project_cost) | decimal:2}}%</td>
+			</tr>
+
+			<tr class="top-border total">
+				<td></td>
+
+				<td class="text-right">{{data.total.equipment_cost | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{data.total.equipment_price | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{margin(data.total.equipment_price, data.total.equipment_cost) | decimal:2}}%</td>
+
+				<ng-container *ngIf="!data.exclude_labour">
+					<td class="shrink"></td>
+					<td class="text-right">{{data.total.labour_cost | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-right">{{data.total.labour_price | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-right">{{margin(data.total.labour_price, data.total.labour_cost) | decimal:2}}%</td>
+				</ng-container>
+
+				<td class="shrink"></td>
+				<ng-container *ngIf="!data.exclude_labour">
+					<td class="text-right">{{data.total.labour_adjustment_cost | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-right">{{data.total.labour_adjustment_price | decimal:2:2:true:'GBP'}}</td>
+				</ng-container>
+				<td class="text-right">{{data.total.project_cost | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{data.total.project_price | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{profit(data.total.project_price, data.total.project_cost) | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{margin(data.total.project_price, data.total.project_cost) | decimal:2}}%</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

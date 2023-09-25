@@ -1,0 +1,233 @@
+<div *ngIf="data" class="layout-dashboard myContainer-moveRight">
+
+	<div class="flex-row">
+
+		<div class="flex-col">
+
+			<div class="widget flex-2">
+				<header>
+					<h2>Building Details</h2>
+					<hr>
+				</header>
+				<div class="flex-0" [innerHtml]="getAddress(data.building)"></div>
+				<header>
+					<h2>
+						Group Schedules
+						<a class="btn btn-sm btn-primary pull-right" routerLink="groups">Edit Groups</a>
+					</h2>
+					<hr>
+				</header>
+				<div class="tabs">
+					<ul class="nav nav-pills nav-pills-small">
+						<li [ngClass]="{ active: scheduleTab === 'function' }" (click)="scheduleTab = 'function'"><a>Function test</a></li>
+						<li [ngClass]="{ active: scheduleTab === 'duration' }" (click)="scheduleTab = 'duration'"><a>Duration test</a></li>
+					</ul>
+				</div>
+				<div class="scrollable">
+					<table *ngIf="data.groups.length && scheduleTab === 'function'" class="table">
+						<thead>
+							<tr>
+								<th>Group</th>
+								<th class="text-right">Lights</th>
+								<th class="text-right">Date/Time</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let group of sortedFunctionList">
+								<td>{{group.description}}</td>
+								<td class="text-right">{{group.light_count}}</td>
+								<td *ngIf="group.function_test_datetime" class="text-right">{{group.function_test_datetime | mySQLDateToISO | date:'shortDate'}} {{group.function_test_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!group.function_test_datetime" class="text-right text-warning">Not scheduled</td>
+							</tr>
+						</tbody>
+					</table>
+					<table *ngIf="data.groups.length && scheduleTab === 'duration'" class="table">
+						<thead>
+							<tr>
+								<th>Group</th>
+								<th class="text-right">Lights</th>
+								<th class="text-right">Date/Time</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let group of sortedDurationList">
+								<td>{{group.description}}</td>
+								<td class="text-right">{{group.light_count}}</td>
+								<td *ngIf="group.duration_test_datetime" class="text-right">{{group.duration_test_datetime | mySQLDateToISO | date:'shortDate'}} {{group.duration_test_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!group.duration_test_datetime" class="text-right text-warning">Not scheduled</td>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="!data.groups.length" class="text-warning">No light groups found.</p>
+				</div>
+				<footer *ngIf="data.group_issues.length" class="clickable p-0" routerLink="groups">
+					<table class="table m-0">
+						<tr *ngFor="let issue of data.group_issues">
+							<td class="shrink">
+								<i *ngIf="issue.severity === 'warning'" class="md md-warning md-lg text-warning"></i>
+								<i *ngIf="issue.severity === 'danger'" class="md md-error md-lg text-danger"></i>
+							</td>
+							<td>{{issue.description}}</td>
+						</tr>
+					</table>
+				</footer>
+			</div>
+
+			<div class="flex-1 widget">
+				<header>
+					<h2>Reports</h2>
+					<hr>
+				</header>
+				<div class="flex-1 scrollable">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Date/Time</th>
+								<th class="text-right">Pass</th>
+								<th class="text-right">Fail</th>
+								<th class="text-right">Total</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let report of reports">
+								<td>{{report.datetime | mySQLDateToISO | date:'shortDate'}} {{report.datetime | mySQLDateToISO | date:'mediumTime'}}</td>
+
+								<td *ngIf="report.pass" class="text-right text-success">{{report.pass}}</td>
+								<td *ngIf="!report.pass" class="text-right" style="color: #ddd;">&ndash;</td>
+
+								<td *ngIf="report.fail" class="text-right text-danger">{{report.fail}}</td>
+								<td *ngIf="!report.fail" class="text-right" style="color: #ddd;">&ndash;</td>
+
+								<td class="text-right">{{report.pass + report.fail}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-col">
+
+			<div class="flex-2 widget">
+				<header>
+					<h2>
+						Emergency Lights
+						<a class="btn btn-sm btn-primary pull-right" routerLink="lights">View Details</a>
+					</h2>
+					<hr>
+				</header>
+				<div class="flex-0 p-b-0">
+					<div class="flex-row">
+						<div *ngFor="let type of data.types; let index = index" class="flex-1">
+							<app-icon-with-badge [icon]="type.icon" iconSuffix="-o" [badge]="type.light_count" [badgeColor]="getChartColor(index)" [caption]="type.description"></app-icon-with-badge>
+						</div>
+					</div>
+				</div>
+				<div class="flex-1">
+					<app-chartjs *ngIf="data.types.length" class="fill" style="left: 40px; right: 40px; top: 20px; bottom: 20px;" [names]="typeNames" [data]="typeValues" [options]="typeOptions"></app-chartjs>
+				</div>
+				<footer *ngIf="data.light_issues.length" class="clickable p-0" routerLink="lights" [queryParams]="{ tab: 'warning' }">
+					<table class="table m-0">
+						<tr *ngFor="let issue of data.light_issues">
+							<td class="shrink">
+								<i *ngIf="issue.severity === 'warning'" class="md md-warning md-lg text-warning"></i>
+								<i *ngIf="issue.severity === 'danger'" class="md md-error md-lg text-danger"></i>
+							</td>
+							<td>{{issue.description}}</td>
+							<td class="text-right">{{issue.count}}</td>
+						</tr>
+					</table>
+				</footer>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>
+						Faults
+						<!--<a class="pull-right" routerLink="faults"><i class="eticon eticon-gear"></i></a>-->
+					</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table *ngIf="data.faults.length" class="table no-top-border">
+						<tr *ngFor="let issue of data.faults" class="text-{{issue.severity}}">
+							<td class="shrink">
+								<i *ngIf="issue.severity === 'warning'" class="md md-warning md-lg"></i>
+								<i *ngIf="issue.severity === 'danger'" class="md md-error md-lg"></i>
+							</td>
+							<td>{{issue.description}}</td>
+							<td class="text-right">{{issue.count}}</td>
+						</tr>
+					</table>
+					<p *ngIf="!data.faults.length" class="text-success">No active faults found.</p>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-col">
+
+			<div class="flex-2 widget">
+				<header>
+					<h2>User History</h2>
+					<hr>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover no-top-border vam">
+						<tr *ngFor="let item of data.history">
+							<td class="shrink">
+								<app-gravatar [email]="item.user_email" size="55"></app-gravatar>
+							</td>
+							<td>
+								<div [innerHtml]="item.log_html"></div>
+								<div class="p-t-10">
+									<span>{{item.user_name}}</span>
+									<span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2 *ngIf="lightsWarning || lightsFail">Status: Not Compliant</h2>
+					<h2 *ngIf="!lightsWarning && !lightsFail">Status: Compliant</h2>
+					<hr>
+				</header>
+				<div class="flex-row p-0">
+					<div class="flex-1 flex-center-self text-center" style="font-size: 8em; position:relative;" [ngClass]="{ 'text-success' : data.building.status === 1, 'text-warning': data.building.status === 0, 'text-danger': data.building.status === -1 }">
+						<i *ngIf="data.building.status === 1" class="ei ei-pass-c"></i>
+						<i *ngIf="data.building.status === 0" class="ei ei-warning-c"></i>
+						<i *ngIf="data.building.status === -1" class="ei ei-fail-c"></i>
+					</div>
+					<div class="flex-2 flex-center-self">
+						<h4 *ngIf="!lightsPass || !lightsWarning || !lightsFail" class="m-t-20 m-b-20">Emergency Test Overview</h4>
+						<table class="table info no-border">
+							<tr *ngIf="lightsPass">
+								<td class="shrink text-success"><i class="ei ei-bulb"></i></td>
+								<td><b>Pass</b><br>{{lightsPass}} / {{lightsCount}}</td>
+								<td class="text-success" style="font-size: 2em;">{{lightsPassPerc}}%</td>
+							</tr>
+							<tr *ngIf="lightsWarning">
+								<td class="shrink text-warning"><i class="ei ei-bulb"></i></td>
+								<td><b>Warning</b><br>{{lightsWarning}} / {{lightsCount}}</td>
+								<td class="text-warning" style="font-size: 2em;">{{lightsWarningPerc}}%</td>
+							</tr>
+							<tr *ngIf="lightsFail">
+								<td class="shrink text-danger"><i class="ei ei-bulb"></i></td>
+								<td><b>Fail</b><br>{{lightsFail}} / {{lightsCount}}</td>
+								<td class="text-danger" style="font-size: 2em;">{{lightsFailPerc}}%</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

@@ -1,0 +1,215 @@
+<ng-container *ngIf="details" class="row">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Contact details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Company name</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.company_name">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.email_address">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Phone number</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.phone_number">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Mobile number</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.mobile_number">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.address_line_1">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_2">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_3">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Town</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.posttown">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Postcode</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.postcode">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">VAT registration number</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.vat_reg_number">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3>Bank details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Bank name</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.bank_name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Sort code</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.bank_sort_code" (change)="formatSortCode()">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Account number</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.bank_account_number">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3>Invoice address</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<button class="btn btn-default" (click)="copyAddress()"><i class="md md-content-copy"></i> Copy system integrator address</button>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.invoice_address_line_1">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.invoice_address_line_2">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.invoice_address_line_3">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Town</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.invoice_posttown">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Postcode</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.invoice_postcode">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3>Proposal</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Cover strapline</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.proposal_strapline">
+					<span class="help-block">Displayed on top of the front cover.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Cover footer</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.proposal_cover_footer">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Footer</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.proposal_footer">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Logo on light</label>
+				<div class="col-sm-5">
+					<div class="img-container">
+						<input type="file" class="hidden" (change)="uploadImage('light')" #fileInputLight>
+						<ng-container *ngIf="!details.logo_on_light_id">
+							<div class="image-drop" [ngClass]="{ active: draggedOver === 'light' }" (dragover)="fileDragOver($event, 'light')" (dragleave)="draggedOver = null" (drop)="fileDrop($event, 'light')">
+								No image
+							</div>
+							<button class="btn btn-primary " [disabled]="disabled" (click)="changeImage('light')"><i class="md md-add"></i> Add image</button>
+						</ng-container>
+						<ng-container *ngIf="details.logo_on_light_id">
+							<img [src]="imageUrlLight" style="width: 100%;">
+							<button class="btn btn-default" [disabled]="disabled" (click)="changeImage('light')"><i class="md md-edit"></i> Change</button>
+							<button class="btn btn-danger" [disabled]="disabled" (click)="removeImage('light')"><i class="md md-remove"></i> Remove</button>
+						</ng-container>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Logo on dark</label>
+				<div class="col-sm-5">
+					<div class="img-container" style="background: #666;">
+						<input type="file" class="hidden" (change)="uploadImage('dark')" #fileInputDark>
+						<ng-container *ngIf="!details.logo_on_dark_id">
+							<div class="image-drop" [ngClass]="{ active: draggedOver === 'dark' }" (dragover)="fileDragOver($event, 'dark')" (dragleave)="draggedOver = null" (drop)="fileDrop($event, 'dark')">
+								No image
+							</div>
+							<button class="btn btn-primary " [disabled]="disabled" (click)="changeImage('dark')"><i class="md md-add"></i> Add image</button>
+						</ng-container>
+						<ng-container *ngIf="details.logo_on_dark_id">
+							<img [src]="imageUrlDark" style="width: 100%;">
+							<button class="btn btn-default" [disabled]="disabled" (click)="changeImage('dark')"><i class="md md-edit"></i> Change</button>
+							<button class="btn btn-danger" [disabled]="disabled" (click)="removeImage('dark')"><i class="md md-remove"></i> Remove</button>
+						</ng-container>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<ng-container *ngIf="details.permissions">
+		<h3>System integrator permissions</h3>
+		<div class="card-box">
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+					<app-settings-permissions [ui]="details.permissions.ui" [record]="details.permissions.record"></app-settings-permissions>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

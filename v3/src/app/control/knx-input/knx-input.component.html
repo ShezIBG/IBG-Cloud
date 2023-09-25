@@ -1,0 +1,26 @@
+<ng-container *ngIf="knxValue && !knxValue.readOnly">
+	<p-inputSwitch *ngIf="knxValue.dataType === 1 && knxValue.subType === 1" [(ngModel)]="knxValue.typedValue" (ngModelChange)="typedValueChanged()"></p-inputSwitch>
+
+	<select *ngIf="knxValue.dataType === 1 && knxValue.subType !== 1" class="form-control" [(ngModel)]="knxValue.typedValue" (change)="typedValueChanged()">
+		<option [ngValue]="false">{{knxValue.textValue(false)}}</option>
+		<option [ngValue]="true">{{knxValue.textValue(true)}}</option>
+	</select>
+
+	<div *ngIf="knxValue.dataType === 5 && knxValue.subType === 1">
+		<p-slider [(ngModel)]="knxValue.typedValue" (ngModelChange)="typedValueChanged()" [min]="0" [max]="100"></p-slider>
+	</div>
+
+	<input *ngIf="knxValue.dataType === 8 || knxValue.dataType === 9" type="text" class="form-control" [(ngModel)]="knxValue.typedValue" (change)="typedValueChanged()">
+
+	<select *ngIf="knxValue.dataType === 20" class="form-control" [(ngModel)]="knxValue.typedValue" (change)="typedValueChanged()">
+		<option value="0">Auto</option>
+		<option value="1">Heat</option>
+		<option value="3">Cool</option>
+		<option value="9">Fan Only</option>
+		<option value="14">Dry</option>
+	</select>
+</ng-container>
+
+<ng-container *ngIf="knxValue && knxValue.readOnly">
+	<app-knx-output [knxValue]="knxValue"></app-knx-output>
+</ng-container>

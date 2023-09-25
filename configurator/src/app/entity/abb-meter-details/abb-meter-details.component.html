@@ -1,0 +1,195 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Location</label>
+					<select class="form-control" [disabled]="!entity.canUpdateLocation()" [ngModel]="entity.data.location" (ngModelChange)="entity.updateLocation($event)">
+						<ng-container *ngIf="entity.is3P()">
+							<option value="L1,2,3">3 phase L1,2,3</option>
+						</ng-container>
+						<ng-container *ngIf="!entity.is3P()">
+							<option value="L1">Single phase L1</option>
+							<option value="L2">Single phase L2</option>
+							<option value="L3">Single phase L3</option>
+						</ng-container>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Bus type</label>
+					<select class="form-control" [disabled]="!entity.isUnassigned()" [(ngModel)]="entity.bus_type">
+						<option value="modbus">Modbus</option>
+						<option value="mbus">M-Bus</option>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Processing</label>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="entity.isActive">
+							<span [ngClass]="{ 'text-danger': !entity.isActive }">Active</span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="screen.showCTCategories">
+						<span>Show CT categories?</span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>CT pin</th>
+					<th>Description</th>
+					<th *ngIf="screen.showCTCategories">Categories</th>
+					<th>Location</th>
+					<th>Assigned to</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let ct of entity.cts" [ngClass]="{ 'bg-hover': hovered === ct }" (mouseenter)="hovered = ct" (mouseleave)="hovered = null">
+					<td>{{ct.getGroupedPin()}}</td>
+					<td><a (click)="editCT(ct)"><i class="md md-edit"></i> {{ct.getDescription()}} <span *ngIf="ct.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></a></td>
+					<td *ngIf="screen.showCTCategories">
+						<ng-container *ngFor="let category of ct.items; let num = index"><span *ngIf="category.type === 'ct_category'">{{num > 0 ? ', ': ''}}{{category.getDescription()}}</span></ng-container>
+					</td>
+					<td>{{ct.getGroupedLocation()}}</td>
+					<td *ngIf="ct.getAssignedTo().length"><a (click)="ct.getAssignedTo()[0].jumpTo(app)" class="text-info"><i class="md md-arrow-forward"></i> {{ct.getAssignedToInfo(ct.getAssignedTo()[0])}}</a></td>
+					<td *ngIf="!ct.getAssignedTo().length">&ndash;</td>
+					<td class="shrink">
+						<a *ngIf="ct.getAssignedTo().length && ct.unassignFrom" class="text-danger nowrap" (click)="ct.unassignFrom(ct.getAssignedTo()[0])"><i class="md md-remove-circle"></i> Unassign</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<entity-assignments [entity]="entity"></entity-assignments>
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="checkbox checkbox-primary">
+					<label>
+						<input type="checkbox" [(ngModel)]="entity.useAsMeter" [disabled]="!entity.canToggleMeter">
+						<span>
+							Use as electricity meter<br>
+							<span class="subtitle">show on Multi Meter Manager</span>
+							<span *ngIf="!entity.canToggleMeter" class="subtitle text-warning"><br>remove sub-meters to change</span>
+						</span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<ng-container *ngIf="entity.getMeter() as meter">
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label>Meter description</label>
+						<input type="text" class="form-control" [(ngModel)]="meter.data.description">
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="meter.meter_is_mid_approved">
+							<span>Meter is MID approved</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="meter.monitoring_is_mid_approved">
+							<span>Monitoring setup is MID approved</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label>Meter direction</label>
+						<select class="form-control" [(ngModel)]="meter.data.meter_direction">
+							<option value="import">Import</option>
+							<option value="export">Export</option>
+							<option value="import_export">Import/Export</option>
+							<option value="generation">Generation</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label>Virtual area</label>
+						<select class="form-control" [(ngModel)]="meter.data.virtual_area_id" (ngModelChange)="meter.refresh()">
+							<option [ngValue]="null">Not virtualised</option>
+							<optgroup *ngFor="let floor of entity.entityManager.entities.floor | entitySort" label="{{floor.getDescription()}}">
+								<option *ngFor="let area of getAreas(floor) | entitySort" [ngValue]="area.data.id">{{area.getDescription()}}</option>
+							</optgroup>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6">
+					<div *ngIf="meter.getAvailableParentMeters().length" class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="meter.is_submeter">
+							<span>Sub-meter</span>
+						</label>
+					</div>
+					<div class="form-group" *ngIf="meter.is_submeter">
+						<label>Main meter</label>
+						<select class="form-control" [(ngModel)]="meter.data.parent_id" (ngModelChange)="meter.refresh()">
+							<option *ngFor="let parent of meter.getAvailableParentMeters()" [ngValue]="parent.data.id">{{getAreaDescription(parent)}} / {{parent.getDescription()}}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label>Replaced Meter Date</label>
+						<p-calendar [(ngModel)]="meter.init_date" dateFormat="dd/mm/yy" [showTime]="false" inputStyleClass="form-control" appendTo="body"></p-calendar>
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label>Replaced Meter Time</label>
+						<input type="text" [(ngModel)]="meter.data.init_time" class="form-control" (ngModelChange)="onTimeChange($event)">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label>Replaced Meter Reading</label>
+						<input type="text" [(ngModel)]="meter.data.replaced_meter_reading" class="form-control" (change)="meter.replacedMeterReadingChanged()">
+					</div>
+				</div>
+			</div>
+			<entity-assignments [entity]="meter"></entity-assignments>
+		</ng-container>
+	</div>
+</div>

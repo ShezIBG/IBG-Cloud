@@ -1,0 +1,43 @@
+<app-modal [modalTitle]="title" [buttons]="buttons" (event)="modalHandler($event)">
+	<div class="form-horizontal">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Description</label>
+			<div class="col-sm-7">
+				<input class="form-control" [(ngModel)]="data.description" appAutoFocus>
+			</div>
+		</div>
+		<ng-container *ngIf="data.type === 'stripe'">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Payments</label>
+				<div class="col-sm-7">
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="allowPartPayment">
+							<span>Allow part payment?</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div *ngIf="allowPartPayment" class="form-group">
+				<label class="col-sm-4 control-label">Minimum Amount</label>
+				<div class="col-sm-3">
+					<input class="form-control text-right" [(ngModel)]="partMinimum" (change)="formatNumbers()">
+				</div>
+			</div>
+		</ng-container>
+		<ng-container *ngIf="id === 'new' && data.type === 'gocardless'">
+			<hr>
+			<p class="text-info">
+				<i class="md md-info"></i>
+				You will be redirected to GoCardless, where you can sign in or create a new account to start taking Direct Debit payments.
+			</p>
+		</ng-container>
+		<ng-container *ngIf="id === 'new' && data.type === 'stripe'">
+			<hr>
+			<p class="text-info">
+				<i class="md md-info"></i>
+				You will be redirected to Stripe, where you can sign in or create a new account to start taking credit or debit card payments.
+			</p>
+		</ng-container>
+	</div>
+</app-modal>

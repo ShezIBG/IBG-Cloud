@@ -1,0 +1,20 @@
+.listbox {
+	height: 200px;
+	overflow: auto;
+}
+
+.tag.label {
+	font-weight: normal;
+	font-size: 0.9em;
+	margin-left: 4px;
+	padding: 5px 4px 5px 7px;
+	margin-bottom: 4px;
+	float: none;
+	display: inline-block;
+}
+
+.tag-remove {
+	vertical-align: middle;
+	margin-left: 4px;
+	cursor: pointer;
+}

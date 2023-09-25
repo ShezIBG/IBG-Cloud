@@ -1,0 +1,56 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>{{entity.getTypeDescription()}}: {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span><button *ngIf="screen.assignables.length" (click)="assignAll()" class="btn btn-success pull-right"><i class="md md-add-circle"></i> Assign devices</button></h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Assigned devices</th>
+					<th>Area</th>
+					<th>Serial</th>
+					<th>Local IP</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let device of entity.assigned">
+					<tr *ngIf="device.type !== 'dali_light'" [ngClass]="{ 'bg-hover': hovered === device }" (mouseenter)="hovered = device" (mouseleave)="hovered = null">
+						<td><i class="{{device.getIconClass()}}"></i> {{device.getDescription()}}</td>
+						<td>{{device.getAreaDescription()}}</td>
+						<td>{{device.data.serial_number}}</td>
+						<td>{{device.data.local_ip_address}}</td>
+						<td class="shrink">
+							<a class="text-danger nowrap" (click)="device.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+						</td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+		<hr>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Assigned DALI Lights</th>
+					<th>Area</th>
+					<th>Subnet ID</th>
+					<th>DALI ID</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let device of entity.assigned">
+					<tr *ngIf="device.type === 'dali_light'" [ngClass]="{ 'bg-hover': hovered === device }" (mouseenter)="hovered = device" (mouseleave)="hovered = null">
+						<td><i class="{{device.getIconClass()}}"></i> {{device.getDescription()}}</td>
+						<td>{{device.getAreaDescription()}}</td>
+						<td>{{device.data.ve_subnet_id}}</td>
+						<td>{{device.data.dali_id}}</td>
+						<td class="shrink">
+							<a class="text-danger nowrap" (click)="device.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+						</td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+</div>

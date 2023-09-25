@@ -1,0 +1,39 @@
+[
+	{
+		"id": 1,
+		"name": "Network",
+		"items": [
+			{
+				"entity": "router",
+				"description": "Router"
+			}
+		]
+	},
+	{
+		"id": 2,
+		"name": "Fibre",
+		"items": [
+			{
+				"entity": "hes",
+				"description": "Headend Server",
+				"router_id": null,
+				"active": 0
+			},
+			{
+				"entity": "olt",
+				"description": "OLT",
+				"hes_id": 0,
+				"serial_number": "",
+				"active": 0,
+				"discovery": true
+			},
+			{
+				"entity": "onu",
+				"description": "ONU",
+				"slot": 1,
+				"port": "PON 1",
+				"onu": 1
+			}
+		]
+	}
+]

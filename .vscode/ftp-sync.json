@@ -1,0 +1,20 @@
+{
+    "remotePath": "/var/www/html/eticom",
+    "host":  "34.244.34.123",                              
+    "username": "root",
+    "port": 22,
+    "protocol": "sftp",
+    "uploadOnSave": false,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": "/Users/admin/Documents/ssh_key/IBG_VSCODE_2023",
+    "ignore": [
+        "\\.vscode",
+        "\\.git",
+        "\\.DS_Store",
+        "README.md",
+        "node_modules",
+        "/v3/",
+        "/configurator/"
+    ]
+}

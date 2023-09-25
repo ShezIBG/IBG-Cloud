@@ -1,0 +1,111 @@
+<div class="layout-dashboard myContainer-moveRight">
+
+	<div *ngIf="data" class="flex-1 flex-col">
+		<div class="widget">
+			<header>
+				<h2>
+					Emergency Lights
+					<div *ngIf="tab !== 'floorplans'" class="input-group pull-right" style="width: 300px;">
+						<span class="input-group-addon"><i class="md md-search"></i></span>
+						<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+					</div>
+				</h2>
+				<hr>
+			</header>
+			<div class="tabs">
+				<ul class="nav nav-pills nav-pills-small">
+					<li [ngClass]="{ active: tab === 'all' }"><a (click)="setTab('all')">All Lights <span *ngIf="data.lights.length" class="bg-primary inline-badge">{{data.lights.length}}</span></a></li>
+					<li [ngClass]="{ active: tab === 'pass' }"><a (click)="setTab('pass')">Passed <span *ngIf="passList.length" class="bg-success text-light inline-badge">{{passList.length}}</span></a></li>
+					<li [ngClass]="{ active: tab === 'fail' }"><a (click)="setTab('fail')">Failed <span *ngIf="failList.length" class="bg-danger text-light inline-badge">{{failList.length}}</span></a></li>
+					<li [ngClass]="{ active: tab === 'warning' }"><a (click)="setTab('warning')">Warnings <span *ngIf="warningList.length" class="bg-warning text-light inline-badge">{{warningList.length}}</span></a></li>
+					<li [ngClass]="{ active: tab === 'floorplans' }"><a (click)="setTab('floorplans')">Floor plans</a></li>
+				</ul>
+			</div>
+			<div class="scrollable" *ngIf="tab !== 'floorplans'">
+				<table class="table table-hover table-striped">
+					<thead>
+						<tr>
+							<th colspan="2">Description</th>
+							<th>Zone No.</th>
+							<th>Group</th>
+							<th>Block</th>
+							<th>Area</th>
+							<th>Last Function Test</th>
+							<th>Last Duration Test</th>
+
+							<th class="shrink text-center">Fn</th>
+							<th class="shrink text-center">Du</th>
+							<th class="shrink text-center" title="Circuit failure"><i class="status-icon md md-memory"></i></th>
+							<th class="shrink text-center" title="Battery duration failure"><i class="status-icon md md-timelapse"></i></th>
+							<th class="shrink text-center" title="Battery failure"><i class="status-icon md md-battery-alert"></i></th>
+							<th class="shrink text-center" title="Emergency lamp failure"><i class="status-icon ei ei-bulb"></i></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let light of filtered | keywords:search:['description', 'group_description', 'floor_description', 'area_description', 'zone_number']" class="selectable" [ngClass]="{ warning: light.has_group === 0 || (light.light_status === -1 && light.has_manual_function === 0 && light.has_manual_duration === 0) }" (click)="showLightDetails(light)">
+							<td class="shrink text-center"><i class="status-icon {{light.type_icon}}"></i></td>
+							<td>{{light.description}}</td>
+							<td>{{light.zone_number}}</td>
+
+							<td *ngIf="light.has_group">{{light.group_description}}</td>
+							<td *ngIf="!light.has_group" class="text-warning"><i class="md md-warning"></i> Unassigned</td>
+
+							<td>{{light.floor_description}}</td>
+							<td>{{light.area_description}}</td>
+
+							<td *ngIf="light.function_test_finished_datetime && light.function_test_age_ok">{{light.function_test_finished_datetime | date:'shortDate'}} {{light.function_test_finished_datetime | date:'shortTime'}}</td>
+							<td *ngIf="light.function_test_finished_datetime && !light.function_test_age_ok" class="text-warning"><i class="md md-warning"></i> {{light.function_test_finished_datetime | date:'shortDate'}} {{light.function_test_finished_datetime | date:'shortTime'}}</td>
+							<td *ngIf="!light.function_test_finished_datetime" class="text-warning"><i class="md md-warning"></i> Never</td>
+
+							<td *ngIf="light.duration_test_finished_datetime && light.duration_test_age_ok">{{light.duration_test_finished_datetime | date:'shortDate'}} {{light.duration_test_finished_datetime | date:'shortTime'}}</td>
+							<td *ngIf="light.duration_test_finished_datetime && !light.duration_test_age_ok" class="text-warning"><i class="md md-warning"></i> {{light.duration_test_finished_datetime | date:'shortDate'}} {{light.duration_test_finished_datetime | date:'shortTime'}}</td>
+							<td *ngIf="!light.duration_test_finished_datetime" class="text-warning"><i class="md md-warning"></i> Never</td>
+
+							<td class="shrink text-center"><i class="{{getFlagIconClass(light.function_test_status)}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(light.duration_test_status)}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(light.circuit_failure, 'md md-memory')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(light.battery_duration_failure, 'md md-timelapse')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(light.battery_failure, 'md md-battery-alert')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(light.emergency_lamp_failure, 'ei ei-bulb')}}"></i></td>
+						</tr>
+						<tr *ngIf="!filtered.length">
+							<td colspan="14" class="text-muted">No lights found.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="flex-col tabs p-b-20" *ngIf="tab === 'floorplans'">
+				<ul class="nav nav-pills nav-pills-small">
+					<li *ngFor="let fp of data.floorplans" [ngClass]="{ active: selectedFloorPlan === fp }"><a (click)="selectFloorPlan(fp)">{{fp.description}}</a></li>
+				</ul>
+				<div *ngIf="selectedFloorPlan" class="flex-1 p-0 floorplan-wrapper">
+					<div class="fill" style="user-select:none;" #plan>
+						<div class="v-center">
+							<div class="floorplan-container">
+								<img src="{{selectedFloorPlan.image}}" class="floorplan-image" style="width:100%;">
+								<div *ngFor="let light of selectedFloorPlan.lights" class="floorplan-icon text-light" (touchstart)="lightTouchStart(light)" (touchend)="lightTouchEnd(light)" (touchcancel)="touched = null" (touchmove)="touched = null" (click)="showLightDetails(light)" (mouseenter)="lightMouseEnter(light)" (mouseleave)="lightMouseLeave()" [ngClass]="{ 'bg-success': light.light_status === 1, 'bg-danger': light.light_status === -1, 'bg-warning': light.light_status === 0 }" [style.top]="light.y + '%'" [style.left]="light.x + '%'" [style.transform]="'scale(' + (1 / scale) + ')'">
+									<i class="{{light.type_icon}}"></i>
+									<div *ngIf="light.direction !== null" class="direction" [ngStyle]="{ transform: 'rotate(' + light.direction + 'deg) translate(20px, 0px)' }"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="zoom-container">
+						<a class="btn btn-sm btn-primary bx-shadow" #zoomin><i class="md md-add"></i></a>
+						<a class="btn btn-sm btn-primary bx-shadow" #zoomout><i class="md md-remove"></i></a>
+					</div>
+					<div *ngIf="hovered" class="hover-info-box" (mouseenter)="infoMouseEnter()" (mouseleave)="infoMouseLeave()">
+						<table class="table table-sm no-top-border">
+							<tr><th class="text-right shrink">Description</th><td>{{hovered.description}}</td></tr>
+							<tr><th class="text-right shrink">Zone No.</th><td>{{hovered.zone_number}}</td></tr>
+							<tr><th class="text-right shrink">Type</th><td>{{hovered.type_description}}</td></tr>
+							<tr><th class="text-right shrink">Area</th><td>{{hovered.area_description}}</td></tr>
+							<tr><th class="text-right shrink">Floor</th><td>{{hovered.floor_description}}</td></tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>

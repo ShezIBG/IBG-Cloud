@@ -1,0 +1,23 @@
+<ng-container *ngIf="data">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>System details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">System description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.details.description" appDesktopFocus>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

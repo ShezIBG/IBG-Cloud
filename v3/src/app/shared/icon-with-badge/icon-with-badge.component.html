@@ -1,0 +1,10 @@
+<div class="text-center">
+	<span class="icon-container {{lengthClass}}">
+		<i class="{{icon}}{{iconSuffix}} text-muted"></i>
+		<span *ngIf="!badgeColor" class="icon-badge text-light bg-primary">{{badge}}</span>
+		<span *ngIf="badgeColor" class="icon-badge text-light" [style.background]="badgeColor">{{badge}}</span>
+	</span>
+</div>
+<div class="icon-title text-center">
+	{{caption}}
+</div>

@@ -1,0 +1,42 @@
+<app-modal modalTitle="Add virtual DB" [buttons]="['Cancel', '*OK']" (event)="modalHandler($event)">
+	<div class="row">
+		<div class="col-lg-6">
+			<div class="form-group">
+				<label>Description</label>
+				<input type="text" class="form-control" [(ngModel)]="entity.data.description" autofocus>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-6">
+			<div class="checkbox checkbox-primary">
+				<label>
+					<input type="checkbox" [(ngModel)]="incoming">
+					<span>Incoming supply</span>
+				</label>
+			</div>
+			<select *ngIf="incoming" class="form-control" [(ngModel)]="entity.data.location">
+				<option *ngFor="let location of locationList" [value]="location">{{location}}</option>
+			</select>
+		</div>
+	</div>
+	<div *ngIf="!incoming" class="row">
+		<div class="col-lg-12">
+			<div class="form-group">
+				<label>Distribution board</label>
+				<select class="form-control" [(ngModel)]="distboard" (change)="entity.data.feed_breaker_id = null">
+					<option *ngFor="let db of distboardList" [ngValue]="db">{{getDBDescription(db)}}</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-lg-12">
+			<div class="form-group" [ngClass]="{ 'has-error': !entity.data.feed_breaker_id }">
+				<label>Feed breaker</label>
+				<select class="form-control" [(ngModel)]="entity.data.feed_breaker_id">
+					<option *ngFor="let breaker of getBreakers()" [ngValue]="breaker.data.id">{{breaker.getDescription()}}</option>
+				</select>
+				<span class="help-block">Required</span>
+			</div>
+		</div>
+	</div>
+</app-modal>

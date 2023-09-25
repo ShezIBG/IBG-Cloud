@@ -1,0 +1,117 @@
+<ng-container *ngIf="app.header.activeTab === 'overview' && data">
+
+	<div *ngIf="data.last_check !== null && data.last_check <= 900 && data.affected_clients.length === 0 && data.issues.length === 0" class="alert alert-success">
+		<i class="md md-check"></i> Everything looks OK.
+	</div>
+
+	<div *ngIf="data.last_check === null || data.last_check > 900" class="alert alert-danger">
+		<i class="md md-warning"></i> Monitoring service is not running. Last check: <b>{{data.last_check_description}}</b>
+	</div>
+
+	<div *ngIf="data.affected_clients.length" class="alert alert-danger">
+		<i class="md md-warning"></i> Issues affecting the following clients:
+		<ul class="m-t-10">
+			<li *ngFor="let client of data.affected_clients">{{client}}</li>
+		</ul>
+	</div>
+
+	<div class="row">
+		<div class="col-md-3">
+			<div class="card-box selectable" routerLink="monitored">
+				<h2 class="text-center" [ngClass]="{ 'text-primary': data.monitored, 'text-muted': !data.monitored }">Monitored</h2>
+				<h1 class="text-center" [ngClass]="{ 'text-primary': data.monitored, 'text-muted': !data.monitored }">{{data.monitored}}</h1>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card-box selectable" routerLink="ok">
+				<h2 class="text-center" [ngClass]="{ 'text-success': data.ok, 'text-muted': !data.ok }">OK</h2>
+				<h1 class="text-center" [ngClass]="{ 'text-success': data.ok, 'text-muted': !data.ok }">{{data.ok}}</h1>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card-box selectable" routerLink="errors">
+				<h2 class="text-center" [ngClass]="{ 'text-danger': data.error, 'text-muted': !data.error }">Errors</h2>
+				<h1 class="text-center" [ngClass]="{ 'text-danger': data.error, 'text-muted': !data.error }">{{data.error}}</h1>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card-box selectable" routerLink="ignored">
+				<h2 class="text-center text-muted">Ignored</h2>
+				<h1 class="text-center text-muted">{{data.ignored}}</h1>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="customChart" class="card-box">
+		<div style="position: relative; width: 100%; height: 200px;">
+			<app-chartjs [custom]="customChart"></app-chartjs>
+		</div>
+	</div>
+
+	<div *ngIf="data.issues.length" class="card-box border-danger border-thick">
+		<h2 class="text-danger">Collector issues</h2>
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Client</th>
+					<th>Location</th>
+					<th>Collector</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of data.issues" class="selectable" (click)="openCollectorDetails(item.id)">
+					<td>{{item.client}}</td>
+					<td>{{item.building}}<br><span class="subtitle">{{item.floor}} / {{item.area}}</span></td>
+					<td>{{item.gateway}}<br><span class="subtitle">{{item.gateway_serial}}</span><br><span class="subtitle">{{item.gateway_type}}</span></td>
+					<td [ngClass]="{ 'text-success': !item.ignored && item.status === 'ok', 'text-danger': !item.ignored && item.status !== 'ok', 'text-muted': item.ignored }">
+						<i class="md" [ngClass]="{ 'md-check': !item.ignored && item.status === 'ok', 'md-error': !item.ignored && item.status !== 'ok', 'md-do-not-disturb': item.ignored }"></i>
+						<span>{{item.message}}</span>
+						<br><span class="subtitle">Last checked: {{item.last_checked}}</span><br><span class="subtitle">Last data received: {{item.last_received}}</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>
+
+<ng-container *ngIf="app.header.activeTab !== 'overview'">
+	<div class="card-box">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="md md-search"></i></span>
+					<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div *ngIf="list" class="card-box">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Client</th>
+					<th>Location</th>
+					<th>Collector</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['client', 'building', 'floor', 'area', 'gateway', 'gateway_serial', 'gateway_type'] | count:count:'list'" class="selectable" (click)="openCollectorDetails(item.id)">
+					<td>{{item.client}}</td>
+					<td>{{item.building}}<br><span class="subtitle">{{item.floor}} / {{item.area}}</span></td>
+					<td>{{item.gateway}}<br><span class="subtitle">{{item.gateway_serial}}</span><br><span class="subtitle">{{item.gateway_type}}</span></td>
+					<td [ngClass]="{ 'text-success': !item.ignored && item.status === 'ok', 'text-danger': !item.ignored && item.status !== 'ok', 'text-muted': item.ignored }">
+						<i class="md" [ngClass]="{ 'md-check': !item.ignored && item.status === 'ok', 'md-error': !item.ignored && item.status !== 'ok', 'md-do-not-disturb': item.ignored }"></i>
+						<span>{{item.message}}</span>
+						<br><span class="subtitle">Last checked: {{item.last_checked}}</span><br><span class="subtitle">Last data received: {{item.last_received}}</span>
+					</td>
+				</tr>
+				<tr *ngIf="!count.list">
+					<td colspan="4">No collectors found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>

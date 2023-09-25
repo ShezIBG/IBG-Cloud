@@ -1,0 +1,149 @@
+<div class="layout-dashboard">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div class="widget" style="min-width: 500px;">
+			<ng-container *ngIf="!editMode">
+				<header>
+					<h2>
+						Light Groups
+						<button class="btn btn-primary btn-sm pull-right" (click)="addGroup()" [disabled]="disableButtons"><i class="md md-add"></i> Add</button>
+						<button *ngIf="selectedGroup" class="btn btn-default btn-sm pull-right" (click)="editGroup(selectedGroup)" [disabled]="disableButtons"><i class="md md-edit"></i> Edit</button>
+					</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table *ngIf="data.groups.length" class="table table-hover">
+						<thead>
+							<tr>
+								<th>Group</th>
+								<th class="text-right">Lights</th>
+								<th class="text-right">Function test</th>
+								<th class="text-right">Duration test</th>
+							</tr>
+						</thead>
+						<tbody>
+							 <tr *ngFor="let group of data.groups" class="selectable" [ngClass]="{ 'primary': selectedGroup === group }" (click)="selectGroup(group)">
+								<td>{{group.description}}</td>
+								<td class="text-right">{{getLightCount(group)}}</td>
+
+								<td *ngIf="group.function_test_datetime" class="text-right">{{group.function_test_datetime | mySQLDateToISO | date:'shortDate'}} {{group.function_test_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!group.function_test_datetime" class="text-right text-warning">Not scheduled</td>
+
+								<td *ngIf="group.duration_test_datetime" class="text-right">{{group.duration_test_datetime | mySQLDateToISO | date:'shortDate'}} {{group.duration_test_datetime | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!group.duration_test_datetime" class="text-right text-warning">Not scheduled</td>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="!data.groups.length" class="text-warning">No groups found.</p>
+				</div>
+			</ng-container>
+			<ng-container *ngIf="selectedGroup && editMode">
+				<header>
+					<h2 *ngIf="selectedGroup.id === 'new'">New Group</h2>
+					<h2 *ngIf="selectedGroup.id !== 'new'">Editing {{selectedGroup.description}}</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label>Description</label>
+								<input type="text" class="form-control" [(ngModel)]="selectedGroup.description">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Function test</label>
+								<p-calendar [(ngModel)]="function_test_datetime" dateFormat="dd/mm/yy" timeFormat="HH:mm" showTime="true" inputStyleClass="form-control" appendTo="body"></p-calendar>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Duration test</label>
+								<p-calendar [(ngModel)]="duration_test_datetime" dateFormat="dd/mm/yy" timeFormat="HH:mm" showTime="true" inputStyleClass="form-control" appendTo="body"></p-calendar>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="flex-0 text-right">
+					<button class="btn btn-default" [disabled]="disableButtons" (click)="cancelEdit()"><i class="md md-cancel"></i> Cancel</button>
+					<button class="btn btn-primary" [disabled]="disableButtons" (click)="saveEdit()"><i class="md md-check"></i> Save</button>
+					<button *ngIf="selectedGroup.id !== 'new'" class="btn btn-danger pull-left" [disabled]="disableButtons" (click)="deleteGroup()"><i class="md md-delete"></i> Delete group</button>
+				</div>
+			</ng-container>
+		</div>
+
+		<div class="flex-2 widget">
+			<header>
+				<h2>Lights</h2>
+				<hr>
+			</header>
+			<div *ngIf="!selectedGroup">Please select a group.</div>
+			<div *ngIf="selectedGroup && !getLightCount(selectedGroup) && !editMode">There are no emergency lights in this group.</div>
+
+			<ng-container *ngIf="selectedGroup && (editMode || getLightCount(selectedGroup))">
+
+				<div class="tabs">
+					<ul class="nav nav-pills nav-pills-small">
+						<li *ngFor="let fp of (editMode ? data.floorplans : selectedGroup.floorplans)" [ngClass]="{ active: selectedFloorPlan === fp }"><a (click)="selectFloorPlan(fp)">{{fp.description}} <span *ngIf="getLightCount(selectedGroup, fp) as cnt" class="bg-primary inline-badge">{{cnt}}</span></a></li>
+					</ul>
+				</div>
+				<div *ngIf="selectedFloorPlan && !selectedFloorPlan.unplaced" class="floorplan-wrapper">
+					<div class="fill" style="user-select:none;" #plan>
+						<div class="v-center">
+							<div class="floorplan-container">
+								<img src="{{selectedFloorPlan.image}}" class="floorplan-image" style="width:100%;">
+								<div *ngFor="let light of selectedFloorPlan.lights" class="floorplan-icon text-light" (touchstart)="lightTouchStart(light)" (touchend)="lightTouchEnd(light)" (touchcancel)="touched = null" (touchmove)="touched = null" (click)="lightClicked(light)" (mouseenter)="lightMouseEnter(light)" (mouseleave)="lightMouseLeave()" [ngClass]="{ 'bg-primary on-top': light.group_id === selectedGroup.id, 'bg-muted': light.group_id && light.group_id !== selectedGroup.id, 'bg-warning': light.group_id === null }" [style.top]="light.y + '%'" [style.left]="light.x + '%'" [style.transform]="'scale(' + (1 / scale) + ')'">
+									<i class="{{light.type_icon}}"></i>
+									<div *ngIf="light.direction !== null" class="direction" [ngStyle]="{ transform: 'rotate(' + light.direction + 'deg) translate(20px, 0px)' }"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="zoom-container">
+						<a class="btn btn-sm btn-primary bx-shadow" #zoomin><i class="md md-add"></i></a>
+						<a class="btn btn-sm btn-primary bx-shadow" #zoomout><i class="md md-remove"></i></a>
+					</div>
+					<div *ngIf="hovered" class="hover-info-box" (mouseenter)="infoMouseEnter()" (mouseleave)="infoMouseLeave()">
+						<table class="table table-sm no-top-border">
+							<tr><th class="text-right shrink">Description</th><td>{{hovered.description}}</td></tr>
+							<tr><th class="text-right shrink">Zone No.</th><td>{{hovered.zone_number}}</td></tr>
+							<tr><th class="text-right shrink">Type</th><td>{{hovered.type_description}}</td></tr>
+							<tr><th class="text-right shrink">Area</th><td>{{hovered.area_description}}</td></tr>
+							<tr><th class="text-right shrink">Floor</th><td>{{hovered.floor_description}}</td></tr>
+							<tr *ngIf="getLightGroup(hovered) as group"><th class="text-right shrink">Group</th><td [ngClass]="{ 'text-warning': group.unassigned }">{{group.description}}</td></tr>
+						</table>
+					</div>
+				</div>
+				<div *ngIf="selectedFloorPlan?.unplaced" class="scrollable">
+					<table class="table">
+						<thead>
+							<tr>
+								<th colspan="2">Description</th>
+								<th>Zone No.</th>
+								<th>Block</th>
+								<th>Area</th>
+								<th>Group</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let light of selectedFloorPlan.lights" (click)="lightClicked(light)" class="selectable" [ngClass]="{ 'primary': light.group_id === selectedGroup.id }">
+								<td class="text-center shrink"><i class="{{light.type_icon}}"></i></td>
+								<td>{{light.description}}</td>
+								<td>{{light.zone_number}}</td>
+								<td>{{light.floor_description}}</td>
+								<td>{{light.area_description}}</td>
+								<td *ngIf="getLightGroup(light) as group" [ngClass]="{ 'text-warning': group.unassigned }">{{group.description}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+			</ng-container>
+		</div>
+	</div>
+
+</div>

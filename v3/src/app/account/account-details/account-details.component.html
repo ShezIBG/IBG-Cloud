@@ -1,0 +1,574 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header *ngIf="app.branding === 'elanet' && details?.authenticated" [signOut]="true"></app-auth-header>
+		<div class="flex-1 scrollable p-t-20">
+
+			<!-- ACCOUNT -->
+			<ng-container *ngIf="details && mode === 'account'">
+				<div class="col col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+
+					<ng-container *ngIf="details.cloud_access && app.branding === 'eticom'">
+						<button class="btn btn-inverse m-b-15" (click)="goToCloud()"><i class="md md-home"></i> IBG
+							Cloud</button>
+					</ng-container>
+
+					<div class="card-box">
+						<div class="row">
+							<div class="col-xs-6">
+								<h2 class="m-t-0">{{details.contact_name && details.company_name ? details.contact_name
+									+ ', ' + details.company_name : details.contact_name + details.company_name}}</h2>
+								<h3>Account balance</h3>
+								<h1
+									[ngClass]="{ 'text-success' : details.outstanding >= 0, 'text-danger' : details.outstanding < 0 }">
+									{{Math.abs(details.outstanding) | decimal:2:2:true:'GBP'}}</h1>
+								<p *ngIf="details.outstanding < 0">in debit</p>
+								<p *ngIf="details.outstanding > 0">in credit</p>
+							</div>
+							<div class="col-xs-6 text-right">
+								<img src="{{details.owner_logo}}" class="m-b-15"
+									style="max-width: 150px; max-height: 100px;">
+								<div *ngIf="details.owner_name">{{details.owner_name}}</div>
+								<div *ngIf="details.owner_address_line_1">{{details.owner_address_line_1}}</div>
+								<div *ngIf="details.owner_address_line_2">{{details.owner_address_line_2}}</div>
+								<div *ngIf="details.owner_address_line_3">{{details.owner_address_line_3}}</div>
+								<div *ngIf="details.owner_posttown">{{details.owner_posttown}}</div>
+								<div *ngIf="details.owner_postcode">{{details.owner_postcode}}</div>
+							</div>
+						</div>
+
+						<ng-container *ngFor="let c of details.contracts">
+							<hr>
+							<div *ngIf="app.branding === 'elanet' && c.area_address" class="m-b-20">
+								<h2 class="text-primary m-0">{{c.area_address}}</h2>
+								<div *ngIf="details.authenticated && (!c.has_pdf || c.is_pdf_signed)" class="m-t-10"><!-- TODO: && !paymentMethodRequired -->
+									<button *ngIf="c.status !== 'pending'" class="btn btn-primary" [disabled]="disabled" (click)="selectSupportContract(c)">Support And Troubleshooting</button>
+									<button *ngIf="c.status !== 'pending'" class="btn btn-primary" [disabled]="disabled" (click)="selectUpgradeContract(c)">Upgrade My Service</button>
+									<a *ngIf="c.has_pdf && c.is_pdf_signed" class="btn btn-default" [href]="c.print_url" target="_blank"><i class="md md-print"></i> Print Contract</a>
+									<button *ngIf="c.status === 'active'" class="btn btn-default pull-right" (click)="selectCancelContract(c)" [disabled]="disabled">Cancel My Contract</button>
+								</div>
+							</div>
+							<h3>
+								{{c.description}}
+								<a *ngIf="c.has_pdf && c.is_pdf_signed && !details.authenticated" class="btn btn-default btn-sm m-l-15"
+									[href]="c.print_url" target="_blank"><i class="md md-print"></i> Print Contract</a><!-- TODO: && !paymentMethodRequired -->
+								<span *ngIf="c.status === 'unconfirmed'" class="badge badge-default pull-right">Unconfirmed contract</span>
+								<span *ngIf="c.status === 'not_signed'" class="badge badge-default pull-right">Not signed</span>
+								<span *ngIf="c.status === 'pending'" class="badge badge-default pull-right">Pending contract</span>
+								<span *ngIf="c.status === 'active'" class="badge badge-success pull-right">Active contract</span>
+								<span *ngIf="c.status === 'ending'" class="badge badge-warning pull-right">Ending contract</span>
+								<span *ngIf="c.status === 'ended'" class="badge badge-primary pull-right">Ended contract</span>
+								<span *ngIf="c.status === 'cancelled'" class="badge badge-danger pull-right">Cancelled contract</span>
+							</h3>
+
+							<table *ngFor="let ci of c.invoices" class="table table-striped table-hover">
+								<thead>
+									<tr>
+										<th>Description</th>
+										<th class="text-right">Unit price</th>
+										<th class="text-right">Quantity</th>
+										<th class="text-right">Total</th>
+										<th class="shrink nowrap"></th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr *ngFor="let cil of ci.lines">
+										<td>{{cil.description}}</td>
+										<td class="text-right">{{cil.unit_price | decimal:2:4:true:'GBP'}}</td>
+										<td class="text-right">
+											<span *ngIf="cil.quantity_description">{{cil.quantity_description}}</span>
+											<span *ngIf="!cil.quantity_description">{{cil.quantity}}</span>
+										</td>
+										<td class="text-right">
+											<span *ngIf="cil.total_description">{{cil.total_description}}</span>
+											<span *ngIf="!cil.total_description">{{cil.total |
+												decimal:2:2:true:'GBP'}}</span>
+										</td>
+										<td class="shrink nowrap">{{cil.frequency}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</ng-container>
+					</div>
+
+					<ng-container *ngIf="!signatureRequired">
+						<ng-container *ngFor="let g of details.gateways; let index = index">
+
+							<ng-container *ngIf="g.type === 'stripe'">
+								<div *ngIf="details.outstanding < 0" class="card-box border-warning border-thick">
+									<h2 *ngIf="app.branding === 'elanet' && details.gateways.length > 1" class="m-t-0">
+										Step {{index + 1}}</h2>
+									<h2 *ngIf="app.branding !== 'elanet'" class="m-t-0">Card Payment</h2>
+									<p>Please pay <b>{{Math.abs(details.outstanding) | decimal:2:2:true:'GBP'}}</b> by
+										credit or debit card.</p>
+									<ng-container *ngIf="g.has_card">
+										<p>
+											<b>Saved card:</b><br>
+											Card ending <b>{{g.last4}}</b>, expires <b>{{g.exp_month |
+												number:'2.0'}}/{{g.exp_year}}</b>
+										</p>
+									</ng-container>
+									<div *ngIf="g.allow_part_payment" class="m-t-20 m-b-30">
+										<div class="radio radio-primary">
+											<label>
+												<input type="radio" [checked]="!g.part_payment"
+													(change)="g.part_payment = false">
+												<span>Pay full outstanding amount of <b>{{Math.abs(details.outstanding)
+														| decimal:2:2:true:'GBP'}}</b></span>
+											</label>
+										</div>
+										<div class="radio radio-primary">
+											<label>
+												<input type="radio" [checked]="g.part_payment"
+													(change)="g.part_payment = true">
+												<span>Pay a different amount</span>
+											</label>
+										</div>
+										<div *ngIf="g.part_payment" style="margin-left: 24px;">
+											<div class="input-group" style="width: 150px;">
+												<div class="input-group-addon">&pound;</div>
+												<input class="form-control text-right" [(ngModel)]="g.amount"
+													(change)="formatGatewayAmounts()">
+											</div>
+											<p class="subtitle m-t-5">Between {{g.part_minimum_pence / 100 |
+												decimal:2:2:true:'GBP'}} and {{details.outstanding_pence / 100 |
+												decimal:2:2:true:'GBP'}}.</p>
+										</div>
+									</div>
+									<ng-container *ngIf="g.has_card">
+										<button class="btn btn-primary" (click)="paySavedCard(g)"
+											[disabled]="disabled">Pay now using your saved card</button>
+										<button class="btn btn-default" (click)="stripeCheckout(g)"
+											[disabled]="disabled">Pay now using a different card</button>
+									</ng-container>
+									<ng-container *ngIf="!g.has_card">
+										<button class="btn btn-primary" (click)="stripeCheckout(g)"
+											[disabled]="disabled">Pay now</button>
+									</ng-container>
+								</div>
+
+								<div *ngIf="details.outstanding >= 0 && g.has_card" class="card-box">
+									<h2 *ngIf="app.branding === 'elanet' && details.gateways.length > 1" class="m-t-0">
+										Step {{index + 1}}</h2>
+									<h2 *ngIf="app.branding !== 'elanet'" class="m-t-0">Card Payment</h2>
+									<p class="text-success"><i class="md md-check"></i> Card details saved.</p>
+									<p>
+										Card ending <b>{{g.last4}}</b>, expires <b>{{g.exp_month |
+											number:'2.0'}}/{{g.exp_year}}</b>
+									</p>
+									<button class="btn btn-default" (click)="stripeCheckout(g)"
+										[disabled]="disabled">Change payment card</button>
+								</div>
+
+								<div *ngIf="details.outstanding >= 0 && !g.has_card"
+									class="card-box border-warning border-thick">
+									<h2 *ngIf="app.branding === 'elanet' && details.gateways.length > 1" class="m-t-0">
+										Step {{index + 1}}</h2>
+									<h2 *ngIf="app.branding !== 'elanet'" class="m-t-0">Card Payment</h2>
+									<p>You don't have a valid credit or debit card on file.</p>
+									<button class="btn btn-primary" (click)="stripeCheckout(g)"
+										[disabled]="disabled">Add credit or debit card</button>
+								</div>
+							</ng-container>
+
+							<ng-container *ngIf="g.type === 'gocardless'">
+								<div *ngIf="!g.has_mandate" class="card-box border-warning border-thick">
+									<h2 *ngIf="app.branding === 'elanet' && details.gateways.length > 1" class="m-t-0">
+										Step {{index + 1}}</h2>
+									<h2 *ngIf="app.branding !== 'elanet'" class="m-t-0">Direct Debit</h2>
+									<p *ngIf="!(details.owner_type === 'SI' && details.owner_id === 4)">Please set up a
+										Direct Debit to process your regular payments.</p>
+									<p *ngIf="details.owner_type === 'SI' && details.owner_id === 4">Please set up a
+										Direct Debit to process your regular payments to activate your superfast
+										broadband.</p>
+									<button class="btn btn-primary" (click)="setupDD(g)" [disabled]="disabled">Enter
+										bank details</button>
+								</div>
+								<div *ngIf="g.has_mandate" class="card-box">
+									<h2 *ngIf="app.branding === 'elanet' && details.gateways.length > 1" class="m-t-0">
+										Step {{index + 1}}</h2>
+									<h2 *ngIf="app.branding !== 'elanet'" class="m-t-0">Direct Debit</h2>
+									<p class="text-success"><i class="md md-check"></i> Direct Debit is active.</p>
+									<button class="btn btn-default" (click)="setupDD(g)" [disabled]="disabled">Change
+										bank details</button>
+								</div>
+							</ng-container>
+
+						</ng-container>
+					</ng-container>
+
+					<div *ngIf="!signatureRequired && details.transactions.length > 0" class="card-box">
+						<h2 class="m-t-0">Transactions and Invoices</h2>
+						<table class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Description</th>
+									<th></th>
+									<th class="text-right">Amount</th>
+									<th class="shrink nowrap">Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let t of details.transactions | pagination:pagination">
+									<td>{{t.create_datetime | mySQLDateToISO | date:'shortDate'}}</td>
+									<td>{{t.description}}</td>
+									<td><a *ngIf="t.invoice_url" href="{{t.invoice_url}}" target="_blank"><i class="md md-search"></i> View Invoice</a></td>
+									<td class="text-right">{{t.amount | decimal:2:2:true:'GBP'}}</td>
+									<td class="text-center shrink nowrap">
+										<span *ngIf="t.status === 'pending'"
+											class="badge badge-default">Processing</span>
+										<span *ngIf="t.status === 'ok'" class="badge badge-success">Completed</span>
+										<span *ngIf="t.type !== 'invoice' && t.status === 'fail'"
+											class="badge badge-danger">Failed</span>
+										<span *ngIf="t.type === 'invoice' && t.status === 'fail'"
+											class="badge badge-danger">Cancelled</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<app-pagination [pagination]="pagination"></app-pagination>
+					</div>
+
+					<ng-container *ngIf="signatureRequired">
+						<ng-container *ngFor="let c of details.contracts">
+
+							<div *ngIf="!c.is_pdf_signed" class="card-box border-warning border-thick">
+								<h2 class="m-t-0 m-b-20">Please review and sign your contract</h2>
+								<p>Click on the button below to review your contract (opens in a new tab).</p>
+								<a class="btn btn-default m-b-20" [href]="c.print_url" target="_blank">Review Contract</a>
+
+								<p>Please accept the terms, enter your name in the field then click the button below to accept and sign your contract.</p>
+
+								<div class="checkbox checkbox-primary m-t-20">
+									<label>
+										<input type="checkbox" [(ngModel)]="question1">
+										<span>I agree to section 6.5.3  and give confirmation to start carrying out the services within the 14–day cancellation period.</span>
+									</label>
+								</div>
+								<div class="checkbox checkbox-primary m-b-20">
+									<label>
+										<input type="checkbox" [(ngModel)]="question2">
+										<span>I have read the attached contract and agree to all the terms and conditions.</span>
+									</label>
+								</div>
+
+								<input class="form-control m-b-15" [(ngModel)]="signedBy" style="width: 300px;" placeholder="Signed By">
+								<button class="btn btn-primary" (click)="signPDF(c)" [disabled]="disabled || !question1 || !question2 || !signedBy">Accept and Sign Contract</button>
+							</div>
+
+						</ng-container>
+					</ng-container>
+
+				</div>
+			</ng-container>
+
+			<!-- CANCEL -->
+			<ng-container *ngIf="details && mode === 'cancel'">
+				<div class="col col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+					<button class="btn btn-default" (click)="backToAccount()"><i class="md md-home"></i> Back</button>
+					<h2>
+						Cancel My Contract
+					</h2>
+					<div class="card-box">
+						<div *ngIf="app.branding === 'elanet' && cancelContract.area_address" class="m-b-20">
+							<h2 class="text-primary m-0">{{cancelContract.area_address}}</h2>
+						</div>
+						<h3>
+							{{cancelContract.description}}
+							<span *ngIf="cancelContract.status === 'unconfirmed'" class="badge badge-default pull-right">Unconfirmed contract</span>
+							<span *ngIf="cancelContract.status === 'not_signed'" class="badge badge-default pull-right">Not signed</span>
+							<span *ngIf="cancelContract.status === 'pending'" class="badge badge-default pull-right">Pending contract</span>
+							<span *ngIf="cancelContract.status === 'active'" class="badge badge-success pull-right">Active contract</span>
+							<span *ngIf="cancelContract.status === 'ending'" class="badge badge-warning pull-right">Ending contract</span>
+							<span *ngIf="cancelContract.status === 'ended'" class="badge badge-primary pull-right">Ended contract</span>
+							<span *ngIf="cancelContract.status === 'cancelled'" class="badge badge-danger pull-right">Cancelled contract</span>
+						</h3>
+
+						<table *ngFor="let ci of cancelContract.invoices" class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Description</th>
+									<th class="text-right">Unit price</th>
+									<th class="text-right">Quantity</th>
+									<th class="text-right">Total</th>
+									<th class="shrink nowrap"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let cil of ci.lines">
+									<td>{{cil.description}}</td>
+									<td class="text-right">{{cil.unit_price | decimal:2:4:true:'GBP'}}</td>
+									<td class="text-right">
+										<span *ngIf="cil.quantity_description">{{cil.quantity_description}}</span>
+										<span *ngIf="!cil.quantity_description">{{cil.quantity}}</span>
+									</td>
+									<td class="text-right">
+										<span *ngIf="cil.total_description">{{cil.total_description}}</span>
+										<span *ngIf="!cil.total_description">{{cil.total |
+											decimal:2:2:true:'GBP'}}</span>
+									</td>
+									<td class="shrink nowrap">{{cil.frequency}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="card-box">
+						<h2>Date of cancellation</h2>
+						<p>Please select an end date for your contract. It must be at least 30 days from now and after you contract's mandatory term. You will be charged as normal up to the day before your end date. Your services will be switched off on the end date.</p>
+						<hr>
+						<p><b>Contract end date</b></p>
+						<p-calendar [(ngModel)]="cancelDate" (ngModelChange)="cancelResult = null" dateFormat="dd/mm/yy" inputStyleClass="form-control" appendTo="body"></p-calendar>
+						<br><br><button class="btn btn-primary" [disabled]="disabled" (click)="checkCancelDate()">Check Date</button>
+					</div>
+
+					<div *ngIf="cancelResult && !cancelResult.can_cancel" class="card-box">
+						<h2 class="text-danger">{{cancelResult.message}}</h2>
+						<p>Please call us on 0333 358 3595 or email us at <a href="mailto:accounts@elanet.co.uk">accounts@elanet.co.uk</a>.</p>
+					</div>
+
+					<div *ngIf="cancelResult && cancelResult.can_cancel" class="card-box">
+						<h2 class="text-success">You contract can be ended on the date you selected.</h2>
+						<p>Please click the button below to give us your notice.</p>
+						<button class="btn btn-danger" [disabled]="disabled" (click)="submitCancellation()">Set contract end date</button>
+					</div>
+				</div>
+			</ng-container>
+
+			<!-- UPGRADE -->
+			<ng-container *ngIf="details && mode === 'upgrade'">
+				<div class="col col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+					<button class="btn btn-default" (click)="backToAccount()"><i class="md md-home"></i> Back</button>
+					<h2>
+						Upgrade My Service
+					</h2>
+					<div class="card-box">
+						<div *ngIf="app.branding === 'elanet' && upgradeContract.area_address" class="m-b-20">
+							<h2 class="text-primary m-0">{{upgradeContract.area_address}}</h2>
+						</div>
+						<h3>
+							{{upgradeContract.description}}
+							<span *ngIf="upgradeContract.status === 'unconfirmed'" class="badge badge-default pull-right">Unconfirmed contract</span>
+							<span *ngIf="upgradeContract.status === 'not_signed'" class="badge badge-default pull-right">Not signed</span>
+							<span *ngIf="upgradeContract.status === 'pending'" class="badge badge-default pull-right">Pending contract</span>
+							<span *ngIf="upgradeContract.status === 'active'" class="badge badge-success pull-right">Active contract</span>
+							<span *ngIf="upgradeContract.status === 'ending'" class="badge badge-warning pull-right">Ending contract</span>
+							<span *ngIf="upgradeContract.status === 'ended'" class="badge badge-primary pull-right">Ended contract</span>
+							<span *ngIf="upgradeContract.status === 'cancelled'" class="badge badge-danger pull-right">Cancelled contract</span>
+						</h3>
+
+						<table *ngFor="let ci of upgradeContract.invoices" class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Description</th>
+									<th class="text-right">Unit price</th>
+									<th class="text-right">Quantity</th>
+									<th class="text-right">Total</th>
+									<th class="shrink nowrap"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let cil of ci.lines">
+									<td>{{cil.description}}</td>
+									<td class="text-right">{{cil.unit_price | decimal:2:4:true:'GBP'}}</td>
+									<td class="text-right">
+										<span *ngIf="cil.quantity_description">{{cil.quantity_description}}</span>
+										<span *ngIf="!cil.quantity_description">{{cil.quantity}}</span>
+									</td>
+									<td class="text-right">
+										<span *ngIf="cil.total_description">{{cil.total_description}}</span>
+										<span *ngIf="!cil.total_description">{{cil.total |
+											decimal:2:2:true:'GBP'}}</span>
+									</td>
+									<td class="shrink nowrap">{{cil.frequency}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="card-box">
+						<h2>Select your new package</h2>
+						<select class="form-control" [(ngModel)]="upgradePackage">
+							<option *ngFor="let p of upgradeInfo.packages" [ngValue]="p">{{p.description}}</option>
+						</select>
+					</div>
+
+					<div *ngIf="upgradePackage" class="card-box">
+						<h1>Upgrade to {{upgradePackage.description}}</h1>
+						<p>Pay <b class="text-primary">{{upgradePackage.upgrade_price | decimal:2:2:true:'GBP'}}</b> + VAT now, which will cover you until <b>{{upgradePackage.billed_date | mySQLDateToISO | date:'shortDate'}}</b>.</p>
+						<p>Then pay <b class="text-primary">{{upgradePackage.monthly_price | decimal:2:2:true:'GBP'}}</b> + VAT every month from <b>{{upgradePackage.monthly_date | mySQLDateToISO | date:'shortDate'}}</b>.</p>
+						<h2>Total payable now: <span class="text-success">{{upgradePackage.upgrade_total | decimal:2:2:true:'GBP'}}</span> <small>(inc. VAT)</small></h2>
+
+						<p *ngIf="details.outstanding < 0" class="text-danger m-t-20">
+							<i class="md md-error"></i> You need to pay your outstanding balance before you can upgrade your services.
+						</p>
+
+						<ng-container *ngIf="details.outstanding >= 0">
+							<ng-container *ngFor="let g of details.gateways; let index = index">
+								<ng-container *ngIf="g.type === 'stripe'">
+									<ng-container *ngIf="g.has_card">
+										<button class="btn btn-primary" (click)="upgradeBySavedCard(g)"
+											[disabled]="disabled">Pay now using your saved card</button>
+										<button class="btn btn-default" (click)="upgradeByNewCard(g)"
+											[disabled]="disabled">Pay now using a different card</button>
+									</ng-container>
+									<ng-container *ngIf="!g.has_card">
+										<button class="btn btn-primary" (click)="upgradeByNewCard(g)"
+											[disabled]="disabled">Pay now</button>
+									</ng-container>
+								</ng-container>
+							</ng-container>
+						</ng-container>
+
+					</div>
+
+				</div>
+			</ng-container>
+
+			<!-- SUPPORT -->
+			<ng-container *ngIf="details && mode === 'support'">
+				<div class="col col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
+					<button class="btn btn-default" (click)="backToAccount()"><i class="md md-home"></i> Back</button>
+					<h2>
+						Support and Troubleshooting
+					</h2>
+					<div class="card-box">
+						<div *ngIf="app.branding === 'elanet' && supportContract.area_address" class="m-b-20">
+							<h2 class="text-primary m-0">{{supportContract.area_address}}</h2>
+						</div>
+						<h3>
+							{{supportContract.description}}
+							<span *ngIf="supportContract.status === 'unconfirmed'" class="badge badge-default pull-right">Unconfirmed contract</span>
+							<span *ngIf="supportContract.status === 'not_signed'" class="badge badge-default pull-right">Not signed</span>
+							<span *ngIf="supportContract.status === 'pending'" class="badge badge-default pull-right">Pending contract</span>
+							<span *ngIf="supportContract.status === 'active'" class="badge badge-success pull-right">Active contract</span>
+							<span *ngIf="supportContract.status === 'ending'" class="badge badge-warning pull-right">Ending contract</span>
+							<span *ngIf="supportContract.status === 'ended'" class="badge badge-primary pull-right">Ended contract</span>
+							<span *ngIf="supportContract.status === 'cancelled'" class="badge badge-danger pull-right">Cancelled contract</span>
+						</h3>
+
+						<table *ngFor="let ci of supportContract.invoices" class="table table-striped table-hover">
+							<thead>
+								<tr>
+									<th>Description</th>
+									<th class="text-right">Unit price</th>
+									<th class="text-right">Quantity</th>
+									<th class="text-right">Total</th>
+									<th class="shrink nowrap"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let cil of ci.lines">
+									<td>{{cil.description}}</td>
+									<td class="text-right">{{cil.unit_price | decimal:2:4:true:'GBP'}}</td>
+									<td class="text-right">
+										<span *ngIf="cil.quantity_description">{{cil.quantity_description}}</span>
+										<span *ngIf="!cil.quantity_description">{{cil.quantity}}</span>
+									</td>
+									<td class="text-right">
+										<span *ngIf="cil.total_description">{{cil.total_description}}</span>
+										<span *ngIf="!cil.total_description">{{cil.total |
+											decimal:2:2:true:'GBP'}}</span>
+									</td>
+									<td class="shrink nowrap">{{cil.frequency}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<ng-container *ngIf="supportInfo">
+						<div class="panel-group" id="accordion">
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h4 class="panel-title">
+										<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseStatus">
+											What is the status of my router?
+										</a>
+									</h4>
+								</div>
+								<div id="collapseStatus" class="panel-collapse collapse in">
+									<div class="panel-body">
+										<ng-container *ngIf="supportInfo.router_status === 'OK'">
+											<p class="text-bold text-success">Your router is online.</p>
+											<p>Are you are having problems with your internet? Press the button below to run some automated fixes.</p>
+											<button *ngIf="!fixed" class="btn btn-default m-t-20" (click)="fixMyInternet()" [disabled]="disabled">Fix My Internet</button>
+											<p *ngIf="fixed" class="text-info m-t-20"><i class="md md-info"></i> Please wait 5 minutes whilst we run some fixes. If after 5 minutes you still have problems, please contact support at <a href="mailto:support@elanet.co.uk">support@elanet.co.uk</a> or call us on 03333 583 595.</p>
+										</ng-container>
+										<ng-container *ngIf="supportInfo.router_status === 'Absent'">
+											<p class="text-bold text-danger">Your router is offline.</p>
+											<p *ngIf="!supportInfo.info_offline">Please switch your router on.</p>
+											<app-html-content *ngIf="supportInfo.info_offline" [html]="supportInfo.info_offline"></app-html-content>
+										</ng-container>
+									</div>
+								</div>
+							</div>
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h4 class="panel-title">
+										<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseWifi">
+											How do I connect to the Wi-Fi?
+										</a>
+									</h4>
+								</div>
+								<div id="collapseWifi" class="panel-collapse collapse">
+									<div class="panel-body">
+										<p>Use the details below to connect to your Wi-Fi network.</p>
+										<div class="form-horizontal m-t-20">
+											<div class="form-group">
+												<label class="col-md-4 control-label">Wi-Fi SSID</label>
+												<div class="col-md-5">
+													<input class="form-control" [(ngModel)]="supportInfo.wifi_ssid" disabled>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-md-4 control-label">Wi-Fi Password</label>
+												<div class="col-md-5">
+													<div class="input-group">
+														<input type="{{revealPassword ? 'text' : 'password'}}" class="form-control" [(ngModel)]="supportInfo.wifi_password" disabled>
+														<span class="input-group-btn">
+															<button class="btn btn-primary" (click)="revealPassword = !revealPassword"><i class="md" [ngClass]="{ 'md-visibility': !revealPassword, 'md-visibility-off': revealPassword }"></i> {{revealPassword ? 'Hide' : 'Show'}} Password</button>
+														</span>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div *ngIf="supportInfo.info_reboot" class="panel panel-default">
+								<div class="panel-heading">
+									<h4 class="panel-title">
+										<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseReboot">
+											How do I reboot my router?
+										</a>
+									</h4>
+								</div>
+								<div id="collapseReboot" class="panel-collapse collapse">
+									<div class="panel-body">
+										<app-html-content [html]="supportInfo.info_reboot"></app-html-content>
+									</div>
+								</div>
+							</div>
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h4 class="panel-title">
+										<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSupport">
+											How do I contact support?
+										</a>
+									</h4>
+								</div>
+								<div id="collapseSupport" class="panel-collapse collapse">
+									<div class="panel-body">
+										<p>Contact support on <a href="mailto:support@elanet.co.uk">support@elanet.co.uk</a> or call 03333 583 595.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</ng-container>
+
+				</div>
+			</ng-container>
+
+		</div>
+	</div>
+</div>

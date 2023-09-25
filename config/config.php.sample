@@ -1,0 +1,72 @@
+<?php
+defined("DEV_MODE") ? null : define("DEV_MODE", 1);
+
+// Main database
+defined("DB_HOST") ? null : define("DB_HOST", "");
+defined("DB_USER") ? null : define("DB_USER", "");
+defined("DB_PASSWORD") ? null : define("DB_PASSWORD", "");
+defined("DB_NAME") ? null : define("DB_NAME", "eticom");
+
+// ISP database
+defined("ISP_DB_HOST") ? null : define("ISP_DB_HOST", "");
+defined("ISP_DB_USER") ? null : define("ISP_DB_USER", "");
+defined("ISP_DB_PASSWORD") ? null : define("ISP_DB_PASSWORD", "");
+defined("ISP_DB_NAME") ? null : define("ISP_DB_NAME", "isp");
+
+// Climate database
+defined("CLIMATE_DB_HOST") ? null : define("CLIMATE_DB_HOST", "");
+defined("CLIMATE_DB_USER") ? null : define("CLIMATE_DB_USER", "");
+defined("CLIMATE_DB_PASSWORD") ? null : define("CLIMATE_DB_PASSWORD", "");
+defined("CLIMATE_DB_NAME") ? null : define("CLIMATE_DB_NAME", "aircon");
+
+// Relay database
+defined("RELAY_DB_HOST") ? null : define("RELAY_DB_HOST", "");
+defined("RELAY_DB_USER") ? null : define("RELAY_DB_USER", "");
+defined("RELAY_DB_PASSWORD") ? null : define("RELAY_DB_PASSWORD", "");
+defined("RELAY_DB_NAME") ? null : define("RELAY_DB_NAME", "relay");
+
+// DALI database
+defined("DALI_DB_HOST") ? null : define("DALI_DB_HOST", "");
+defined("DALI_DB_USER") ? null : define("DALI_DB_USER", "");
+defined("DALI_DB_PASSWORD") ? null : define("DALI_DB_PASSWORD", "");
+defined("DALI_DB_NAME") ? null : define("DALI_DB_NAME", "ve_dali");
+
+defined("INTERNAL_SECRET") ? null : define("INTERNAL_SECRET", "HASHKEY");
+defined("ASSETS_URL") ? null : define("ASSETS_URL", "http://assets2.eticom.co.uk"); // "http://".$_SERVER['HTTP_HOST'] ."/assets");
+
+//MY Custom ASSETSURL
+defined("ASSETSMY_URL") = null : define("ASSETSMY_URL", "http://assets2.eticom.co.uk"); // "http://".$_SERVER['HTTP_HOST'."/v3"]);
+
+
+defined("AUTH_COOKIE_NAME") ? null : define("AUTH_COOKIE_NAME", "cloud_login");
+defined("SESSION_NAME_USER_ID") ? null : define("SESSION_NAME_USER_ID", "user_id");
+defined("SESSION_NAME_PASSWORD") ? null : define("SESSION_NAME_PASSWORD", "user_password");
+defined("USER_CONTENT_URL") ? null : define("USER_CONTENT_URL", "/assets/user-content");
+defined("USER_CONTENT_PATH") ? null : define("USER_CONTENT_PATH", APP_PATH."/assets/user-content");
+
+define("APP_EMAIL_HOST", "smtp.eticom.co.uk");
+define("APP_EMAIL_PORT", "587");
+define("APP_EMAIL_USER", "no-reply@eticom.co.uk");
+define("APP_EMAIL_PASSWORD", "");
+define("APP_EMAIL_SECURE", "STARTTLS");
+define("APP_EMAIL", "no-reply@eticom.co.uk");
+
+// GoCardless integration
+define("GOCARDLESS_ACCESS_TOKEN", "");
+define("GOCARDLESS_APP_CLIENT_ID", "");
+define("GOCARDLESS_APP_CLIENT_SECRET", "");
+define("GOCARDLESS_WEBHOOK_SECRET", "");
+
+// Stripe integration
+define("STRIPE_PUBLISHABLE_KEY", "");
+define("STRIPE_SECRET_KEY", "");
+define("STRIPE_WEBHOOK_SECRET", "");
+define("STRIPE_CONNECT_CLIENT_ID", "");
+define("STRIPE_CONNECT_WEBHOOK_SECRET", "");
+
+// Weather integration (Dark Sky)
+define("DARK_SKY_API_KEY", "");
+
+// Custom branding
+define("BRANDING", "eticom");
+define("CUSTOM_CSS", "");

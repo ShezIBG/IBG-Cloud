@@ -1,0 +1,23 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header [signOut]="true"></app-auth-header>
+		<div class="flex-1 flex-col auth-background">
+			<div class="flex-1 flex-row flex-center">
+				<div *ngIf="info" class="auth-foreground card-box">
+					<img src="assets/img/mine/IBG_logo-light.png" style="width:200px;">
+					<div class="info-panel bg-danger text-status">
+						<img src="assets/img/auth/icon-alert.svg">
+						Subscription payment overdue!
+					</div>
+					<p>Your subscription payment is overdue. To reactivate your dashboard please settle your balance. Click on the button below to see your payment options.</p>
+					<p>The total you currently owe is {{info.outstanding | decimal:2:2:true:'GBP'}}</p>
+					<div class="flex-row m-t-20">
+						<button class="btn btn-primary" (click)="goToAccount()">View Account</button>
+						<!-- *ngIf="info.card_payment_gateway" -->
+					</div>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

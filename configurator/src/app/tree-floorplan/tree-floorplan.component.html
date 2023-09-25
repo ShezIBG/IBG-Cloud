@@ -1,0 +1,32 @@
+<div class="flex-parent-column fill">
+	<header>
+		<table>
+			<tr>
+				<td><h4><i class="{{building.getIconClass()}}"></i> {{building.getDescription()}} <span *ngIf="building.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></h4></td>
+			</tr>
+		</table>
+	</header>
+	<div class="jstree jstree-default flex-weight-1 scrollable p-0">
+		<ul class="jstree-container-ul">
+			<ng-template #recursive let-list>
+				<li *ngFor="let entity of list | tag:screen.filter+'-tree' | entitySort; last as isLast" class="{{entity.getScrollClass()}}" [ngClass]="{ 'jstree-node': true, 'jstree-open': isOpen(entity), 'jstree-closed': !isOpen(entity), 'jstree-leaf': !entity.items.length, 'jstree-last': isLast }">
+					<i class="jstree-icon jstree-ocl" (click)="toggleNode(entity)"></i>
+					<a class="jstree-anchor" [ngClass]="{ 'jstree-hovered': hover === entity, 'jstree-clicked': screen.treeEntity === entity }" (mouseenter)="hover = entity" (mouseleave)="hover = null" (click)="screen.selectTreeEntity(entity)">
+						<i class="jstree-icon jstree-themeicon jstree-themeicon-custom" [ngClass]="entity.getIconClass()"></i>
+						<ng-container *ngIf="(entity.type !== 'area') || !entity.count[screen.filter]">
+							{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span>
+						</ng-container>
+						<ng-container *ngIf="(entity.type === 'area') && entity.count[screen.filter]">
+							<strong>{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></strong>
+							<span class="subtitle">({{entity.count[screen.filter]}})</span>
+						</ng-container>
+					</a>
+					<ul *ngIf="entity.items.length" class="jstree-children">
+						<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: entity.items }"></ng-container>
+					</ul>
+				</li>
+			</ng-template>
+			<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: building.items }"></ng-container>
+		</ul>
+	</div>
+</div>

@@ -1,0 +1,51 @@
+<div *ngIf="data" class="card-box print" style="max-width: 1000px; margin: auto;">
+	<h2 class="m-0">
+		Purchase Order Request
+		<app-sales-project-stage-badge [stage]="data.project.stage"></app-sales-project-stage-badge>
+		<span class="pull-right">#{{data.project.project_no}}</span>
+	</h2>
+	<hr>
+
+	<div class="large">{{data.project.customer_name}}</div>
+	<div class="large">{{data.project.description}}</div>
+	<br>
+
+	<table class="table no-border">
+		<thead>
+			<tr class="bottom-border">
+				<th>Manufacturer</th>
+				<th>Model</th>
+				<th>Description</th>
+				<th>SKU</th>
+				<th class="text-right">Quantity</th>
+				<th class="text-right">Cost</th>
+				<th class="text-right">Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			<ng-container *ngFor="let m of data.suppliers">
+				<tr class="large">
+					<td colspan="4" class="bottom-border p-t-20">{{m.name}}</td>
+					<td colspan="3"></td>
+				</tr>
+				<tr *ngFor="let p of m.products">
+					<td>{{p.manufacturer_name}}</td>
+					<td>{{p.model}}</td>
+					<td>{{p.description}}</td>
+					<td>{{p.sku}}</td>
+					<td class="text-right">{{p.quantity | decimal:0:4}}</td>
+					<td class="text-right">{{p.unit_cost | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-right">{{p.total | decimal:2:2:true:'GBP'}}</td>
+				</tr>
+				<tr class="medium">
+					<td class="text-right" colspan="6">{{m.name}} Total:</td>
+					<td class="text-right top-border">{{m.total | decimal:2:2:true:'GBP'}}</td>
+				</tr>
+			</ng-container>
+			<tr class="large total">
+				<td class="text-right" colspan="6">Grand Total:</td>
+				<td class="text-right top-border">{{total | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

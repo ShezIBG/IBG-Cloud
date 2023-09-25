@@ -1,0 +1,36 @@
+<ng-container *ngIf="list">
+	<div class="card-box">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="md md-search"></i></span>
+					<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card-box">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Name</th>
+					<th>Town</th>
+					<th>Postcode</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'name', 'posttown', 'postcode'] | count:count:'clients'">
+					<td class="shrink">{{item.id}}</td>
+					<td class="text-primary selectable" [routerLink]="['/isp', isp.id, 'client', item.id]">{{item.name}}</td>
+					<td>{{item.posttown}}</td>
+					<td>{{item.postcode}}</td>
+				</tr>
+				<tr *ngIf="!count.clients">
+					<td colspan="4">No clients found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>

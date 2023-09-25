@@ -1,0 +1,22 @@
+<div class="flex-parent-row fill">
+	<div class="padded" style="width: 250px;">
+		<ul class="select-list fill" style="top: 10px; right: 10px; bottom: 10px; left: 10px;">
+			<li><a [ngClass]="{ hovered: hovered === entity, selected: screen.detailEntity === entity }" (mouseenter)="hovered = entity" (mouseleave)="hovered = null" (click)="screen.selectDetailEntity(entity)"><i class="{{entity.getIconClass()}}"></i> Area Details</a></li>
+			<li class="header">Items <a class="pull-right p-0 m-0" (click)="screen.detailList = !screen.detailList"><i class="md" [ngClass]="{ 'md-list': !screen.detailList, 'md-view-agenda': screen.detailList }"></i></a></li>
+			<li *ngFor="let item of entity.items | tag:screen.filter | entitySort" class="{{item.getScrollClass()}}">
+				<a *ngIf="screen.detailList" [ngClass]="{ hovered: hovered === item, selected: screen.detailEntity === item }" (mouseenter)="hovered = item" (mouseleave)="hovered = null" (click)="screen.selectDetailEntity(item)">
+					<i class="{{item.getIconClass()}}"></i> {{item.getDescription()}} <span *ngIf="item.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span>
+				</a>
+				<a *ngIf="!screen.detailList" class="text-center" [ngClass]="{ hovered: hovered === item, selected: screen.detailEntity === item }" (mouseenter)="hovered = item" (mouseleave)="hovered = null" (click)="screen.selectDetailEntity(item)">
+					<i class="{{item.getIconClass()}}" style="font-size:300%;"></i><br>
+					{{item.getDescription()}} <span *ngIf="item.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span>
+				</a>
+			</li>
+		</ul>
+	</div>
+	<div class="flex-weight-1">
+		<ng-container *ngIf="screen.detailEntity">
+			<ng-container *ngComponentOutlet="screen.detailEntity.getDetailComponent(); content: [screen.detailEntity]"></ng-container>
+		</ng-container>
+	</div>
+</div>

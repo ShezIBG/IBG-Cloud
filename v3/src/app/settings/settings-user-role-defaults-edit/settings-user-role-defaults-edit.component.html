@@ -1,0 +1,129 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Permissions</h3>
+	<div class="card-box">
+		<div class="row">
+			<div class="col-lg-10 col-lg-offset-1">
+				<table class="table table-hover vam">
+					<thead>
+						<tr>
+							<th rowspan="2" colspan="2">Permission</th>
+							<th rowspan="2">Available from</th>
+							<th colspan="7" class="shrink text-center">Applies to</th>
+						</tr>
+						<tr>
+							<th class="shrink text-center">E</th>
+							<th class="shrink text-center">SP</th>
+							<th class="shrink text-center">SI</th>
+							<th class="shrink text-center">HG</th>
+							<th class="shrink text-center">C</th>
+							<th class="shrink text-center">B</th>
+							<th class="shrink text-center">A</th>
+						</tr>
+					</thead>
+					<tbody>
+						<ng-container *ngFor="let m of details">
+							<tr class="module-heading">
+								<td class="shrink text-center text-light" [style.background]="m.color"><i class="{{m.icon}}"></i></td>
+								<td>{{m.toggle.description}}</td>
+								<td class="shrink">
+									<select class="form-control" [(ngModel)]="m.toggle.min_level" style="width: auto;">
+										<option *ngFor="let l of levels" [ngValue]="l.id">{{l.description}}</option>
+									</select>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('E', m.toggle)" (change)="filterToggle('E', m.toggle)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('SP', m.toggle)" (change)="filterToggle('SP', m.toggle)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('SI', m.toggle)" (change)="filterToggle('SI', m.toggle)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('HG', m.toggle)" (change)="filterToggle('HG', m.toggle)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('C', m.toggle)" (change)="filterToggle('C', m.toggle)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('B', m.toggle)" (change)="filterToggle('B', m.toggle)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('A', m.toggle)" (change)="filterToggle('A', m.toggle)"><span></span></label>
+									</div>
+								</td>
+							</tr>
+							<tr *ngFor="let op of m.options">
+								<td class="shrink"></td>
+								<td class="p-l-30">{{op.description}}</td>
+								<td class="shrink">
+									<select class="form-control" [(ngModel)]="op.min_level" style="width: auto;">
+										<option *ngFor="let l of levels" [ngValue]="l.id">{{l.description}}</option>
+									</select>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('E', op)" (change)="filterToggle('E', op)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('SP', op)" (change)="filterToggle('SP', op)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('SI', op)" (change)="filterToggle('SI', op)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('HG', op)" (change)="filterToggle('HG', op)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('C', op)" (change)="filterToggle('C', op)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('B', op)" (change)="filterToggle('B', op)"><span></span></label>
+									</div>
+								</td>
+								<td class="shrink text-center">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="filterState('A', op)" (change)="filterToggle('A', op)"><span></span></label>
+									</div>
+								</td>
+							</tr>
+						</ng-container>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

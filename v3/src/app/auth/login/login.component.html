@@ -1,0 +1,75 @@
+<!-- JEANE CHANGE -->
+<!--ETICOM-->
+<div *ngIf="app.branding == 'eticom'" class="layout-full {{app.branding}}">
+	<div class="layout-full {{app.branding}}">
+		<div class="flex-col flex-1">
+			<!-- <app-auth-header></app-auth-header> -->
+			<div class="flex-1 flex-col" style="background-color: #465262">
+				<div *ngIf="showForm" class="flex-1 flex-row flex-center">
+					<div class="container myLoginContainer">
+						<div class="row myShadow">
+			
+							<div class="col-sm-6 myLogin-left-eticom"></div>
+							<div class="col-sm-6 myLogin-right d-sm-none d-md-block">
+								<div class="p-4">
+									<div class="float-end mb-5"><img src="assets/img/mine/IBG_logo-dark.svg" width="140px"></div>
+									<h2 class="myBrand-colorB">Sign In</h2>
+									<form (ngSubmit)="login()">
+										<div class="theme-light">
+											<input class="form-control mb-2" [(ngModel)]="email" name="email" placeholder="E-mail Address" appDesktopFocus>
+											<input type="password" class="form-control mb-4" [(ngModel)]="password" name="password" placeholder="Password">
+										</div>
+										<button class="btn btn-primary mt-4" type="submit">Log In</button>
+										<div class="theme-light mt-5">
+											<div class="checkbox checkbox-primary">
+												<label>
+													<input type="checkbox" [(ngModel)]="rememberme" name="rememberme">
+													<span class="myH8 myBrand-colorB">Remember Me</span>
+												</label>
+												<span class="text-right pull-right mt-2"><a class="myLogin-link1" routerLink="../reset">Forgot Password?</a></span>
+											</div>
+										</div>
+									</form>	
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>
+
+
+<!--ELANET LOGIN-->
+<div *ngIf="app.branding != 'eticom'" class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header></app-auth-header>
+		<div class="flex-1 flex-col" style="background-color: #465262">
+			<div *ngIf="showForm" class="flex-1 flex-row flex-center">
+				<div class="auth-foreground card-box">
+					<app-auth-logo-section></app-auth-logo-section>
+					<h2>Sign In <span class="decoration bg-primary"></span></h2>
+					<form (ngSubmit)="login()">
+						<div class="theme-light">
+							<input class="form-control" [(ngModel)]="email" name="email" placeholder="E-mail Address" appDesktopFocus>
+							<input type="password" class="form-control" [(ngModel)]="password" name="password" placeholder="Password">
+						</div>
+						<button class="btn btn-primary" type="submit">Sign In</button>
+						<div class="theme-light">
+							<div class="checkbox checkbox-primary m-t-0">
+								<label>
+									<input type="checkbox" [(ngModel)]="rememberme" name="rememberme">
+									<span [ngClass]="{ 'theme-dark': app.branding === 'eticom', 'theme-light': app.branding === 'elanet' }">Remember Me</span>
+								</label>
+								<span class="text-right pull-right"><a class="text-danger" routerLink="../reset">Forgot Password?</a></span>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

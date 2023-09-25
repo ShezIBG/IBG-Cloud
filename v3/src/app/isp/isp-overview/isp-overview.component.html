@@ -1,0 +1,64 @@
+<ng-container *ngIf="overview">
+
+	<div class="card-box">
+		<div class="row">
+			<div class="col-sm-3 text-center"><app-icon-with-badge icon="md md-work" [badge]="overview.client_count" caption="Clients"></app-icon-with-badge></div>
+			<div class="col-sm-3 text-center"><app-icon-with-badge icon="md md-place" [badge]="overview.building_count" caption="Buildings"></app-icon-with-badge></div>
+			<div class="col-sm-3 text-center"><app-icon-with-badge icon="md md-flare" [badge]="overview.olt.length" caption="OLTs"></app-icon-with-badge></div>
+			<div class="col-sm-3 text-center"><app-icon-with-badge icon="md md-person" [badge]="overview.customer_count" caption="Customers"></app-icon-with-badge></div>
+		</div>
+	</div>
+
+	<div class="card-box">
+		<table class="table vam">
+			<thead>
+				<tr>
+					<th>OLT Details</th>
+					<th>Board</th>
+					<th>Fan speeds</th>
+					<th class="text-center">Temperature</th>
+					<th class="text-center">CPU</th>
+					<th class="text-center">Memory</th>
+					<th class="text-center">Capacity</th>
+					<th class="text-center">Commands</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let olt of overview.olt">
+					<td>
+						<div><b>{{olt.description}}</b></div>
+						<div class="small">Serial no. {{olt.serial_number}}</div>
+						<div class="small">External IP: {{olt.hes?.ext_ip_address}}</div>
+					</td>
+					<td>
+						<div>{{olt.board?.name}}</div>
+						<div class="small">State: {{olt.board?.state}}</div>
+						<div class="small">Firmware: {{olt.board?.fw_hw_version}}</div>
+					</td>
+					<td>
+						<ng-container *ngFor="let n of [1, 2, 3, 4, 5, 6, 7, 8]">
+							<div *ngIf="olt.board && olt.board['fan_' + n + '_rpm'] && olt.board['fan_' + n + '_rpm'] !== 'n/a'">Fan {{n}}: {{olt.board['fan_' + n + '_rpm']}} RPM</div>
+						</ng-container>
+					</td>
+					<td class="text-center">
+						<div *ngIf="olt.board && olt.board.temperature_c" class="text-large">{{olt.board.temperature_c}} &deg;C</div>
+					</td>
+					<td class="text-center">
+						<div *ngIf="olt.board && olt.board.cpu_percent" class="text-large">{{olt.board.cpu_percent}}%</div>
+					</td>
+					<td class="text-center">
+						<div *ngIf="olt.board && olt.board.memory_percent" class="text-large">{{olt.board.memory_percent}}%</div>
+					</td>
+					<td class="text-center">
+						<div *ngIf="olt.board && olt.board.capacity_percent" class="text-large">{{olt.board.capacity_percent}}%</div>
+					</td>
+					<td class="text-center">
+						<span *ngIf="olt.commands.length === 0" class="badge badge-success">All OK</span>
+						<span *ngIf="olt.commands.length > 0" class="badge badge-warning">Processing {{olt.commands.length}}</span>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</ng-container>

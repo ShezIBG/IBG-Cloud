@@ -1,0 +1,22 @@
+.page-title-box {
+	position: relative;
+	z-index: 5;
+
+	overflow: hidden;
+	max-height: 0;
+	padding: 0;
+
+	transition: max-height 0.5s, opacity 0.5s, margin 0.5s;
+
+	&.on {
+		max-height: 200px;
+	}
+
+	> div {
+		padding: 10px 20px;
+	}
+
+	.breadcrumb { margin: 0; padding: 0; }
+
+	button + button { margin-right: 10px; }
+}

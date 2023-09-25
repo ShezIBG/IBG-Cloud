@@ -1,0 +1,115 @@
+<app-modal modalTitle="Select permission level" size="large" [buttons]="buttons" (event)="modalHandler($event)">
+	<ul class="nav nav-pills nav-pills-small m-b-20">
+		<li *ngFor="let tab of tabs" [ngClass]="{ active: selectedTab === tab.id }"><a (click)="selectTab(tab.id)">{{tab.description}}</a></li>
+	</ul>
+	<div class="input-group m-b-15">
+		<span class="input-group-addon"><i class="md md-search"></i></span>
+		<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+	</div>
+
+	<div class="clearfix" style="height: 600px; overflow-y: auto;">
+		<table class="table table-striped table-hover" *ngIf="selectedTab === 'SP' || selectedTab === 'SI'">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Name</th>
+					<th>Town</th>
+					<th>Postcode</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'company_name', 'posttown', 'postcode'] | count:count:'list'">
+					<td class="shrink">{{item.id}}</td>
+					<td class="text-primary selectable" (click)="selectItem(selectedTab, item.id)">{{item.company_name}}</td>
+					<td>{{item.posttown}}</td>
+					<td>{{item.postcode}}</td>
+				</tr>
+				<tr *ngIf="!count.list">
+					<td colspan="4">No {{selectedTab === 'SP' ? 'service providers' : 'system integrators'}} found.</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-striped table-hover" *ngIf="selectedTab === 'HG'">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'company_name'] | count:count:'list'">
+					<td class="shrink">{{item.id}}</td>
+					<td class="text-primary selectable" (click)="selectItem(selectedTab, item.id)">{{item.company_name}}</td>
+				</tr>
+				<tr *ngIf="!count.list">
+					<td colspan="2">No holding groups found.</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-striped table-hover" *ngIf="selectedTab === 'C'">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Name</th>
+					<th>Town</th>
+					<th>Postcode</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'name', 'posttown', 'postcode'] | count:count:'list'">
+					<td class="shrink">{{item.id}}</td>
+					<td class="text-primary selectable" (click)="selectItem(selectedTab, item.id)">{{item.name}}</td>
+					<td>{{item.posttown}}</td>
+					<td>{{item.postcode}}</td>
+				</tr>
+				<tr *ngIf="!count.list">
+					<td colspan="4">No clients found.</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-striped table-hover" *ngIf="selectedTab === 'B'">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Name</th>
+					<th>Town</th>
+					<th>Postcode</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'description', 'postcode', 'posttown'] | count:count:'list'">
+					<td class="shrink">{{item.id}}</td>
+					<td class="text-primary selectable" (click)="selectItem(selectedTab, item.id)">{{item.description}}</td>
+					<td>{{item.posttown}}</td>
+					<td>{{item.postcode}}</td>
+					<td class="shrink nowrap"><a (click)="showAreas(item)"><i class="md md-dashboard"></i> View Areas</a></td>
+				</tr>
+				<tr *ngIf="!count.list">
+					<td colspan="4">No sites found.</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table table-striped table-hover" *ngIf="selectedTab === 'A'">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'description'] | count:count:'list'">
+					<td class="shrink">{{item.id}}</td>
+					<td class="text-primary selectable" (click)="selectItem(selectedTab, item.id)">{{item.description}}</td>
+				</tr>
+				<tr *ngIf="!count.list">
+					<td colspan="4">No areas found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</app-modal>

@@ -1,0 +1,73 @@
+<div *ngIf="list" class="flex-col fill">
+	<div class="card-box m-b-0 p-15" style="z-index: 5;">
+		<div class="row">
+			<div class="col-md-8">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="md md-search"></i></span>
+					<input type="text" class="form-control" placeholder="Search" [(ngModel)]="stock.productSearch">
+					<span class="input-group-btn">
+						<a class="btn btn-primary" routerLink="/stock/product/new/{{app.selectedProductOwner}}"><i class="md md-add"></i> New product</a>
+					</span>
+				</div>
+				<div class="m-t-10">
+					<a (click)="stock.productFilters = !stock.productFilters">{{stock.productFilters ? 'Hide' : 'Show'}} filters and legend</a>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="input-group">
+					<span class="input-group-addon">Columns</span>
+					<select class="form-control" [(ngModel)]="stock.productView">
+						<option *ngFor="let view of stock.productViews" [ngValue]="view">{{view.description}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div *ngIf="stock.productFilters">
+			<hr>
+			<span class="legend text-right m-b-10 pull-right">
+				<span><span></span></span> Owned products
+				<span><span class="bg-info"></span></span> Third-party products
+				<span><span class="bg-danger"></span></span> Discontinued products
+			</span>
+			<div class="checkbox checkbox-danger">
+				<label>
+					<input type="checkbox" [(ngModel)]="stock.productDiscontinued">
+					<span>Show discontinued products</span>
+				</label>
+			</div>
+		</div>
+	</div>
+
+	<div class="flex-1 scrollable p-15">
+		<div class="card-box">
+			<table class="table table-striped table-hover vam">
+				<thead>
+					<tr>
+						<th *ngFor="let column of stock.productView.columns" class="{{column.cls}}" [ngClass]="{ selectable: column.order }" [style.width]="column.width || 'auto'" (click)="orderColumn(column)">
+							{{column.title}}
+							<i *ngIf="stock.productOrder === column.field" class="md md-keyboard-arrow-up"></i>
+							<i *ngIf="stock.productOrder === '-' + column.field" class="md md-keyboard-arrow-down"></i>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<ng-container *ngFor="let item of list | keywords:stock.productSearch:['id', 'sku', 'model', 'short_description', 'manufacturer_name', 'manufacturer_sku', 'category_name'] | pagination:pagination">
+						<tr *ngIf="stock.productDiscontinued || !item.discontinued" class="selectable" [ngClass]="{ danger: item.discontinued, info: !item.own_product }" [routerLink]="['/stock/product', item.id, app.selectedProductOwner]">
+							<td *ngFor="let column of stock.productView.columns" class="{{column.cls}}" [style.width]="column.width || 'auto'" [ngClass]="{ small: column.field === 'short_description' || column.field === 'owner_name' || column.field === 'id' }">
+								{{stock.formatField(item[column.field], column.format)}}
+								<i *ngIf="column.field === 'sku' && isDuplicateSKU(item[column.field])" class="md md-warning text-warning" title="Duplicate SKU"></i>
+								<div *ngIf="column.field === 'image_url' && item[column.field]" class="product-image" [style.backgroundImage]="'url(\'' + item[column.field] + '\')' | safeStyle"></div>
+								<div *ngIf="column.field === 'model' && item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+								<div *ngIf="column.field === 'whinfo'" class="preformatted">{{item.whinfo}}</div>
+							</td>
+						</tr>
+					</ng-container>
+					<tr *ngIf="!pagination.count">
+						<td [attr.colspan]="stock.productView.columns.length">No products found.</td>
+					</tr>
+				</tbody>
+			</table>
+			<app-pagination [pagination]="pagination"></app-pagination>
+		</div>
+	</div>
+</div>

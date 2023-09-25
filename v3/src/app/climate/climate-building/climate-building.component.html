@@ -1,0 +1,197 @@
+<!-- JCHANGE main container move -->
+<div class="layout-dashboard myContainer-moveRight">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div class="flex-col">
+			<div class="widget">
+				<header>
+					<h2>Building Details</h2>
+					<hr>
+				</header>
+				<div class="flex-row">
+					<div class="flex-1" [style.background]="'url(\'' + data.building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+					<div class="flex-1 scrollable" [innerHtml]="getAddress(data.building)"></div>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>
+						Weekly Schedules
+						<a class="btn btn-primary btn-sm pull-right" routerLink="schedules">Edit Schedules</a>
+					</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table *ngIf="data.schedules.length" class="table table-hover">
+						<thead>
+							<tr>
+								<th>Schedule Name</th>
+								<th class="text-right">Units</th>
+								<th class="shrink nowrap"></th>
+								<th class="text-right">Next Event</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let s of data.schedules">
+								<td>{{s.description}}</td>
+								<td class="text-right">{{s.device_count}}</td>
+
+								<td class="shrink nowrap">
+									<i *ngIf="isScheduleOutOfRange(s)" class="md md-warning text-warning" title="Set points out of range."></i>
+								</td>
+
+								<td *ngIf="s.next_event" class="text-right">{{s.next_event | mySQLDateToISO | date:'shortDate'}} {{s.next_event | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!s.next_event" class="text-right">None</td>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="!data.schedules.length" class="text-warning">No schedules found.</p>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>Building Status</h2>
+					<hr>
+				</header>
+				<div class="flex-row p-0">
+					<div class="flex-1">
+						<div class="v-center status">
+							<table class="vam">
+								<tbody>
+									<tr>
+										<td [ngClass]="{ 'text-muted': !data.device_statuses.cool }">
+											<span class="ac-icon ac-cool"><i class="ei ei-ac-cool"></i></span>
+											<b class="text-large">{{data.device_statuses.cool}}</b>
+											{{data.device_statuses.cool !== 1 ? 'units' : 'unit'}} cooling
+										</td>
+										<td [ngClass]="{ 'text-muted': !data.device_statuses.faulty }">
+											<span class="ac-icon ac-faulty"><i class="ei ei-ac-faulty"></i></span>
+											<b class="text-large">{{data.device_statuses.faulty}}</b>
+											{{data.device_statuses.faulty !== 1 ? 'units' : 'unit'}} faulty
+										</td>
+									</tr>
+									<tr>
+										<td [ngClass]="{ 'text-muted': !data.device_statuses.heat }">
+											<span class="ac-icon ac-heat"><i class="ei ei-ac-heat"></i></span>
+											<b class="text-large">{{data.device_statuses.heat}}</b>
+											{{data.device_statuses.heat !== 1 ? 'units' : 'unit'}} heating
+										</td>
+										<td [ngClass]="{ 'text-muted': !data.device_statuses.dry }">
+											<span class="ac-icon ac-dry"><i class="ei ei-ac-dry"></i></span>
+											<b class="text-large">{{data.device_statuses.dry}}</b>
+											{{data.device_statuses.dry !== 1 ? 'units' : 'unit'}} drying
+										</td>
+									</tr>
+									<tr>
+										<td [ngClass]="{ 'text-muted': !data.device_statuses.inactive }">
+											<span class="ac-icon ac-inactive"><i class="ei ei-ac-inactive"></i></span>
+											<b class="text-large">{{data.device_statuses.inactive}}</b>
+											{{data.device_statuses.inactive !== 1 ? 'units' : 'unit'}} inactive
+										</td>
+										<td [ngClass]="{ 'text-muted': !data.device_statuses.fan }">
+											<span class="ac-icon ac-fan"><i class="ei ei-ac-fan"></i></span>
+											<b class="text-large">{{data.device_statuses.fan}}</b>
+											{{data.device_statuses.fan !== 1 ? 'units' : 'unit'}} ventilating
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="widget">
+			<header>
+				<h2>
+					List of Devices
+					<a class="btn btn-primary btn-sm pull-right" routerLink="devices">View Devices</a>
+				</h2>
+				<hr>
+			</header>
+			<div class="flex-0">
+				<table class="table vam no-top-border">
+					<tr>
+						<td class="shrink"><span class="badge-icon" [style.background]="ChartjsComponent.getColor(0)">W</span></td>
+						<td><b>Wall-mounted</b> Aircon</td>
+						<td class="shrink text-center"><img src="assets/img/climate/ac-wall-mounted.svg" style="width: 3em;"></td>
+						<td class="shrink text-right">{{data.device_types.type_w}}x</td>
+					</tr>
+					<tr>
+						<td class="shrink"><span class="badge-icon" [style.background]="ChartjsComponent.getColor(1)">D</span></td>
+						<td><b>Ducted</b> Aircon</td>
+						<td class="shrink text-center"><img src="assets/img/climate/ac-ducted.svg" style="width: 3em;"></td>
+						<td class="shrink text-right">{{data.device_types.type_d}}x</td>
+					</tr>
+					<tr>
+						<td class="shrink"><span class="badge-icon" [style.background]="ChartjsComponent.getColor(2)">O</span></td>
+						<td><b>Outdoor</b> Aircon</td>
+						<td class="shrink text-center"><img src="assets/img/climate/ac-outdoor.svg" style="width: 3em;"></td>
+						<td class="shrink text-right">{{data.device_types.type_o}}x</td>
+					</tr>
+					<tr>
+						<td class="shrink"><span class="badge-icon" [style.background]="ChartjsComponent.getColor(3)">C</span></td>
+						<td><b>Ceiling</b> Aircon</td>
+						<td class="shrink text-center"><img src="assets/img/climate/ac-ceiling.svg" style="width: 3em;"></td>
+						<td class="shrink text-right">{{data.device_types.type_c}}x</td>
+					</tr>
+				</table>
+			</div>
+			<div class="flex-1 p-40">
+				<app-chartjs class="fill" style="left: 40px; right: 40px; top: 40px; bottom: 40px;" [names]="typeNames" [data]="typeValues" [options]="typeOptions"></app-chartjs>
+			</div>
+		</div>
+
+		<div class="flex-col">
+			<div class="flex-2 widget">
+				<header>
+					<h2>User History</h2>
+					<hr>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover no-top-border vam">
+						<tr *ngFor="let item of data.history">
+							<td class="shrink">
+								<app-gravatar [email]="item.user_email" size="55"></app-gravatar>
+							</td>
+							<td>
+								<div [innerHtml]="item.html"></div>
+								<div class="m-t-10">
+									<span>{{item.user_name}}</span>
+									<span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>Faults</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table *ngIf="data.faults.length" class="table no-top-border">
+						<tr *ngFor="let issue of data.faults" class="text-{{issue.severity}}">
+							<td class="shrink">
+								<i *ngIf="issue.severity === 'warning'" class="md md-warning md-lg"></i>
+								<i *ngIf="issue.severity === 'danger'" class="md md-error md-lg"></i>
+							</td>
+							<td>{{issue.description}}</td>
+							<td class="text-right">{{issue.count}}</td>
+						</tr>
+					</table>
+					<p *ngIf="!data.faults.length"><i class="md md-check"></i> No faults detected.</p>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

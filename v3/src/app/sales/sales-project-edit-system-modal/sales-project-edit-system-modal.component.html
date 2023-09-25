@@ -1,0 +1,90 @@
+<app-modal [modalTitle]="title" size="large" [buttons]="buttons" (event)="modalHandler($event)">
+	<ul class="nav nav-pills nav-pills-small m-b-20">
+		<li *ngFor="let tab of tabs" [ngClass]="{ active: selectedTab === tab.id }"><a (click)="selectTab(tab.id)">{{tab.description}}</a></li>
+	</ul>
+
+	<div *ngIf="details && selectedTab === 'details'">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">System description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.description" [disabled]="!editable" appDesktopFocus>
+				</div>
+			</div>
+		</div>
+		<hr>
+		<span class="pull-right text-info"><i class="md md-info"></i> Drag items to change toolbox order.</span>
+		<h3>Toolbox items</h3>
+		<div class="scrollable" style="height: 400px;">
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Model / Manufacturer</th>
+						<th>Description</th>
+						<th>SKU</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody class="cdk-drop-list" (cdkDropListDropped)="toolboxDrop($event)" cdkDropList>
+					<tr *ngFor="let item of listToolbox" class="cdk-drag" [ngClass]="{ success: !item.in_system }" cdkDrag>
+						<td class="shrink">
+							<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+						</td>
+						<td>
+							{{item.model}}
+							<div *ngIf="item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+						</td>
+						<td class="small">{{item.short_description}}</td>
+						<td>{{item.sku}}</td>
+						<td class="shrink nowrap"><a class="text-danger" (click)="removeItem(item)"><i class="md md-delete"></i> Remove</a></td>
+					</tr>
+					<tr *ngIf="listToolbox.length === 0">
+						<td colspan="5">No products in the toolbox.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div *ngIf="details && selectedTab === 'products'">
+		<div class="input-group m-b-15">
+			<span class="input-group-addon"><i class="md md-search"></i></span>
+			<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search" appDesktopFocus>
+		</div>
+		<div class="scrollable m-b-15" style="height: 400px;">
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Model / Manufacturer</th>
+						<th>Description</th>
+						<th>SKU</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let item of listProducts | keywords:search:['sku', 'manufacturer_name', 'model', 'short_description'] | pagination:pagination" [ngClass]="{ danger: item.in_system && !item.in_toolbox }">
+						<td class="shrink">
+							<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+						</td>
+						<td>
+							{{item.model}}
+							<div *ngIf="item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+						</td>
+						<td class="small">{{item.short_description}}</td>
+						<td>{{item.sku}}</td>
+						<td class="shrink nowrap text-center">
+							<a *ngIf="!item.in_toolbox" (click)="addItem(item)"><i class="md md-add"></i> Add to toolbox</a>
+							<span *ngIf="item.in_toolbox" class="text-success"><i class="md md-check"></i> In toolbox</span>
+						</td>
+					</tr>
+					<tr *ngIf="!pagination.count">
+						<td colspan="5">No products found.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<app-pagination [pagination]="pagination"></app-pagination>
+	</div>
+</app-modal>

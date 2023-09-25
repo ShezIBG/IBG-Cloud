@@ -1,0 +1,14 @@
+<div *ngIf="list" class="card-box">
+	<h4>Select Building</h4>
+	<hr>
+	<table class="table table-hover vam no-top-border">
+		<tbody>
+			<tr *ngFor="let item of list">
+				<td class="selectable" (click)="mobile.selectBuilding(item.id)">
+					<b>{{item.description}}</b>
+					<div class="text-small text-muted">{{item.posttown}}{{item.posttown && item.postcode ? ',' : ''}} {{item.postcode}}</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

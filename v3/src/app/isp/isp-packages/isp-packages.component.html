@@ -1,0 +1,32 @@
+<ng-container *ngIf="list">
+	<p *ngIf="list.length === 0">No packages found.</p>
+
+	<div *ngFor="let building of list" class="card-box">
+		<h2 *ngIf="!single">{{building.description}}</h2>
+
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Name</th>
+					<th>Description</th>
+					<th>Downstream Profile</th>
+					<th>Upstream Profile</th>
+					<th class="text-right">Monthly price</th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of building.packages">
+					<td class="shrink">{{item.id}}</td>
+					<td>{{item.name}}</td>
+					<td>{{item.description}}</td>
+					<td>{{item.downstream_profile?.name}}</td>
+					<td>{{item.upstream_profile?.name}}</td>
+					<td class="text-right">{{item.monthly_price | decimal:2:2:true:'GBP'}}</td>
+					<td class="shrink nowrap"><a [routerLink]="['/isp', isp.id, 'package', item.id]"><i class="md md-edit"></i> Edit</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>

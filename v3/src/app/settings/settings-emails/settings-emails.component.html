@@ -1,0 +1,97 @@
+<ng-container *ngIf="data">
+	<div class="card-box">
+		<h2>Email Templates</h2>
+		<table class="table table-striped table-hover vam">
+			<thead>
+				<tr>
+					<th>Automatic templates</th>
+					<th>Description</th>
+					<th class="shrink nowrap text-center">Set?</th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let template of data.templates">
+					<td>{{template.name}}</td>
+					<td class="text-small">{{template.description}}</td>
+					<td class="shrink nowrap text-center">
+						<span *ngIf="template.is_set" class="badge badge-success">YES</span>
+						<span *ngIf="!template.is_set" class="badge badge-danger">NO</span>
+					</td>
+					<td class="shrink nowrap"><a [routerLink]="['/settings/email', level, levelId, template.id]"><i class="md md-edit"></i> Edit</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="table table-striped table-hover vam">
+			<thead>
+				<tr>
+					<th>Custom templates</th>
+					<th>Subject</th>
+					<th class="shrink nowrap text-center">Set?</th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let template of data.templates_custom">
+					<td>{{template.name}}</td>
+					<td class="text-small">{{template.description}}</td>
+					<td class="shrink nowrap text-center">
+						<span *ngIf="template.is_set" class="badge badge-success">YES</span>
+						<span *ngIf="!template.is_set" class="badge badge-danger">NO</span>
+					</td>
+					<td class="shrink nowrap"><a [routerLink]="['/settings/email', level, levelId, template.id]"><i class="md md-edit"></i> Edit</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="text-info"><i class="md md-info"></i> Custom templates can be used to send emails to customers manually.</p>
+	</div>
+
+	<div class="card-box">
+		<h2>
+			SMTP Settings
+			<button class="btn pull-right" [ngClass]="{ 'btn-default': !dirty, 'btn-primary': dirty }" [disabled]="!dirty" (click)="updateSMTP()">Update</button>
+		</h2>
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">SMTP Host</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="data.smtp.host" (input)="setDirty()">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Port</label>
+				<div class="col-sm-2">
+					<input class="form-control" [(ngModel)]="data.smtp.port" (input)="setDirty()">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">User</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="data.smtp.user" (input)="setDirty()">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Password</label>
+				<div class="col-sm-3">
+					<input type="password" class="form-control" [(ngModel)]="data.smtp.password" (input)="setDirty()" autocomplete="new-password">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Security</label>
+				<div class="col-sm-3">
+					<select class="form-control" [(ngModel)]="data.smtp.secure" (change)="setDirty()">
+						<option value=""></option>
+						<option value="tls">TLS</option>
+					</select>
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Default from address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.smtp.default_from_address" (input)="setDirty()">
+				</div>
+			</div>
+		</div>
+	</div>
+</ng-container>

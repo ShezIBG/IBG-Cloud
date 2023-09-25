@@ -1,0 +1,19 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header></app-auth-header>
+		<div class="flex-1 flex-col auth-background">
+			<div class="flex-1 flex-row flex-center">
+				<div class="auth-foreground card-box">
+					<app-auth-logo-section></app-auth-logo-section>
+					<div class="info-panel bg-danger text-status">
+						<img src="assets/img/auth/icon-alert.svg">
+						Access denied.
+					</div>
+					<p>You cannot access your dashboard at this time. Please contact your administrator.</p>
+					<button class="btn btn-primary m-t-15" routerLink="../login">Return to Sign In</button>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

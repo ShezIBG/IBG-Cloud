@@ -1,0 +1,30 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header [signOut]="true"></app-auth-header>
+		<div class="flex-1 flex-col auth-background">
+			<div class="flex-1 flex-row flex-center">
+				<div *ngIf="info" class="auth-foreground card-box">
+					<app-auth-logo-section></app-auth-logo-section>
+					<div class="info-panel text-status">
+						<img src="assets/img/auth/icon-alert.svg">
+						Start your subscription to continue to the dashboard.
+					</div>
+					<div class="table-container">
+						<table class="table no-border">
+							<tr *ngFor="let line of info.lines">
+								<td>{{line.description}}</td>
+								<td class="text-right">{{line.amount | decimal:2:2:true:'GBP'}}{{info.frequency}} {{line.extra}}</td>
+							</tr>
+							<tr class="alt">
+								<td>Total</td>
+								<td class="text-right">{{info.total | decimal:2:2:true:'GBP'}}{{info.frequency}} +VAT</td>
+							</tr>
+						</table>
+					</div>
+					<button *ngIf="info.dd_payment_gateway" class="btn btn-primary" (click)="enterBankDetails()">Authorise Direct Debit</button>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

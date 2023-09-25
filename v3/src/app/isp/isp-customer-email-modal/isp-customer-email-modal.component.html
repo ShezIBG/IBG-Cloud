@@ -1,0 +1,32 @@
+<app-modal modalTitle="Send email from template" [buttons]="['0|Cancel', '1|*Send email']" [disableButtons]="disabled" (event)="modalEvent($event)">
+	<div *ngIf="info" class="alert alert-info"><i class="md md-info"></i> You're about to send an email to {{data.customers.length}} {{data.customers.length === 1 ? 'customer' : 'customers'}}.</div>
+
+	<div *ngIf="info" class="row">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Template</label>
+				<div class="col-sm-7">
+					<select class="form-control" [(ngModel)]="selected" style="width: auto;">
+						<option [ngValue]="null"></option>
+						<optgroup label="Automatic templates">
+							<ng-container *ngFor="let t of info.templates">
+								<option *ngIf="t.is_set" [ngValue]="t">{{t.name}}</option>
+							</ng-container>
+						</optgroup>
+						<optgroup label="Custom templates">
+							<ng-container *ngFor="let t of info.templates_custom">
+								<option *ngIf="t.is_set" [ngValue]="t">{{t.name}}</option>
+							</ng-container>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+			<div *ngIf="selected" class="form-group">
+				<label class="col-sm-4 control-label">Description</label>
+				<div class="col-sm-7">
+					<div class="well well-sm m-b-0">{{selected.description}}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</app-modal>

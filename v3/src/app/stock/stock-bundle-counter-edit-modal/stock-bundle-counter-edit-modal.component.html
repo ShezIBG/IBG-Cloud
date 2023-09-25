@@ -1,0 +1,108 @@
+<app-modal [modalTitle]="title" size="large" [buttons]="buttons" [boxed]="true" (event)="modalHandler($event)">
+	<ul class="nav nav-pills nav-pills-small m-b-20 m-t-0">
+		<li *ngFor="let tab of tabs" [ngClass]="{ active: selectedTab === tab.id }"><a (click)="selectTab(tab.id)">{{tab.description}}</a></li>
+	</ul>
+
+	<ng-container *ngIf="selectedTab === 'details'">
+
+		<div class="card-box">
+			<h2>Details</h2>
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Description</label>
+					<div class="col-sm-5">
+						<input class="form-control" [(ngModel)]="counter.description" appDesktopFocus>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="card-box">
+			<h2>Products</h2>
+			<p class="text-info"><i class="md md-info"></i> Products will only be added to the bundle if the accumulator is within the <b>range</b> (inclusive). If <b>multiply</b> is checked, the quantity will be multiplied by the accumulator.</p>
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th colspan="2">Product</th>
+						<th>Description</th>
+						<th class="shrink text-right nowrap">Quantity</th>
+						<th class="shrink">Multiply?</th>
+						<th class="shrink text-center">Range</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let item of counter.products" [ngClass]="{ danger: item.quantity === 0 }">
+						<td class="shrink">
+							<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+						</td>
+						<td>
+							{{item.model}}
+							<div *ngIf="item.manufacturer_name" class="text-small">{{item.manufacturer_name}}</div>
+						</td>
+						<td>{{item.short_description}}</td>
+						<td class="shrink"><input class="form-control text-right" style="width: 80px;" [(ngModel)]="item.quantity" (change)="formatProductNumbers(item)"></td>
+						<td class="shrink text-center">
+							<div class="checkbox checkbox-primary m-0">
+								<label><input type="checkbox" [ngModel]="!!item.multiply_by_counter" (ngModelChange)="item.multiply_by_counter = $event ? 1 : 0"><span></span></label>
+							</div>
+						</td>
+						<td class="shrink nowrap">
+							<input class="form-control text-right" style="width: 54px; display: inline-block;" [(ngModel)]="item.range_start" (change)="formatProductNumbers(item)">
+							&mdash;
+							<input class="form-control text-right" style="width: 54px; display: inline-block;" [(ngModel)]="item.range_end" (change)="formatProductNumbers(item)">
+						</td>
+						<td class="shrink nowrap"><a class="text-danger" (click)="removeProduct(item)"><i class="md md-delete"></i> Delete</a></td>
+					</tr>
+					<tr *ngIf="!counter.products.length">
+						<td colspan="6">No products.</td>
+					</tr>
+				</tbody>
+			</table>
+			<a class="btn btn-primary" (click)="selectTab('products')"><i class="md md-add"></i> Add product</a>
+		</div>
+
+	</ng-container>
+
+	<div *ngIf="selectedTab === 'products'" class="card-box">
+		<h2>Products</h2>
+		<div class="input-group m-b-15">
+			<span class="input-group-addon"><i class="md md-search"></i></span>
+			<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search" appDesktopFocus>
+		</div>
+		<div class="scrollable m-b-15" style="height: 400px;">
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Model / Manufacturer</th>
+						<th>Description</th>
+						<th>SKU</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let item of listProducts | keywords:search:['sku', 'manufacturer_name', 'model', 'short_description'] | pagination:pagination" [ngClass]="{ 'text-muted': hasProduct(item.id) }">
+						<td class="shrink">
+							<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+						</td>
+						<td>
+							{{item.model}}
+							<div *ngIf="item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+						</td>
+						<td class="small">{{item.short_description}}</td>
+						<td>{{item.sku}}</td>
+						<td class="shrink nowrap text-center" [ngSwitch]="hasProduct(item.id)">
+							<span *ngSwitchCase="true" class="text-success"><i class="md md-check"></i> Added</span>
+							<a *ngSwitchDefault (click)="addProduct(item)"><i class="md md-add"></i> Add product</a>
+						</td>
+					</tr>
+					<tr *ngIf="!pagination.count">
+						<td colspan="5">No products found.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<app-pagination [pagination]="pagination"></app-pagination>
+	</div>
+</app-modal>

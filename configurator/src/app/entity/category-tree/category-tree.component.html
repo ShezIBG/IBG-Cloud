@@ -1,0 +1,54 @@
+<div class="padded p-t-0 jstree jstree-default listbox control-border">
+	<ul class="jstree-container-ul">
+		<ng-template #recursive let-list>
+			<li *ngFor="let entity of list | entitySort; last as isLast" [ngClass]="{ 'jstree-node': true, 'jstree-open': isOpen(entity), 'jstree-closed': !isOpen(entity), 'jstree-leaf': !entity.items.length, 'jstree-last': isLast }">
+				<i class="jstree-icon jstree-ocl" (click)="toggleNode(entity)"></i>
+				<a class="jstree-anchor" [ngClass]="{ 'jstree-hovered': hover === entity, 'jstree-clicked': isSelected(entity) }" (mouseenter)="hover = entity" (mouseleave)="hover = null" (click)="clickItem(entity)">
+					<i *ngIf="!editMode" class="jstree-icon jstree-checkbox"></i>
+					<i *ngIf="editMode" class="md md-edit"></i>
+					<span [ngClass]="{ 'text-primary': !entity.data.editable }" class="{{entity.getScrollClass()}}">{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></span>
+				</a>
+				<ul *ngIf="entity.items.length" class="jstree-children">
+					<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: entity.items }"></ng-container>
+				</ul>
+			</li>
+		</ng-template>
+		<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: categories }"></ng-container>
+	</ul>
+</div>
+<div *ngIf="editMode" class="control-border p-t-10" style="border-top: none;">
+	<div class="container">
+		<div *ngIf="editedItem" class="row">
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Description <span *ngIf="!editedItem.data.editable" class="subtitle">Built-in category</span></label>
+					<input type="text" class="form-control" [(ngModel)]="editedItem.data.description" [disabled]="!editedItem.data.editable">
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<label>Parent category</label>
+					<select class="form-control" [(ngModel)]="editedItem.parent_category_id" (change)="parentChanged(editedItem)" [disabled]="!editedItem.data.editable">
+						<option [ngValue]="null">None</option>
+						<option *ngFor="let parent of availableParents" [ngValue]="parent.data.id">{{parent.getDescription()}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="row m-b-10">
+			<div class="col-md-12">
+				<a *ngIf="editedItem" class="btn btn-success" (click)="addItem(editedItem)"><i class="md md-add"></i> Sub-category</a>
+				<a class="btn btn-success" (click)="addItem()"><i class="md md-add"></i> Category</a>
+				<a *ngIf="editedItem && canDelete" class="btn btn-danger pull-right" (click)="deleteItem(editedItem)"><i class="md md-delete"></i> Delete category</a>
+				<label *ngIf="usedBy" class="p-t-10 pull-right text-warning">Used by {{usedBy}} {{usedBy === 1 ? 'CT' : 'CTs'}}</label>
+			</div>
+		</div>
+	</div>
+</div>
+<p class="m-t-10">
+	<strong>Selected categories:</strong> <span *ngIf="!selected.length">None</span>
+	<span *ngFor="let category of selected | entitySort" class="tag label label-info">
+		{{category.getDescription()}}
+		<i class="tag-remove md md-close" (click)="unselectItem(category)"></i>
+	</span>
+</p>

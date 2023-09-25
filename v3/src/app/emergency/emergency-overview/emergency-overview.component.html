@@ -1,0 +1,172 @@
+<div class="layout-dashboard myContainer-moveRight">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div *ngIf="buildingLayout.length" class="flex-2 flex-col">
+			<ng-container *ngFor="let layout of buildingLayout">
+				<div *ngIf="layout[1]" class="flex-row">
+					<div *ngFor="let building of layout" class="flex-1 selectable" routerLink="../building/{{building.id}}">
+						<header class="gradient theme-dark">
+							<div class="flex-row flex-center">
+								<i class="header-icon ei ei-site"></i>
+								<h2 class="flex-1">{{building.description}}</h2>
+								<a class="btn btn-sm btn-default">View Building</a>
+							</div>
+						</header>
+						<div [style.background]="'url(\'' + building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+					</div>
+				</div>
+				<div *ngIf="!layout[1]" class="flex-1 flex-row">
+					<div *ngFor="let building of [layout[0]]" class="flex-1 widget selectable" routerLink="../building/{{building.id}}">
+						<header class="gradient theme-dark">
+							<div class="flex-row flex-center">
+								<i class="header-icon ei ei-site"></i>
+								<h2 class="flex-1">{{building.description}}</h2>
+								<a class="btn btn-sm btn-default">View Building</a>
+							</div>
+						</header>
+						<div class="flex-row p-0">
+							<div class="flex-3" [style.background]="'url(\'' + building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+							<div class="flex-1 text-center flex-center-self" style="font-size: 8em;" [ngClass]="{ 'text-success' : building.status === 1, 'text-warning': building.status === 0, 'text-danger': building.status === -1 }">
+								<i *ngIf="building.status === 1" class="ei ei-pass-c"></i>
+								<i *ngIf="building.status === 0" class="ei ei-warning-c"></i>
+								<i *ngIf="building.status === -1" class="ei ei-fail-c"></i>
+							</div>
+							<div class="flex-2 flex-center-self">
+								<h4 *ngIf="building.light_pass === 0 || building.light_warning === 0 || building.light_fail === 0" class="m-t-20 m-b-20">Emergency Test Overview</h4>
+								<table class="table info no-border">
+									<tr *ngIf="building.light_pass > 0">
+										<td class="shrink text-success"><i class="ei ei-bulb"></i></td>
+										<td><b>Pass</b><br>{{building.light_pass}} / {{building.light_count}}</td>
+										<td class="text-success" style="font-size: 2em;">{{building.light_pass_perc}}%</td>
+									</tr>
+									<tr *ngIf="building.light_warning > 0">
+										<td class="shrink text-warning"><i class="ei ei-bulb"></i></td>
+										<td><b>Warning</b><br>{{building.light_warning}} / {{building.light_count}}</td>
+										<td class="text-warning" style="font-size: 2em;">{{building.light_warning_perc}}%</td>
+									</tr>
+									<tr *ngIf="building.light_fail > 0">
+										<td class="shrink text-danger"><i class="ei ei-bulb"></i></td>
+										<td><b>Fail</b><br>{{building.light_fail}} / {{building.light_count}}</td>
+										<td class="text-danger" style="font-size: 2em;">{{building.light_fail_perc}}%</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+
+		<div *ngIf="!buildingLayout.length" class="flex-2 widget">
+			<header class="flex-row">
+				<h3 class="flex-3">Sites</h3>
+				<div class="flex-2">
+					<div class="input-group">
+						<span class="input-group-addon"><i class="md md-search"></i></span>
+						<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+					</div>
+				</div>
+			</header>
+			<div class="scrollable p-0">
+				<table class="table table-striped table-hover vam">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Description</th>
+							<th>Address</th>
+							<th class="text-center divider-left">Lights</th>
+							<th class="text-center divider-left" colspan="2">Pass</th>
+							<th class="text-center divider-left" colspan="2">Warning</th>
+							<th class="text-center divider-left" colspan="2">Fail</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let building of data.buildings | keywords:search:['description', 'address', 'posttown', 'postcode']" class="clickable" routerLink="../building/{{building.id}}">
+							<td class="text-center shrink">
+								<i *ngIf="building.status === 1" class="ei ei-pass-c ei-lg text-success"></i>
+								<i *ngIf="building.status === 0" class="ei ei-warning-c ei-lg text-warning"></i>
+								<i *ngIf="building.status === -1" class="ei ei-fail-c ei-lg text-danger"></i>
+							</td>
+							<td>{{building.description}}</td>
+							<td [innerHtml]="getAddress(building)"></td>
+							<td class="text-center divider-left">{{building.light_count}}</td>
+
+							<td class="text-right divider-left shrink text-success">{{building.light_pass ? building.light_pass : ''}}</td>
+							<td class="shrink text-success" style="font-size:0.8em;">{{building.light_pass_perc ? '(' + building.light_pass_perc + '%)' : ''}}</td>
+
+							<td class="text-right divider-left shrink text-warning">{{building.light_warning ? building.light_warning : ''}}</td>
+							<td class="shrink text-warning" style="font-size:0.8em;">{{building.light_warning_perc ? '(' + building.light_warning_perc + '%)' : ''}}</td>
+
+							<td class="text-right divider-left shrink text-danger">{{building.light_fail ? building.light_fail : ''}}</td>
+							<td class="shrink text-danger" style="font-size:0.8em;">{{building.light_fail_perc ? '(' + building.light_fail_perc + '%)' : ''}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="flex-col">
+
+			<div class="flex-2 widget">
+				<header>
+					<h2>User History</h2>
+					<hr>
+				</header>
+				<div class="flex-1 scrollable p-t-0">
+					<table class="table table-hover no-top-border vam">
+						<tr *ngFor="let item of data.history">
+							<td class="shrink">
+								<app-gravatar [email]="item.user_email" size="55"></app-gravatar>
+							</td>
+							<td>
+								<div [innerHtml]="item.log_html"></div>
+								<div class="m-t-10">
+									<span>{{item.user_name}}</span>
+									<span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2 *ngIf="buildingsWarning || buildingsFail">Status: Not Compliant</h2>
+					<h2 *ngIf="!buildingsWarning && !buildingsFail">Status: Compliant</h2>
+					<hr>
+				</header>
+				<div class="flex-row p-0">
+					<div class="flex-1 flex-center-self text-center" style="font-size: 8em;" [ngClass]="{ 'text-success' : data.status === 'pass', 'text-warning': data.status === 'warning', 'text-danger': data.status === 'fail' }">
+						<i *ngIf="data.status === 'pass'" class="ei ei-pass-c"></i>
+						<i *ngIf="data.status === 'warning'" class="ei ei-warning-c"></i>
+						<i *ngIf="data.status === 'fail'" class="ei ei-fail-c"></i>
+					</div>
+					<div class="flex-2 flex-center-self">
+						<h4 *ngIf="!buildingsPass || !buildingsWarning || !buildingsFail" class="m-t-20 m-b-20">Building Compliance</h4>
+						<table class="table info no-border">
+							<tr *ngIf="buildingsPass">
+								<td class="shrink text-success"><i class="ei ei-bulb"></i></td>
+								<td><b>Pass</b><br>{{buildingsPass}} / {{buildingsCount}}</td>
+								<td class="text-success" style="font-size: 2em;">{{buildingsPassPerc}}%</td>
+							</tr>
+							<tr *ngIf="buildingsWarning">
+								<td class="shrink text-warning"><i class="ei ei-bulb"></i></td>
+								<td><b>Warning</b><br>{{buildingsWarning}} / {{buildingsCount}}</td>
+								<td class="text-warning" style="font-size: 2em;">{{buildingsWarningPerc}}%</td>
+							</tr>
+							<tr *ngIf="buildingsFail">
+								<td class="shrink text-danger"><i class="ei ei-bulb"></i></td>
+								<td><b>Fail</b><br>{{buildingsFail}} / {{buildingsCount}}</td>
+								<td class="text-danger" style="font-size: 2em;">{{buildingsFailPerc}}%</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>

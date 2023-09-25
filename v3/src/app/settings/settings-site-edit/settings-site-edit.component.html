@@ -1,0 +1,132 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<ng-container *ngIf="app.header.activeTab === 'details'">
+		<h3>Name and address</h3>
+		<div class="card-box">
+			<div class="row">
+				<div class="col-sm-9 col-lg-7">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-4 col-lg-5 control-label">Building name</label>
+							<div class="col-sm-5 col-lg-7">
+								<input class="form-control" [(ngModel)]="details.description">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 col-lg-5 control-label">Address</label>
+							<div class="col-sm-5 col-lg-7">
+								<input class="form-control" [(ngModel)]="details.address">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 col-lg-5 control-label">Town</label>
+							<div class="col-sm-4 col-lg-5">
+								<input class="form-control" [(ngModel)]="details.posttown">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 col-lg-5 control-label">Postcode</label>
+							<div class="col-sm-3 col-lg-3">
+								<input class="form-control" [(ngModel)]="details.postcode">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-4 col-sm-offset-3 col-lg-offset-0 col-lg-3 img-container">
+					<input type="file" class="hidden" (change)="uploadImage()" #fileInput>
+					<ng-container *ngIf="!details.image_id">
+						<div class="image-drop" [ngClass]="{ active: draggedOver }" (dragover)="fileDragOver($event)" (dragleave)="draggedOver = false" (drop)="fileDrop($event)">
+							No image
+						</div>
+						<button class="btn btn-primary " [disabled]="disabled" (click)="changeImage()"><i class="md md-add"></i> Add image</button>
+					</ng-container>
+					<ng-container *ngIf="details.image_id">
+						<img [src]="imageUrl" style="width: 100%;">
+						<button class="btn btn-default" [disabled]="disabled" (click)="changeImage()"><i class="md md-edit"></i> Change</button>
+						<button class="btn btn-danger" [disabled]="disabled" (click)="removeImage()"><i class="md md-remove"></i> Remove</button>
+					</ng-container>
+				</div>
+			</div>
+			<ng-container *ngIf="systemIntegratorAdmin">
+				<hr>
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Integration</label>
+						<div class="col-sm-6">
+							<div class="checkbox checkbox-primary">
+								<label>
+									<input type="checkbox" [(ngModel)]="allowReport">
+									<span>Generate reports</span>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+
+		<h3>Location</h3>
+		<div class="card-box">
+			<app-google-map [lat]="details.latitude" [lng]="details.longitude" (locationChanged)="locationChanged($event)"></app-google-map>
+		</div>
+
+		<ng-container *ngIf="details.permissions">
+			<h3>Site permissions</h3>
+			<div class="card-box">
+				<div class="row">
+					<div class="col-md-6 col-md-offset-3">
+						<app-settings-permissions [ui]="details.permissions.ui" [record]="details.permissions.record"></app-settings-permissions>
+					</div>
+				</div>
+			</div>
+		</ng-container>
+	</ng-container>
+
+	<ng-container *ngIf="app.header.activeTab === 'dashboard' && details.module_electricity === 1">
+		<ng-container *ngIf="details.module_electricity === 1">
+			<h3>Electricity Dashboard</h3>
+			<div class="card-box">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Burn rate widget title</label>
+						<div class="col-sm-4">
+							<input class="form-control" [(ngModel)]="details.burn_rate_widget_title">
+						</div>
+					</div>
+				</div>
+				<ng-container *ngIf="categories.length > 0">
+					<hr>
+					<div class="row">
+						<div class="col-md-6 col-md-offset-3">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th colspan="2">Categories shown in electricity widget</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr *ngFor="let item of categories" [ngClass]="{ danger: isCategoryHidden(item) }">
+										<td>{{item.description}}</td>
+										<td class="shrink nowrap">
+											<a *ngIf="isCategoryHidden(item)" class="text-success" (click)="toggleCategory(item)"><i class="md md-add"></i> Show</a>
+											<a *ngIf="!isCategoryHidden(item)" class="text-danger" (click)="toggleCategory(item)"><i class="md md-remove"></i> Hide</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</ng-container>
+			</div>
+		</ng-container>
+	</ng-container>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

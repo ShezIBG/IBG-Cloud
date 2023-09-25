@@ -1,0 +1,15 @@
+<app-settings-users *ngIf="id && app.header.activeTab === 'users'" level="B" [levelId]="id"></app-settings-users>
+<app-settings-user-roles *ngIf="id && app.header.activeTab === 'user-roles'" level="B" [levelId]="id"></app-settings-user-roles>
+
+<div *ngIf="id && app.header.activeTab === 'overview'" class="row">
+	<div class="col-md-6">
+		<div class="card-box">
+			<button *ngIf="systemIntegratorAdmin && configuratorUrl" class="btn btn-primary pull-right m-l-10" (click)="openConfigurator()"><i class="md md-settings"></i> Configurator</button>
+			<button class="btn btn-primary pull-right" routerLink="edit"><i class="md md-edit"></i> Edit</button>
+			<h2>{{details.description}}</h2>
+			<div>{{details.address}}</div>
+			<div>{{details.posttown}}</div>
+			<div>{{details.postcode}}</div>
+		</div>
+	</div>
+</div>

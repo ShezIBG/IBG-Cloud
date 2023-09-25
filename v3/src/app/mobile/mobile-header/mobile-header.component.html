@@ -1,0 +1,13 @@
+<div class="theme-dark">
+	<header class="p-10 bg-theme flex-row">
+		<div class="flex-1">
+			<a *ngIf="!app.routeData.hideMobileBack" (click)="location.back()" class="text-dark"><i class="md md-arrow-back"></i></a>
+		</div>
+		<div class="flex-1 text-center">
+			<img class="logo" src="assets/img/logo/eticom-logo.svg">
+		</div>
+		<div class="flex-1 text-right">
+			<a *ngIf="!app.routeData.hideMobileHome" [routerLink]="homeRoute()" class="text-dark"><i class="md md-apps"></i></a>
+		</div>
+	</header>
+</div>

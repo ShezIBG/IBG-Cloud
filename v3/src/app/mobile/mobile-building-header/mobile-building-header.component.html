@@ -1,0 +1,6 @@
+<div class="card-box bg-primary text-light p-10 selectable" style="border-radius: 0; margin: -20px -20px 20px -20px; position: sticky; top: -21px; z-index: 1000;" (click)="mobile.openBuildingSelect(moduleName)">
+	<span class="pull-right"><u>Change</u></span>
+	<ng-container *ngIf="mobile.buildingInfo">
+		<b>{{mobile.buildingInfo.description}}</b>
+	</ng-container>
+</div>

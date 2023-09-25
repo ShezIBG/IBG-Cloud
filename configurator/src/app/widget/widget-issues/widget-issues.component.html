@@ -1,0 +1,19 @@
+<div class="fill flex-parent-column">
+	<header class="text-center"><h3>Setup Issues</h3></header>
+	<div class="flex-weight-1 padded scrollable">
+
+		<table *ngIf="issues.length" class="table">
+			<tr *ngFor="let item of issues">
+				<td *ngIf="item.entity.entityManager === app.entityManager"><a (click)="item.entity.jumpTo(app)"><i class="{{item.entity.getIconClass()}}"></i> {{item.entity.getDescription()}} <span *ngIf="item.entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></a></td>
+				<td *ngIf="item.entity.entityManager !== app.entityManager"><i class="{{item.entity.getIconClass()}}"></i> {{item.entity.getDescription()}} <span *ngIf="item.entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+				<td>{{item.entity.getTypeDescription()}}</td>
+				<td class="text-danger">{{item.issue}}</td>
+			</tr>
+		</table>
+
+		<p *ngIf="!issues.length" class="text-success">
+			No issues found.
+		</p>
+
+	</div>
+</div>

@@ -1,0 +1,134 @@
+<div *ngIf="data" class="card-box print" style="max-width: 1000px; margin: auto;">
+	<h2 class="text-right m-0">
+		<app-sales-project-stage-badge [stage]="data.project.stage" class="pull-left"></app-sales-project-stage-badge>
+		Project Summary
+	</h2>
+	<hr>
+
+	<div class="large">{{data.project.customer_name}}</div>
+	<div class="large">{{data.project.description}}</div>
+
+	<table class="table no-border m-t-20">
+		<ng-container *ngIf="data.pricing">
+			<tr><td><strong>Equipment</strong></td><td></td></tr>
+
+			<tr class="indent">
+				<td class="total">Equipment Total:</td>
+				<td></td>
+				<td class="total text-right">{{data.equipment.total_price | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+
+			<tr><td>&nbsp;</td><td></td></tr>
+		</ng-container>
+
+		<ng-container *ngIf="data.labour.total_hours || data.labour.total_price || data.labour.total_cost">
+			<tr><td><strong>Labour</strong></td><td></td></tr>
+
+			<tr *ngFor="let item of data.labour_types" class="indent">
+				<td>{{item.category_description}} - {{item.description}}</td>
+				<td class="text-right">{{item.total_hours | decimal:2}} Hrs</td>
+				<td *ngIf="data.pricing" class="text-right">{{item.total_price | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+
+			<tr><td>&nbsp;</td><td></td></tr>
+
+			<tr *ngFor="let item of data.labour_categories" class="indent">
+				<td>{{item.description}}</td>
+				<td class="text-right">{{item.total_hours | decimal:2}} Hrs</td>
+				<td *ngIf="data.pricing" class="text-right">{{item.total_price | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+
+			<tr class="indent total">
+				<td>Labour Total</td>
+				<td class="text-right top-border">{{data.labour.total_hours | decimal:2}} Hrs</td>
+				<td *ngIf="data.pricing" class="text-right top-border">{{data.labour.total_price | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+
+			<tr><td>&nbsp;</td><td></td></tr>
+		</ng-container>
+
+		<tr *ngIf="data.pricing" class="large total">
+			<td>Project Total:</td>
+			<td></td>
+			<td class="text-right top-border">{{getProjectTotal() | decimal:2:2:true:'GBP'}}</td>
+		</tr>
+	</table>
+
+	<table *ngFor="let sub of data.subscriptions" class="table no-border print-group">
+		<tr class="large total"><td>{{sub.frequency}} Subscriptions</td><td></td></tr>
+
+		<tr *ngFor="let item of sub.items" class="indent">
+			<td>{{item.description}}</td>
+			<td class="text-right">{{item.quantity | decimal:0:2}}</td>
+			<td *ngIf="data.pricing" class="text-right">{{item.subtotal | decimal:2:2:true:'GBP'}}</td>
+		</tr>
+
+		<tr *ngIf="data.pricing" class="indent total">
+			<td>{{sub.frequency}} Subscription Total</td>
+			<td class="text-right top-border"></td>
+			<td class="text-right top-border">{{sub.total | decimal:2:2:true:'GBP'}}</td>
+		</tr>
+	</table>
+
+	<table *ngIf="data.pricing" class="table no-border print-group">
+		<tr class="large total"><td>Profit Analysis</td><td></td></tr>
+
+		<tr class="indent total">
+			<td>Equipment Cost</td>
+			<td></td>
+			<td class="text-right">{{data.equipment.total_cost | decimal:2:2:true:'GBP'}}</td>
+		</tr>
+
+		<tr class="indent">
+			<td>Equipment Margin</td>
+			<td></td>
+			<td class="text-right">{{margin(data.equipment.total_price, data.equipment.total_cost) | decimal:2}}%</td>
+		</tr>
+
+		<tr class="indent">
+			<td>Equipment Markup</td>
+			<td></td>
+			<td class="text-right">{{markup(data.equipment.total_price, data.equipment.total_cost) | decimal:2}}%</td>
+		</tr>
+
+		<ng-container *ngIf="data.labour.total_hours || data.labour.total_price || data.labour.total_cost">
+			<tr class="indent total">
+				<td>Labour Cost</td>
+				<td></td>
+				<td class="text-right">{{data.labour.total_cost | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+
+			<tr class="indent">
+				<td>Labour Margin</td>
+				<td></td>
+				<td class="text-right">{{margin(data.labour.total_price, data.labour.total_cost) | decimal:2}}%</td>
+			</tr>
+
+			<tr class="indent">
+				<td>Labour Markup</td>
+				<td></td>
+				<td class="text-right">{{markup(data.labour.total_price, data.labour.total_cost) | decimal:2}}%</td>
+			</tr>
+		</ng-container>
+
+		<ng-container *ngFor="let sub of data.subscriptions">
+			<tr class="indent total">
+				<td>{{sub.frequency}} Subscription Cost</td>
+				<td></td>
+				<td class="text-right">{{sub.cost | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+
+			<tr class="indent">
+				<td>{{sub.frequency}} Subscription Margin</td>
+				<td></td>
+				<td class="text-right">{{margin(sub.total, sub.cost) | decimal:2}}%</td>
+			</tr>
+
+			<tr class="indent">
+				<td>{{sub.frequency}} Subscription Markup</td>
+				<td></td>
+				<td class="text-right">{{markup(sub.total, sub.cost) | decimal:2}}%</td>
+			</tr>
+		</ng-container>
+	</table>
+</div>

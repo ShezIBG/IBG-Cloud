@@ -1,0 +1,254 @@
+<div class="layout-dashboard">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div class="flex-col theme-dark" style="min-width: 450px; max-width: 450px;">
+
+			<div class="widget">
+				<div *ngIf="data.item_types.length" class="scrollable p-t-0">
+					<ng-container *ngFor="let t of data.item_types">
+						<h2 class="m-t-20">
+							{{t.description}} Schedules
+							<button class="btn btn-primary btn-sm pull-right" (click)="addSchedule(t.id)"><i class="md md-add"></i></button>
+						</h2>
+						<table *ngIf="t.schedules.length" class="table table-hover vam no-border">
+							<thead>
+								<tr class="alt-header">
+									<th>Schedule Name</th>
+									<th class="text-center text-small">Devices</th>
+									<th class="text-right">Next Event</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let s of t.schedules" class="selectable" [ngClass]="{ 'bg-primary': selectedSchedule === s.id }" (click)="selectSchedule(s.id)">
+									<td>{{s.description}}</td>
+									<td class="text-center text-small">{{s.device_count}}</td>
+
+									<td *ngIf="s.next_event" class="text-right">{{s.next_event | mySQLDateToISO | date:'shortDate'}} {{s.next_event | mySQLDateToISO | date:'shortTime'}}</td>
+									<td *ngIf="!s.next_event" class="text-right">None</td>
+								</tr>
+							</tbody>
+						</table>
+						<div *ngIf="!t.schedules.length">
+							<p>No schedules found.</p>
+						</div>
+					</ng-container>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-2 widget">
+			<ng-container *ngIf="!selectedSchedule">
+				<header>
+					<h2>Schedule Details</h2>
+					<hr>
+				</header>
+				<div>Please select a schedule.</div>
+			</ng-container>
+			<ng-container *ngIf="selectedSchedule && schedule">
+				<header>
+					<h2>
+						{{schedule.record.description}}
+						<button *ngIf="!edit" class="btn btn-default btn-sm pull-right" (click)="edit = !edit"><i class="md md-edit"></i> Edit Schedule</button>
+						<button *ngIf="edit" class="btn btn-primary btn-sm pull-right" (click)="saveSchedule()"><i class="md md-check"></i> Save Schedule</button>
+					</h2>
+					<hr>
+				</header>
+				<div class="scrollable" [ngClass]="{ 'no-edit': !edit }">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Description</label>
+							<div class="col-sm-5">
+								<input class="form-control" [(ngModel)]="schedule.record.description" [disabled]="!edit">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Options</label>
+							<div class="col-sm-8">
+								<div class="checkbox checkbox-primary">
+									<label>
+										<input type="checkbox" [(ngModel)]="schedule.record.off_on_holidays" [disabled]="!edit">
+										<span>Turn devices off on holidays</span>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<table class="table vam" style="max-width: 1000px; margin-left: auto; margin-right: auto;">
+						<thead>
+							<tr>
+								<th style="width: 50%;" colspan="2">Time</th>
+								<th class="text-center">Repeat</th>
+								<th style="width: 50%;">Values</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ng-container *ngFor="let day of days">
+								<tr [ngClass]="{ success: copyDay === day, info: copyDay !== day }">
+									<td colspan="3">
+										<span class="h2" *ngIf="day === 'mon'">Monday</span>
+										<span class="h2" *ngIf="day === 'tue'">Tuesday</span>
+										<span class="h2" *ngIf="day === 'wed'">Wednesday</span>
+										<span class="h2" *ngIf="day === 'thu'">Thursday</span>
+										<span class="h2" *ngIf="day === 'fri'">Friday</span>
+										<span class="h2" *ngIf="day === 'sat'">Saturday</span>
+										<span class="h2" *ngIf="day === 'sun'">Sunday</span>
+									</td>
+									<td class="text-right">
+										<ng-container *ngIf="edit">
+											<button *ngIf="copyDay === null" class="btn btn-default btn-xs" (click)="copyDay = day"><i class="md md-content-copy"></i> Copy</button>
+											<button *ngIf="copyDay === day" class="btn btn-primary btn-xs" (click)="copyDay = null"><i class="md md-check"></i> Done</button>
+											<button *ngIf="copyDay !== null && copyDay !== day" class="btn btn-primary btn-xs" (click)="copyScheduleItems(copyDay, day)"><i class="md md-content-paste"></i> Paste</button>
+										</ng-container>
+									</td>
+								</tr>
+
+								<tr *ngFor="let group of getFilteredItems(day)">
+									<ng-container *ngIf="edit">
+										<td *ngIf="group.type === 'set-time'" style="width: 150px; vertical-align: top !important;" [ngClass]="{ 'has-error': !group.time }">
+											<div class="input-group">
+												<span class="input-group-addon"><i class="md md-access-time"></i></span>
+												<input atp-time-picker class="form-control" [(ngModel)]="group.time">
+											</div>
+											<ng-container *ngIf="group.end_time">
+												<div class="input-group">
+													<span class="input-group-addon"><i class="md md-access-time"></i></span>
+													<input atp-time-picker class="form-control" [(ngModel)]="group.end_time">
+												</div>
+											</ng-container>
+											<ng-container *ngIf="!group.end_time">
+												<div class="m-t-10">
+													<a class="text-success" (click)="group.end_time = group.time"><i class="md md-add"></i> Set end time</a>
+												</div>
+											</ng-container>
+										</td>
+										<td *ngIf="group.type !== 'set-time'" style="width: 150px; vertical-align: top !important;" [ngClass]="{ 'has-error': !group.minutes === '' }">
+											<div class="input-group">
+												<span class="input-group-addon"><i class="eticon" [ngClass]="{ 'eticon-sun': group.type === 'before-sunrise' || group.type === 'after-sunrise', 'eticon-moon': group.type === 'before-sunset' || group.type === 'after-sunset' }"></i></span>
+												<input class="form-control text-right" [(ngModel)]="group.minutes" style="min-width: 60px;">
+												<span class="input-group-addon">minutes</span>
+											</div>
+										</td>
+
+										<td style="vertical-align: top !important;">
+											<div>
+												<select class="form-control" [(ngModel)]="group.type" style="width: auto;">
+													<option value="before-sunrise">Before sunrise</option>
+													<option value="after-sunrise">After sunrise</option>
+													<option value="set-time">Set time</option>
+													<option value="before-sunset">Before sunset</option>
+													<option value="after-sunset">After sunset</option>
+												</select>
+											</div>
+											<ng-container *ngIf="group.end_time">
+												<div class="m-t-10">
+													<a class="text-danger" (click)="group.end_time = null"><i class="md md-remove"></i> Remove end time</a>
+												</div>
+											</ng-container>
+										</td>
+
+										<td style="vertical-align: top !important;" class="p-l-30 p-r-30">
+											<div *ngIf="group.subitems.length === 0 || group.subitems[0].item_type_slot_id !== null" class="input-group">
+												<input class="form-control text-right" [(ngModel)]="group.repeat_minutes" style="min-width: 60px;">
+												<span class="input-group-addon">min</span>
+											</div>
+										</td>
+
+										<td class="p-0" style="vertical-align: top !important;">
+											<table class="table vam no-border m-0" style="background: transparent;">
+												<tbody>
+													<tr *ngFor="let item of group.subitems">
+														<ng-container *ngIf="item.item_type_slot_id">
+															<td class="text-bold" style="width: 150px;">{{slotIndex[item.item_type_slot_id]?.description}}</td>
+															<td><app-knx-input [knxValue]="item.knx"></app-knx-input></td>
+															<td class="shrink"><a *ngIf="edit" class="text-danger text-large" (click)="deleteItem(group, item)"><i class="md md-close"></i></a></td>
+														</ng-container>
+														<ng-container *ngIf="!item.item_type_slot_id">
+															<td colspan="2">Expire and stop repeating commands</td>
+															<td class="shrink"><a *ngIf="edit" class="text-danger text-large" (click)="deleteGroup(group)"><i class="md md-close"></i></a></td>
+														</ng-container>
+													</tr>
+													<ng-container *ngIf="groupAddList(group); let addList">
+														<tr *ngIf="addList.length">
+															<td colspan="3">
+																<div style="margin-top: 7px;">
+																	<span class="btn-group">
+																		<a class="text-success dropdown-toggle" data-toggle="dropdown"><i class="md md-add"></i> Add value</a>
+																		<ul class="dropdown-menu" role="menu">
+																			<li *ngFor="let slot of addList"><a (click)="addSubitem(group, slot.id)">{{slot.description}}</a></li>
+																		</ul>
+																	</span>
+																	<span class="m-l-20">
+																		<a class="text-danger" (click)="deleteGroup(group)"><i class="md md-remove"></i> Remove item</a>
+																	</span>
+																</div>
+															</td>
+														</tr>
+													</ng-container>
+												</tbody>
+											</table>
+										</td>
+
+									</ng-container>
+
+									<ng-container *ngIf="!edit">
+										<td style="vertical-align: top !important;">
+											<ng-container *ngIf="group.type === 'set-time'">
+												<i class="md md-access-time"></i> {{group.time}}
+												<span *ngIf="group.end_time"> - {{group.end_time}}</span>
+											</ng-container>
+											<ng-container *ngIf="group.type !== 'set-time'">
+												<i class="eticon" [ngClass]="{ 'eticon-sun': group.type === 'before-sunrise' || group.type === 'after-sunrise', 'eticon-moon': group.type === 'before-sunset' || group.type === 'after-sunset' }"></i>
+												<ng-container *ngIf="group.minutes">
+													{{group.minutes}} minutes
+													{{group.type === 'before-sunrise' || group.type === 'before-sunset' ? 'before' : 'after'}}
+													{{group.type === 'before-sunrise' || group.type === 'after-sunrise' ? 'sunrise' : 'sunset'}}
+												</ng-container>
+												<ng-container *ngIf="!group.minutes">
+													at {{group.type === 'before-sunrise' || group.type === 'after-sunrise' ? 'sunrise' : 'sunset'}}
+												</ng-container>
+											</ng-container>
+										</td>
+										<td class="shrink">
+										</td>
+										<td class="shrink nowrap text-center p-l-30 p-r-30" style="vertical-align: top !important;">
+											<span *ngIf="group.subitems.length === 0 || group.subitems[0].item_type_slot_id !== null">{{group.repeat_minutes}} min</span>
+										</td>
+										<td class="p-0" style="vertical-align: top !important;">
+											<table class="table vam no-border m-0" style="background: transparent;">
+												<tbody>
+													<tr *ngFor="let item of group.subitems">
+														<ng-container *ngIf="item.item_type_slot_id">
+															<td class="text-bold" style="width: 150px;">{{slotIndex[item.item_type_slot_id]?.description}}</td>
+															<td><app-knx-output [knxValue]="item.knx"></app-knx-output></td>
+														</ng-container>
+														<ng-container *ngIf="!item.item_type_slot_id">
+															<td colspan="2">Expire and stop repeating commands.</td>
+														</ng-container>
+													</tr>
+												</tbody>
+											</table>
+										</td>
+									</ng-container>
+								</tr>
+								<tr *ngIf="edit">
+									<td colspan="4">
+										<a class="text-success" (click)="addItem(day)"><i class="md md-add"></i> Add item</a>
+										<a class="text-success m-l-30" (click)="addExpireItem(day)"><i class="md md-add"></i> Add expiry</a>
+									</td>
+								</tr>
+							</ng-container>
+						</tbody>
+					</table>
+
+					<p *ngIf="edit" class="text-right">
+						<button class="btn btn-danger" (click)="deleteSchedule()"><i class="md md-delete"></i> Delete schedule</button>
+					</p>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+
+</div>

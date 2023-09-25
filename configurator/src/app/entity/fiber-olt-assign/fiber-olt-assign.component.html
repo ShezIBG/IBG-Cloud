@@ -1,0 +1,32 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>{{entity.getTypeDescription()}}: {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span><button *ngIf="screen.assignables.length" (click)="assignAll()" class="btn btn-success pull-right"><i class="md md-add-circle"></i> Assign ONUs</button></h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Assigned ONUs</th>
+					<th>Area</th>
+					<th>Serial #</th>
+					<th>Port</th>
+					<th>ONU #</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let onu of entity.assigned" [ngClass]="{ 'bg-hover': hovered === onu }" (mouseenter)="hovered = onu" (mouseleave)="hovered = null">
+					<td><i class="{{onu.getIconClass()}}"></i> {{onu.getDescription()}}</td>
+					<td>{{onu.getAreaDescription()}}</td>
+					<td>{{onu.data.serial_no}}</td>
+					<td>{{onu.data.port}}</td>
+					<td>{{onu.data.onu}}</td>
+					<td class="shrink">
+						<a class="text-danger nowrap" (click)="onu.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="text-info"><i class="md md-info"></i> All assigned ONUs must have a unique port and ONU #</p>
+	</div>
+</div>

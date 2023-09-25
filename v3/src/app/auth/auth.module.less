@@ -1,0 +1,81 @@
+//
+// General styles
+//
+
+.info-panel {
+	background: #897ADB;
+	padding: 1em 1em 1em 4.2em;
+	margin: 4em 0 1.5em -4.2em;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+
+	img {
+		position: relative;
+		top: -2px;
+		margin-right: 0.5em;
+		width: 1.5em;
+		vertical-align: middle;
+	}
+}
+
+.layout-full {
+	.auth-foreground {
+		border-radius: 20px;
+		box-shadow: 0px 0px 30px #000000A7;
+		padding: 4em;
+		width: 520px;
+
+		button {
+			width: 100%;
+		}
+
+		input, button {
+			margin-bottom: 1em;
+		}
+
+		h2 {
+			text-transform: uppercase;
+			margin: 1.5em 0 1.1em 0;
+
+			.decoration {
+				display: inline-block;
+				height: 4px;
+				width: 3.5em;
+				border-radius: 2px;
+				vertical-align: middle;
+				margin: -4px 0 0 1em;
+			}
+		}
+
+		.table-container {
+			margin: 1em 0 2em -4em;
+
+			td:first-child { padding-left: 4em; }
+		}
+	}
+}
+
+//
+// Brand specific
+//
+
+.eticom {
+	.auth-background {
+		// background: #171A1D ~"url('assets/img/auth/auth-background.jpg')";
+		// background-size: cover;
+		// background-position: center center;
+		// background-repeat: no-repeat;
+		// overflow: auto;
+		background-color: #465262;
+	}
+}
+
+.elanet {
+	.auth-background {
+		background-color: #4299e1;
+		background-image: ~"url('assets/img/branding/elanet/overlay-cover.png')", ~"url('assets/img/branding/elanet/fiber.jpg')";
+		background-repeat: no-repeat, no-repeat;
+		background-position: center center, center center;
+		background-size: cover, cover;
+	}
+}

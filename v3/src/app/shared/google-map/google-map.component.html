@@ -1,0 +1,7 @@
+<div class="input-group m-b-15">
+	<span class="input-group-addon"><i class="md md-search"></i></span>
+	<input type="text" class="form-control" placeholder="Search on map" autocorrect="off" autocapitalize="off" spellcheck="off" [formControl]="searchControl" #search>
+</div>
+<agm-map [latitude]="lat" [longitude]="lng" [style.height]="mapHeight | safeStyle" [zoom]="16" [mapTypeControl]="true">
+	<agm-marker [latitude]="lat" [longitude]="lng" [markerDraggable]="true" (dragEnd)="dragEnd($event)" #marker></agm-marker>
+</agm-map>

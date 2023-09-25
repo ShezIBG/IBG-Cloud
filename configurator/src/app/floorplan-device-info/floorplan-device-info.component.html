@@ -1,0 +1,30 @@
+<div class="flex-parent-column">
+	<header>
+		<h4><i class="{{entity.getIconClass()}}"></i> {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></h4>
+	</header>
+	<div style="padding: 10px;">
+		<ng-container *ngIf="getFloorPlanItem() as item">
+			<div class="checkbox checkbox-primary">
+				<label>
+					<input type="checkbox" [(ngModel)]="item.locked">
+					<span>Locked</span>
+				</label>
+				<entity-delete class="pull-right" type="remove_link" [entity]="item"></entity-delete>
+			</div>
+			<div class="checkbox checkbox-primary">
+				<label>
+					<input type="checkbox" [(ngModel)]="item.isDirectional">
+					<span>Directional</span>
+				</label>
+			</div>
+			<div *ngIf="item.isDirectional" class="row">
+				<div class="col-lg-6">
+					<div class="form-group">
+						<label>Facing <span class="subtitle">in degrees</span></label>
+						<input type="text" class="form-control" [(ngModel)]="item.direction" desktopfocus>
+					</div>
+				</div>
+			</div>
+		</ng-container>
+	</div>
+</div>

@@ -1,0 +1,36 @@
+.icon-container, .icon-title {
+	color: #c5c5c5;
+	margin-bottom: 15px;
+}
+
+.icon-container {
+	position: relative;
+	display: inline-block;
+	margin: 8px 0;
+}
+
+.icon-container i {
+	font-size: 4.4em;
+	overflow: visible;
+}
+
+.icon-container .icon-badge {
+	position: absolute;
+	bottom: 5px;
+	right: -22px;
+	background: #f4bb49;
+	color: black;
+	border-radius: 50%;
+	font-weight: bold;
+	padding: 0px 6px;
+}
+
+.icon-container.length-1 .icon-badge { padding: 0px 6px; right: -20px; }
+.icon-container.length-2 .icon-badge { padding: 4px 5px; right: -20px; font-size: 0.9em; }
+.icon-container.length-3 .icon-badge { padding: 6px 4px; right: -20px; font-size: 0.85em; }
+.icon-container.length-4 .icon-badge { padding: 9px 3px; right: -20px; font-size: 0.85em; }
+
+.icon-container.length-1 i { padding-right: 1px; }
+.icon-container.length-2 i { padding-right: 6px; }
+.icon-container.length-3 i { padding-right: 9px; }
+.icon-container.length-4 i { padding-right: 12px; }

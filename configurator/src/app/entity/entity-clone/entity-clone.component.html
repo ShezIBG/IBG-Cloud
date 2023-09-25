@@ -1,0 +1,5 @@
+<ng-container *ngIf="entity?.canClone()">
+	<button *ngIf="type === 'button'" (click)="clone()" class="btn btn-success pull-right"><i class="md md-content-copy"></i> Clone {{entity.getTypeDescription()}}</button>
+	<a *ngIf="type === 'link'" (click)="clone()" class="text-success" style="white-space:nowrap"><i class="md md-content-copy"></i> Clone</a>
+	<button *ngIf="type === 'toolbar'" (click)="clone()" class="btn btn-success pull-right"><i class="md md-content-copy"></i> Clone</button>
+</ng-container>

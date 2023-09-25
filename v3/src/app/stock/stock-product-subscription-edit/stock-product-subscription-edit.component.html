@@ -1,0 +1,74 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Subscription type description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.description" [disabled]="!editable" appDesktopFocus>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Category</label>
+				<div class="col-sm-4">
+					<select class="form-control" [(ngModel)]="details.category_id" [disabled]="!editable">
+						<option *ngFor="let item of categories" [ngValue]="item.id">{{item.description}}</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Frequency</label>
+				<div class="col-sm-4">
+					<select class="form-control" [(ngModel)]="details.frequency" [disabled]="!editable">
+						<option value="monthly">Monthly</option>
+						<option value="annual">Annual</option>
+					</select>
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Pricing structure</label>
+				<div class="col-sm-5">
+					<select class="form-control" [(ngModel)]="details.pricing_structure_id" (change)="refreshSelections()">
+						<option [ngValue]="null">Custom</option>
+						<option *ngFor="let item of pricingStructures" [ngValue]="item.id">{{item.description}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<table class="table vam">
+			<thead>
+				<tr>
+					<th class="text-right">Unit cost</th>
+					<th class="text-right">Distribution price</th>
+					<th class="text-right">Reseller price</th>
+					<th class="text-right">Trade price</th>
+					<th class="text-right">Retail price</th>
+				</tr>
+				<tr>
+					<td>
+						<input class="form-control text-right" [(ngModel)]="details.unit_cost" (input)="recalculatePricing('cost')" (change)="formatNumbers()" [disabled]="!editable">
+					</td>
+					<ng-container *ngFor="let tier of ['distribution', 'reseller', 'trade', 'retail']">
+						<td *ngIf="!selectedPricingStructure || selectedPricingStructure[tier + '_method'] === 'custom'">
+							<input class="form-control text-right" [(ngModel)]="details[tier + '_price']" (input)="recalculatePricing()" (change)="formatNumbers()">
+						</td>
+						<td *ngIf="selectedPricingStructure && selectedPricingStructure[tier + '_method'] !== 'custom'" class="text-right">
+							{{details[tier + '_price'] | decimal:2:4:true:'GBP'}}
+						</td>
+					</ng-container>
+				</tr>
+			</thead>
+		</table>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

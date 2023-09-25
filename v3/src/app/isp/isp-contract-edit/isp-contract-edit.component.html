@@ -1,0 +1,461 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Contract details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.description">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Reference number</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.reference_no">
+				</div>
+			</div>
+			<div *ngIf="details.id === 'new' || details.is_template" class="form-group">
+				<label class="col-sm-4 control-label">PDF Contract Template</label>
+				<div class="col-sm-4">
+					<select class="form-control" [(ngModel)]="details.pdf_contract_id" (ngModelChange)="pdfContractChanged()">
+						<option [ngValue]="null">No contract signing required</option>
+						<option *ngFor="let item of list.pdf_contracts" [ngValue]="item.id">{{item.name}}</option>
+					</select>
+				</div>
+			</div>
+			<hr>
+			<ng-container *ngIf="!details.is_template">
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Building</label>
+					<div class="col-sm-4">
+						<select class="form-control" [(ngModel)]="selectedBuilding" (change)="buildingChanged()">
+							<option [ngValue]="null">Select building</option>
+							<option *ngFor="let item of list.buildings" [ngValue]="item">{{item.description}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Area</label>
+					<div class="col-sm-4">
+						<select class="form-control" [(ngModel)]="details.area_id">
+							<option [ngValue]="null">Select area</option>
+							<option *ngFor="let item of selectedBuilding?.areas" [ngValue]="item.id">{{item.description}}</option>
+						</select>
+					</div>
+				</div>
+				<div *ngIf="details.id === 'new' && selectedBuilding" class="form-group">
+					<label class="col-sm-4 control-label">Address</label>
+					<div class="col-sm-4">
+						<div class="well well-sm">
+							<div *ngIf="!selectedArea">
+								<!-- Show building address -->
+								<div *ngIf="selectedBuilding.address">{{selectedBuilding.address}}</div>
+								<div *ngIf="selectedBuilding.posttown">{{selectedBuilding.posttown}}</div>
+								<div *ngIf="selectedBuilding.postcode">{{selectedBuilding.postcode}}</div>
+							</div>
+							<div *ngIf="selectedArea && !(selectedArea.address_line_1 || selectedArea.address_line_2 || selectedArea.address_line_3 || selectedArea.posttown || selectedArea.postcode)">
+								<!-- Auto-generated area address -->
+								<div *ngIf="selectedArea.description">{{selectedArea.description}}</div>
+								<div *ngIf="selectedBuilding.address">{{selectedBuilding.address}}</div>
+								<div *ngIf="selectedBuilding.posttown">{{selectedBuilding.posttown}}</div>
+								<div *ngIf="selectedBuilding.postcode">{{selectedBuilding.postcode}}</div>
+							</div>
+							<div *ngIf="selectedArea && selectedArea.postcode && !(selectedArea.address_line_1 || selectedArea.address_line_2 || selectedArea.address_line_3 || selectedArea.posttown)">
+								<!-- Postcode only override -->
+								<div *ngIf="selectedArea.description">{{selectedArea.description}}</div>
+								<div *ngIf="selectedBuilding.address">{{selectedBuilding.address}}</div>
+								<div *ngIf="selectedBuilding.posttown">{{selectedBuilding.posttown}}</div>
+								<div *ngIf="selectedArea.postcode">{{selectedArea.postcode}}</div>
+							</div>
+							<div *ngIf="selectedArea && (selectedArea.address_line_1 || selectedArea.address_line_2 || selectedArea.address_line_3 || selectedArea.posttown)">
+								<!-- Full address override -->
+								<div *ngIf="selectedArea.address_line_1">{{selectedArea.address_line_1}}</div>
+								<div *ngIf="selectedArea.address_line_2">{{selectedArea.address_line_2}}</div>
+								<div *ngIf="selectedArea.address_line_3">{{selectedArea.address_line_3}}</div>
+								<div *ngIf="selectedArea.posttown">{{selectedArea.posttown}}</div>
+								<div *ngIf="selectedArea.postcode">{{selectedArea.postcode}}</div>
+							</div>
+						</div>
+
+						<div class="checkbox checkbox-primary">
+							<label>
+								<input type="checkbox" [(ngModel)]="details.set_customer_address">
+								<span>Use as customer's address</span>
+							</label>
+						</div>
+						<div class="checkbox checkbox-primary">
+							<label>
+								<input type="checkbox" [(ngModel)]="details.set_customer_invoice_address">
+								<span>Use as customer's invoice address</span>
+							</label>
+						</div>
+					</div>
+				</div>
+				<hr>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Start date</label>
+					<div class="col-sm-3">
+						<p-calendar [(ngModel)]="start_date" dateFormat="dd/mm/yy" inputStyleClass="form-control" appendTo="body"></p-calendar>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">End date</label>
+					<div class="col-sm-3">
+						<p-calendar [(ngModel)]="end_date" dateFormat="dd/mm/yy" inputStyleClass="form-control" appendTo="body"></p-calendar>
+					</div>
+				</div>
+			</ng-container>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Contract term</label>
+				<div class="col-sm-2">
+					<input class="form-control" [(ngModel)]="details.term">
+				</div>
+				<div class="col-sm-2">
+					<select class="form-control" [(ngModel)]="details.term_units">
+						<option value="week">Weeks</option>
+						<option value="month">Months</option>
+						<option value="year">Years</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Term type</label>
+				<div class="col-sm-4">
+					<select class="form-control" [(ngModel)]="details.contract_term">
+						<option value="fixed">Fixed term</option>
+						<option value="variable">Variable term</option>
+					</select>
+					<p *ngIf="details.contract_term === 'fixed'" class="text-info m-t-10">
+						<i class="md md-info"></i> Fixed term contracts will automatically end on the contract end date.
+					</p>
+					<p *ngIf="details.contract_term === 'variable'" class="text-info m-t-10">
+						<i class="md md-info"></i> Variable term rolling contracts will carry on indefinitely while active, regardless of the end date. End date can be used to signal the end of the mandatory term, but is not enforced by the system.
+						<br><br>To end the contract, set the end date and switch status to <i>Ending</i>. Once in ending status, contract will be treated as a fixed term contract and will end on the date set.
+					</p>
+				</div>
+			</div>
+			<div *ngIf="!details.is_template" class="form-group">
+				<label class="col-sm-4 control-label">Status</label>
+				<div class="col-sm-4">
+					<select class="form-control" [(ngModel)]="details.status">
+						<option value="unconfirmed">Unconfirmed</option>
+						<option *ngIf="details.status === 'not_signed' || details.pdf_contract_id" value="not_signed">Not signed</option>
+						<option value="pending">Pending</option>
+						<option value="active">Active</option>
+						<option value="ending">Ending</option>
+						<option value="ended">Ended</option>
+						<option value="cancelled">Cancelled</option>
+					</select>
+					<p *ngIf="details.status === 'unconfirmed'" class="text-info m-t-10">
+						<span class="badge badge-default">Unconfirmed</span> contracts are not yet active. They need to be activated manually.
+					</p>
+					<p *ngIf="details.status === 'not_signed'" class="text-info m-t-10">
+						<span class="badge badge-default">Not signed</span> contracts are not yet active. They will be activated once the customer signs the attached contract.
+					</p>
+					<p *ngIf="details.status === 'pending'" class="text-info m-t-10">
+						<span class="badge badge-default">Pending</span> contracts are not yet active. They will automatically activate on the contract start date.
+					</p>
+					<p *ngIf="details.status === 'active' && details.contract_term === 'fixed'" class="text-info m-t-10">
+						<span class="badge badge-success">Active fixed term</span> contracts are running and within the term. They will automatically end on the contract end date.
+					</p>
+					<p *ngIf="details.status === 'active' && details.contract_term === 'variable'" class="text-info m-t-10">
+						<span class="badge badge-success">Active variable term</span> contracts are running and rolling forward even after the end date.
+					</p>
+					<p *ngIf="details.status === 'ending'" class="text-info m-t-10">
+						<span class="badge badge-warning">Ending</span> contracts will not roll forward and they will end on the end date.
+					</p>
+					<p *ngIf="details.status === 'ended'" class="text-info m-t-10">
+						<span class="badge badge-primary">Ended</span> contracts have been completed according to the terms. No more invoices will be issued.
+					</p>
+					<p *ngIf="details.status === 'cancelled'" class="text-info m-t-10">
+						<span class="badge badge-danger">Cancelled</span> contracts have ended abnormally or prematurely. They will no longer be processed and no more invoices will be issued.
+					</p>
+				</div>
+			</div>
+			<ng-container *ngIf="details.id === 'new' || details.is_template">
+				<hr>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Initial processing</label>
+					<div class="col-sm-5">
+						<div class="checkbox checkbox-primary">
+							<label>
+								<input type="checkbox" [(ngModel)]="details.skip_past_invoices">
+								<span>Skip past invoices</span>
+							</label>
+						</div>
+						<div class="checkbox checkbox-primary">
+							<label>
+								<input type="checkbox" [(ngModel)]="details.instant_activation_email">
+								<span>Send activation email immediately</span>
+							</label>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+			<ng-container *ngIf="(details.owner_type === 'SP' || details.owner_type === 'SI') && (details.customer_type === 'SI' || details.customer_type === 'HG' || details.customer_type === 'C' || details.is_template)">
+				<hr>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Eticom Cloud</label>
+					<div class="col-sm-5">
+						<div class="checkbox checkbox-primary">
+							<label>
+								<input type="checkbox" [(ngModel)]="details.provides_access">
+								<span>Contract provides access</span>
+							</label>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+
+	<h3>Billing</h3>
+
+	<div *ngFor="let invoice of details.invoices; let index = index" class="card-box">
+		<div class="form-horizontal">
+			<h2>
+				Invoice #{{index + 1}}
+				<a class="btn btn-danger pull-right" (click)="deleteInvoice(invoice)"><i class="md md-delete"></i> Delete invoice</a>
+			</h2>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="invoice.description">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Frequency</label>
+				<div class="col-sm-3">
+					<select class="form-control" [(ngModel)]="invoice.frequency">
+						<option value="monthly">Monthly</option>
+						<option value="monthly-">Monthly (in arrears)</option>
+						<option value="monthly+">Monthly (in advance)</option>
+						<option value="annual">Annual</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label"></label>
+				<div class="col-sm-5">
+					<p *ngIf="invoice.frequency === 'monthly'" class="text-info m-t-10">
+						<i class="md md-info"></i> Billing period starts from the day of the sign-up, billed each calendar month on the same day. First invoice will be issued instantly, payment due in the specified number of days.
+					</p>
+					<p *ngIf="invoice.frequency === 'monthly-'" class="text-info m-t-10">
+						<i class="md md-info"></i> Each billing period is a calendar month. Invoices issued on the issue day after the period has ended.
+					</p>
+					<p *ngIf="invoice.frequency === 'monthly+'" class="text-info m-t-10">
+						<i class="md md-info"></i> Each billing period is a calendar month. Invoices issued in advance on the issue day. First invoice is issued and payable instantly for the remainder of the month. If sign-up is after the cutoff day, the first invoice will include the next full period as well.
+					</p>
+					<p *ngIf="invoice.frequency === 'annual'" class="text-info m-t-10">
+						<i class="md md-info"></i> Billing period starts from the day of the sign-up, billed each year on the same day. First invoice will be issued instantly, payment due in the specified number of days.
+					</p>
+				</div>
+			</div>
+			<div *ngIf="invoice.frequency === 'monthly+'" class="form-group">
+				<label class="col-sm-4 control-label">Cutoff day</label>
+				<div class="col-sm-5 col-md-3 col-lg-3">
+					<input class="form-control text-right" [(ngModel)]="invoice.cutoff_day" style="width: 50px; display: inline-block;">
+					<span class="m-l-10">day of the month</span>
+				</div>
+			</div>
+			<div *ngIf="['monthly-', 'monthly+'].indexOf(invoice.frequency) !== -1" class="form-group">
+				<label class="col-sm-4 control-label">Issue on</label>
+				<div class="col-sm-5 col-md-3 col-lg-3">
+					<input class="form-control text-right" [(ngModel)]="invoice.issue_day" style="width: 50px; display: inline-block;">
+					<span class="m-l-10">day of the month</span>
+				</div>
+			</div>
+			<div *ngIf="['monthly-', 'monthly+'].indexOf(invoice.frequency) !== -1" class="form-group">
+				<label class="col-sm-4 control-label">Payment due on</label>
+				<div class="col-sm-5 col-md-3 col-lg-3">
+					<input class="form-control text-right" [(ngModel)]="invoice.payment_day" style="width: 50px; display: inline-block;">
+					<span class="m-l-10">day of the month</span>
+				</div>
+			</div>
+			<div *ngIf="['monthly-', 'monthly+'].indexOf(invoice.frequency) === -1" class="form-group">
+				<label class="col-sm-4 control-label">Payment due in</label>
+				<div class="col-sm-5 col-md-3 col-lg-3">
+					<input class="form-control text-right" [(ngModel)]="invoice.payment_day" style="width: 50px; display: inline-block;">
+					<span class="m-l-10">days</span>
+				</div>
+			</div>
+
+			<hr>
+
+			<div class="form-group">
+				<label class="col-sm-4 control-label" [ngClass]="{ 'text-success': !!invoice.card_payment_gateway }">Card payment gateway</label>
+				<div class="col-sm-5">
+					<select class="form-control" [(ngModel)]="invoice.card_payment_gateway">
+						<option [ngValue]="null">No card payments</option>
+						<option *ngFor="let item of list.card_gateways" [ngValue]="item.id">{{item.description}}</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label" [ngClass]="{ 'text-success': !!invoice.dd_payment_gateway }">Direct Debit gateway</label>
+				<div class="col-sm-5">
+					<select class="form-control" [(ngModel)]="invoice.dd_payment_gateway">
+						<option [ngValue]="null">No Direct Debit payments</option>
+						<option *ngFor="let item of list.dd_gateways" [ngValue]="item.id">{{item.description}}</option>
+					</select>
+				</div>
+			</div>
+			<div *ngIf="!invoice.card_payment_gateway && !invoice.dd_payment_gateway" class="form-group">
+				<label class="col-sm-4 control-label"></label>
+				<div class="col-sm-5 text-warning">
+					<i class="md md-warning"></i> Select at least one payment method above to process payments automatically.
+				</div>
+			</div>
+
+			<hr>
+
+			<div *ngIf="invoice.card_payment_gateway" class="form-group">
+				<label class="col-sm-4 control-label">Card payments</label>
+				<div class="col-sm-5">
+					<div *ngIf="invoice.card_payment_gateway && invoice.dd_payment_gateway" class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="invoice.initial_card_payment">
+							<span>Take first payment by card</span>
+						</label>
+					</div>
+					<div *ngIf="invoice.card_payment_gateway" class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="invoice.auto_charge_saved_card">
+							<span>Automatically charge saved card</span>
+						</label>
+					</div>
+					<div *ngIf="invoice.card_payment_gateway && invoice.dd_payment_gateway" class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="invoice.charge_card_if_dd_fails">
+							<span>Charge card if Direct Debit fails</span>
+						</label>
+					</div>
+					<div *ngIf="invoice.card_payment_gateway && invoice.dd_payment_gateway && invoice.charge_card_if_dd_fails" class="p-t-10">
+						<span class="m-r-10">Charge card after</span>
+						<input class="form-control text-right" [(ngModel)]="invoice.charge_card_after_days" style="width: 50px; display: inline-block;">
+						<span class="m-l-10">days</span>
+					</div>
+				</div>
+			</div>
+			<div *ngIf="invoice.dd_payment_gateway" class="form-group">
+				<label class="col-sm-4 control-label">Direct Debit</label>
+				<div class="col-sm-5">
+					<div>
+						<span class="m-r-10">Retry</span>
+						<input class="form-control text-right" [(ngModel)]="invoice.retry_dd_times" style="width: 50px; display: inline-block;">
+						<span class="m-l-10">times</span>
+					</div>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="invoice.mandatory_dd">
+							<span>Customer mandate is mandatory</span>
+						</label>
+					</div>
+					<p *ngIf="invoice.mandatory_dd" class="text-info m-t-10"><i class="md md-info"></i> Services will not be enabled until Direct Debit mandate is set up.</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">VAT rate</label>
+				<div class="col-sm-3 col-md-2">
+					<div class="input-group">
+						<input class="form-control text-right" [(ngModel)]="invoice.vat_rate">
+						<span class="input-group-addon">%</span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Status</label>
+				<div class="col-sm-5">
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="invoice.manual_authorisation">
+							<span>Manually authorise invoices</span>
+						</label>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<h2>Items</h2>
+
+		<ng-container *ngIf="details.id !== 'new' && (!selectedBuilding || selectedBuilding.id !== originalBuildingId)">
+			<div *ngIf="originalBuildingName && originalPackageName" class="alert alert-warning"><i class="md md-warning"></i> This contract has <b>{{originalPackageName}}</b> selected from <b>{{originalBuildingName}}</b>. When you move a contract, you will need to switch the routers manually.</div>
+		</ng-container>
+
+		<table class="table table-striped vam">
+			<thead>
+				<tr>
+					<th class="shrink nowrap">Item type</th>
+					<th>Item</th>
+					<th class="shrink nowrap">Unit price</th>
+					<th class="shrink nowrap">Quantity</th>
+					<th class="shrink nowrap text-center">Pro-rata</th>
+					<th class="shrink nowrap text-center">Charge type</th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let line of invoice.lines">
+					<td class="shrink">
+						<select class="form-control" [(ngModel)]="line.type" style="width: auto;" (change)="invoiceLineTypeChanged(line)">
+							<option value="custom">Custom</option>
+							<option value="isp_package">ISP Package</option>
+							<option value="isp_package_custom">ISP Package (custom)</option>
+						</select>
+					</td>
+					<td>
+						<input *ngIf="line.type === 'custom'" class="form-control" [(ngModel)]="line.description">
+						<select *ngIf="(line.type === 'isp_package' || line.type === 'isp_package_custom') && !details.is_template" class="form-control" [(ngModel)]="line.isp_package_id" (ngModelChange)="packageChanged(line)">
+							<option [ngValue]="null">{{selectedBuilding ? 'Select package' : 'Select building'}}</option>
+							<option *ngFor="let p of selectedBuilding?.packages" [ngValue]="p.id">{{p.description}}</option>
+						</select>
+						<span *ngIf="(line.type === 'isp_package' || line.type === 'isp_package_custom') && details.is_template">Any available ISP package</span>
+					</td>
+					<td class="shrink nowrap text-right">
+						<input *ngIf="line.type === 'custom' || line.type === 'isp_package_custom'" class="form-control text-right" [(ngModel)]="line.unit_price" style="width: 80px;">
+						<ng-container *ngIf="line.type === 'isp_package' && !details.is_template">{{findPackage(line.isp_package_id)?.monthly_price | decimal:2:2:true:'GBP'}}</ng-container>
+						<ng-container *ngIf="line.type === 'isp_package' && details.is_template">variable</ng-container>
+					</td>
+					<td class="shrink"><input class="form-control text-right" [(ngModel)]="line.quantity" style="width: 80px;"></td>
+					<td class="shrink text-center">
+						<div class="checkbox checkbox-primary m-0">
+							<label><input type="checkbox" [(ngModel)]="line.pro_rata"><span></span></label>
+						</div>
+					</td>
+					<td class="shrink">
+						<select class="form-control" style="width: auto;" [(ngModel)]="line.charge_type">
+							<option value="always">Always</option>
+							<option value="once">Once</option>
+							<option value="dd_fail">When DD fails</option>
+						</select>
+					</td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="deleteInvoiceLine(invoice, line)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!invoice.lines.length">
+					<td colspan="7">No items on invoice.</td>
+				</tr>
+				<tr>
+					<td colspan="7">
+						<a class="text-success" (click)="addInvoiceLine(invoice)"><i class="md md-add"></i> Add billable item</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="card-box">
+		<p *ngIf="!details.invoices.length" class="text-info"><i class="md md-info"></i> Add an invoice to start charging the customer.</p>
+		<button class="btn btn-primary" (click)="addInvoice()" [disabled]="disabled"><i class="md md-add"></i> {{details.invoices.length ? 'Add another invoice' : 'Add invoice'}}</button>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

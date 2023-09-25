@@ -1,0 +1,131 @@
+<div class="layout-dashboard myContainer-moveRight">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div class="flex-col theme-dark" style="min-width: 350px; max-width: 350px;">
+			<div class="widget">
+				<header>
+					<h2>Aircon Devices</h2>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover no-border vam">
+						<tbody>
+							<ng-container *ngFor="let area of areas">
+								<tr class="alt-header">
+									<th colspan="3"><b>{{area.description}}</b></th>
+									<th class="text-right">{{area.devices.length}} {{area.devices.length === 1 ? 'Unit' : 'Units'}}</th>
+								</tr>
+								<tr *ngFor="let device of area.devices" [ngClass]="{ 'bg-primary': selected === device.id }" (click)="selectDevice(device)" style="cursor:pointer;">
+									<td class="shrink">
+										<span *ngIf="device.ac_room_temp">{{device.ac_room_temp}}&deg;</span>
+									</td>
+									<td class="shrink p-r-0 p-l-0"><span class="badge-icon ac-{{device.show_mode}}">{{device.category_icon}}</span></td>
+									<td>{{device.description}}</td>
+									<td class="text-right"><span *ngIf="device.ac_setpoint"><small>set to</small> {{device.ac_setpoint}}&deg;</span></td>
+								</tr>
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="widget">
+			<header>
+				<h2>Floor Plan</h2>
+				<hr>
+			</header>
+			<div class="flex-1 p-0 floorplan-wrapper">
+				<div *ngIf="selectedFP" class="fill" style="user-select:none;" #plan>
+					<div class="v-center">
+						<div class="floorplan-container">
+							<img src="{{selectedFP.image}}" class="floorplan-image" style="width:100%;">
+							<ng-container *ngFor="let device of data.devices">
+								<div *ngIf="device.floorplan && device.floorplan.id === selectedFP.id && device.floorplan_item" class="floorplan-icon text-light ac-{{device.show_mode}}" [ngClass]="{ 'diff-area': device.area_id !== selectedArea, selected: device.id === selected }" [style.top]="device.floorplan_item.y + '%'" [style.left]="device.floorplan_item.x + '%'" [style.transform]="'scale(' + (1 / scale) + ')'" (click)="selectDevice(device)">
+									<span>{{device.category_icon}}</span>
+								</div>
+							</ng-container>
+						</div>
+					</div>
+				</div>
+				<div *ngIf="selectedFP" class="zoom-container" style="right: 0; left: auto;">
+					<a class="btn btn-sm btn-primary bx-shadow" #zoomin><i class="md md-add"></i></a>
+					<a class="btn btn-sm btn-primary bx-shadow" #zoomout><i class="md md-remove"></i></a>
+				</div>
+			</div>
+			<div *ngIf="openDevice" class="flex-0 flex-row device-details p-0" style="min-height: 170px;">
+				<div class="flex-1 dd-desc bg-gradient">
+					<div class="v-center">
+						<div style="font-size: 1.2em"><span class="badge-icon ac-{{openDevice.info.show_mode}}">{{openDevice.info.category_icon}}</span></div>
+						<div class="p-t-10">{{openDevice.info.description}}</div>
+						<div class="p-t-10">
+							<span *ngIf="openDevice.info.ac_room_temp" class="text-large" style="vertical-align: middle;">{{openDevice.info.ac_room_temp}}&deg;</span>
+							<span style="position: relative; width: 3em; height: 1.75em; display:inline-block; vertical-align: middle;" class="m-l-10">
+								<span style="position: absolute; top: 0; left: 0;">
+									<p-inputSwitch [(ngModel)]="openDevice.hold.ac_onoff" [disabled]="!!openDevice.hold.id"></p-inputSwitch>
+								</span>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="flex-1 dd-panel first">
+					<p><b>OPERATION</b></p>
+					<p class="panel-buttons">
+						<button class="btn btn-icon btn-rounded icon-box-shadow btn-ac-cool" [ngClass]="{ 'btn-selected': openDevice.hold.ac_mode === 'cool' }" (click)="openDevice.hold.ac_mode = 'cool'; openDevice.hold.ac_onoff = true;" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-cool"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow btn-ac-heat" [ngClass]="{ 'btn-selected': openDevice.hold.ac_mode === 'heat' }" (click)="openDevice.hold.ac_mode = 'heat'; openDevice.hold.ac_onoff = true;" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-heat"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow btn-ac-auto" [ngClass]="{ 'btn-selected': openDevice.hold.ac_mode === 'auto' }" (click)="openDevice.hold.ac_mode = 'auto'; openDevice.hold.ac_onoff = true;" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-auto"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow btn-ac-dry" [ngClass]="{ 'btn-selected': openDevice.hold.ac_mode === 'dry' }" (click)="openDevice.hold.ac_mode = 'dry'; openDevice.hold.ac_onoff = true;" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-dry"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow btn-ac-fan" [ngClass]="{ 'btn-selected': openDevice.hold.ac_mode === 'fan' }" (click)="openDevice.hold.ac_mode = 'fan'; openDevice.hold.ac_onoff = true;" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-fan"></i></button>
+					</p>
+				</div>
+				<div class="flex-1 dd-panel">
+					<p><b>FAN SPEED</b></p>
+					<p class="panel-buttons">
+						<button class="btn btn-icon btn-rounded icon-box-shadow fan-1" [ngClass]="{ 'btn-selected': openDevice.hold.ac_fanspeed === 'very_low' }" (click)="openDevice.hold.ac_fanspeed = 'very_low'" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-fan"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow fan-2" [ngClass]="{ 'btn-selected': openDevice.hold.ac_fanspeed === 'low' }" (click)="openDevice.hold.ac_fanspeed = 'low'" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-fan"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow fan-3" [ngClass]="{ 'btn-selected': openDevice.hold.ac_fanspeed === 'medium' }" (click)="openDevice.hold.ac_fanspeed = 'medium'" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-fan"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow fan-4" [ngClass]="{ 'btn-selected': openDevice.hold.ac_fanspeed === 'high' }" (click)="openDevice.hold.ac_fanspeed = 'high'" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-fan"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow fan-5" [ngClass]="{ 'btn-selected': openDevice.hold.ac_fanspeed === 'top' }" (click)="openDevice.hold.ac_fanspeed = 'top'" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-fan"></i></button>
+						<button class="btn btn-icon btn-rounded icon-box-shadow" [ngClass]="{ 'btn-selected': openDevice.hold.ac_fanspeed === 'auto' }" (click)="openDevice.hold.ac_fanspeed = 'auto'" [disabled]="!!openDevice.hold.id"><i class="ei ei-ac-auto"></i></button>
+					</p>
+				</div>
+				<div class="flex-1 dd-panel">
+					<p class="m-b-5"><b>SET TEMPERATURE</b></p>
+					<p class="panel-buttons">
+						<button class="btn-none" (click)="addSetPoint(-1)" [disabled]="!!openDevice.hold.id"><i class="md md-remove"></i></button>
+						<button class="btn btn-rounded icon-box-shadow btn-selected" [disabled]="!!openDevice.hold.id">{{openDevice.hold.ac_setpoint}} &deg;C</button>
+						<button class="btn-none" (click)="addSetPoint(1)" [disabled]="!!openDevice.hold.id"><i class="md md-add"></i></button>
+					</p>
+					<p class="m-b-5"><b>LOUVRE POSITION</b></p>
+					<p class="panel-buttons">
+						<select class="btn btn-rounded icon-box-shadow btn-selected text-center" [(ngModel)]="openDevice.hold.ac_swing" [disabled]="!!openDevice.hold.id">
+							<option *ngFor="let item of louvreOptions" [ngValue]="item.id" [innerHTML]="item.desc"></option>
+						</select>
+					</p>
+				</div>
+				<div class="flex-1 dd-panel">
+					<div *ngIf="!openDevice.hold.id" class="panel-buttons">
+						<p><b>HOLD FOR</b></p>
+						<select class="btn btn-rounded icon-box-shadow btn-selected text-center" [(ngModel)]="holdFor">
+							<option [ngValue]="60">1 hour</option>
+							<option [ngValue]="120">2 hours</option>
+							<option [ngValue]="180">3 hours</option>
+							<option [ngValue]="240">4 hours</option>
+						</select><br><br>
+						<button class="btn btn-rounded icon-box-shadow btn-selected" [disabled]="disabled" (click)="setHold()">Set hold</button>
+					</div>
+					<div *ngIf="openDevice.hold.id" class="panel-buttons">
+						<p><b>HOLD UNTIL</b></p>
+						<p *ngIf="openDevice.hold.datetime_end">{{openDevice.hold.datetime_end | mySQLDateToISO | date:'shortDate'}} {{openDevice.hold.datetime_end | mySQLDateToISO | date:'shortTime'}}</p>
+						<br>
+						<button class="btn btn-rounded icon-box-shadow btn-red" [disabled]="disabled" (click)="removeHold()">Remove hold</button>
+					</div>
+				</div>
+				<div class="dd-panel last action" (click)="deviceDetails()">
+					<i class="ei ei-action"></i>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>

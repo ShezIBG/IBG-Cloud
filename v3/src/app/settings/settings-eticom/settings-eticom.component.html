@@ -1,0 +1,4 @@
+<app-settings-service-providers *ngIf="loaded && app.header.activeTab === 'service-providers'"></app-settings-service-providers>
+<app-settings-users *ngIf="loaded && app.header.activeTab === 'users'" level="E" levelId="0"></app-settings-users>
+<app-settings-user-roles *ngIf="loaded && app.header.activeTab === 'user-roles'" level="E" levelId="0"></app-settings-user-roles>
+<app-settings-payment-gateways *ngIf="loaded && app.header.activeTab === 'payment-gateways'" level="E" levelId="0"></app-settings-payment-gateways>

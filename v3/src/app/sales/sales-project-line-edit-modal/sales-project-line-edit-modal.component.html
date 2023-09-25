@@ -1,0 +1,328 @@
+<app-modal [modalTitle]="accessory ? 'Accessory details' : (data && data.details.product_id !== null ? 'Product details' : 'Line details')" size="large" [buttons]="buttons" [boxed]="true" (event)="modalHandler($event)">
+	<ng-container *ngIf="data">
+		<div class="card-box">
+			<ng-container *ngIf="data.details.product_id === null">
+				<div class="row">
+					<div class="col-md-6">
+						<label>Description</label>
+						<input class="form-control m-b-10" [(ngModel)]="data.details.description" [disabled]="!editable" appDesktopFocus>
+					</div>
+					<div class="col-md-3">
+						<label>Unit cost</label>
+						<input class="form-control text-right m-b-10" [(ngModel)]="data.details.unit_cost" (change)="formatNumbers()" [disabled]="!editable">
+					</div>
+					<div class="col-md-3">
+						<label>Unit price</label>
+						<input class="form-control text-right m-b-10" [(ngModel)]="data.details.unit_price" (change)="formatNumbers()" [disabled]="!editable">
+					</div>
+				</div>
+			</ng-container>
+
+			<table class="table table-condensed vam">
+				<thead>
+					<tr>
+						<th *ngIf="data.details.product_id !== null" colspan="2">Product</th>
+						<th>System</th>
+						<th *ngIf="!accessory">Area</th>
+						<th class="text-center" [attr.colspan]="data.details.is_single ? 1 : 3">Quantity</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<ng-container *ngIf="data.details.product_id !== null">
+							<td class="shrink">
+								<div *ngIf="data.details.image_url" class="product-image" [style.backgroundImage]="'url(\'' + data.details.image_url + '\')' | safeStyle"></div>
+							</td>
+							<td>
+								<b *ngIf="data.details.model">{{data.details.model}}</b>
+								<div *ngIf="data.details.manufacturer_name">{{data.details.manufacturer_name}}</div>
+								<div *ngIf="data.details.short_description" class="text-small">{{data.details.short_description}}</div>
+							</td>
+						</ng-container>
+						<td>
+							<select class="form-control" [(ngModel)]="data.details.system_id" [disabled]="!editable || accessory">
+								<optgroup *ngFor="let m of data.modules" label="{{m.description}}">
+									<option *ngFor="let s of m.systems" [ngValue]="s.id">{{s.description}}</option>
+								</optgroup>
+							</select>
+						</td>
+						<td *ngIf="!accessory">
+							<select class="form-control" [(ngModel)]="data.details.structure_id" [disabled]="!editable">
+								<optgroup *ngFor="let floor of data.floors" label="{{floor.description}}">
+									<option *ngFor="let item of floor.areas" [ngValue]="item.id">{{item.description}}</option>
+								</optgroup>
+							</select>
+						</td>
+
+						<ng-container *ngIf="editable && !data.details.is_single">
+							<td class="shrink p-r-0"><a class="btn btn-primary btn-sm" [ngClass]="{ disabled: data.details.quantity <= 1 }" (click)="increaseQuantity(-1)"><i class="md md-remove"></i></a></td>
+							<td class="shrink">
+								<div class="input-group" style="width: 150px;">
+									<input type="text" class="form-control text-right" [(ngModel)]="data.details.quantity" (change)="formatNumbers()">
+									<span class="input-group-addon">{{data.details.unit_name}}</span>
+								</div>
+							</td>
+							<td class="shrink p-l-0"><a class="btn btn-primary btn-sm" (click)="increaseQuantity(1)"><i class="md md-add"></i></a></td>
+						</ng-container>
+
+						<td *ngIf="!editable || data.details.is_single" class="text-center">{{data.details.quantity}} {{data.details.unit_name}}</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div *ngIf="data.details.slots.length" class="row">
+				<div *ngFor="let slot of data.details.slots; let i = index" class="col-md-4">
+					<div class="card-box" [ngClass]="{ 'has-error': slot.product_id === null }">
+						<h3>Slot {{i + 1}}<br><span class="subtitle">{{slot.description}} <span *ngIf="slot.quantity !== 1">x {{slot.quantity}}</span></span> </h3>
+						<select class="form-control" [(ngModel)]="slot.product_id" [disabled]="!editable">
+							<option [ngValue]="null">Unassigned</option>
+							<option *ngFor="let product of data.slot_products[i]" [ngValue]="product.id">{{getSlotProductDescription(product)}}</option>
+						</select>
+						<span *ngIf="slot.product_id === null" class="help-block"><small>Please select product.</small></span>
+					</div>
+				</div>
+			</div>
+
+			<label>Notes</label>
+			<input class="form-control" [(ngModel)]="data.details.notes" [disabled]="!editable">
+		</div>
+
+		<div *ngIf="bundle" class="card-box">
+			<h3>
+				Bundle Questions
+				<ng-container *ngFor="let c of bundle.counters">
+					<span *ngIf="c.value" class="badge badge-inverse pull-right m-l-5">{{c.description}}: {{c.value}}</span>
+				</ng-container>
+			</h3>
+			<table class="table table-hover table-striped vam">
+				<tbody>
+					<ng-container *ngFor="let q of bundle.questions">
+						<tr *ngIf="q.visible" [ngClass]="{ primary: q.answer }">
+							<td class="shrink">
+								<div *ngIf="q.image_url" class="product-image" [style.backgroundImage]="'url(\'' + q.image_url + '\')' | safeStyle"></div>
+								<div *ngIf="!q.image_url" class="product-image"></div>
+							</td>
+							<td>{{q.question}}</td>
+							<td class="text-right">
+
+								<ng-container *ngIf="q.type === 'numeric'">
+									<a class="btn btn-primary btn-sm m-r-5" (click)="increaseBundleAnswer(q, -1)"><i class="md md-remove"></i></a>
+									<input class="form-control text-right m-r-5" style="width: 60px; display: inline-block;" [(ngModel)]="q.answer" (change)="bundle.refreshAnswers()">
+									<a class="btn btn-primary btn-sm" (click)="increaseBundleAnswer(q, 1)"><i class="md md-add"></i></a>
+								</ng-container>
+
+								<ng-container *ngIf="q.type === 'checkbox'">
+									<div class="checkbox checkbox-primary m-0">
+										<label><input type="checkbox" [ngModel]="!!q.answer" (ngModelChange)="q.answer = $event ? 1 : 0" (change)="bundle.refreshAnswers()"><span>&nbsp;</span></label>
+									</div>
+								</ng-container>
+
+								<ng-container *ngIf="q.type === 'select'">
+									<a *ngFor="let o of q.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(q.answer, o.value), 'btn-info btn-solid': !getFlag(q.answer, o.value) }" (click)="bundleSingleAnswerClick(q, o.value)">{{o.description}}</a>
+								</ng-container>
+
+								<ng-container *ngIf="q.type === 'multi-select'">
+									<a *ngFor="let o of q.select_options" class="btn btn-sm m-r-5 m-t-5" [ngClass]="{ 'btn-primary': getFlag(q.answer, o.value), 'btn-info btn-solid': !getFlag(q.answer, o.value) }" (click)="bundleMultiAnswerClick(q, o.value)">{{o.description}}</a>
+								</ng-container>
+
+							</td>
+						</tr>
+					</ng-container>
+				</tbody>
+			</table>
+		</div>
+
+		<div *ngIf="data.details.accessories.length" class="card-box">
+			<div class="row">
+				<h3 class="col-md-6">Accessories</h3>
+				<div class="col-md-6">
+					<div class="checkbox checkbox-primary text-right m-t-0">
+						<label style="text-align: left;">
+							<input type="checkbox" [(ngModel)]="showAccessories">
+							<span>Show accessories on area summary</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th colspan="2">Product</th>
+						<th>System</th>
+						<th class="text-center" colspan="3">Quantity</th>
+					</tr>
+				</thead>
+				<tbody>
+					<ng-container *ngFor="let item of data.details.accessories">
+						<tr *ngIf="editable || item.quantity > 0" [ngClass]="{ info: editable && item.quantity > 0 }">
+							<td class="shrink">
+								<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+							</td>
+							<td>
+								<b *ngIf="item.model">{{item.model}}</b>
+								<div *ngIf="item.manufacturer_name">{{item.manufacturer_name}}</div>
+								<div *ngIf="item.short_description" class="text-small">{{item.short_description}}</div>
+							</td>
+
+							<td>{{item.system_id ? item.system_description : getLineSystemDescription()}}</td>
+
+							<ng-container *ngIf="editable">
+								<td class="shrink p-r-0"><a class="btn btn-primary btn-sm" [ngClass]="{ disabled: item.quantity <= 0 }" (click)="increaseAccessoryQuantity(item, -1)"><i class="md md-remove"></i></a></td>
+								<td class="shrink">
+									<div class="input-group" style="width: 150px;">
+										<input type="text" class="form-control text-right" [(ngModel)]="item.quantity" (change)="formatNumbers()">
+										<span class="input-group-addon">{{item.unit_name}}</span>
+									</div>
+								</td>
+								<td class="shrink p-l-0"><a class="btn btn-primary btn-sm" (click)="increaseAccessoryQuantity(item, 1)"><i class="md md-add"></i></a></td>
+							</ng-container>
+
+							<td *ngIf="!editable" class="text-center" colspan="3">{{item.quantity}} {{item.unit_name}}</td>
+						</tr>
+					</ng-container>
+				</tbody>
+			</table>
+		</div>
+
+		<div *ngIf="!data.exclude_labour" class="card-box">
+			<h3>Labour</h3>
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th>Labour type</th>
+						<th class="shrink nowrap text-right">{{data.details.is_single ? 'Labour hours' : 'Unit labour hours'}}</th>
+						<th *ngIf="data.pricing" class="text-center">{{data.details.is_single ? 'Labour cost' : 'Unit labour cost'}}</th>
+						<th *ngIf="data.pricing" class="text-center">{{data.details.is_single ? 'Labour price' : 'Unit labour price'}}</th>
+						<th *ngIf="!data.pricing"></th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let labour of data.details.labour" [ngClass]="{ info: editable && labour.product_labour_id === null }">
+						<td *ngIf="editable && labour.product_labour_id === null" class="shrink">
+							<select class="form-control" style="width: auto;" [(ngModel)]="labour.labour_type_id" (change)="updateLabour(labour)">
+								<option [ngValue]="null">None</option>
+								<optgroup *ngFor="let category of data.labour_categories" label="{{category.description}}">
+									<option *ngFor="let item of category.types" [ngValue]="item.id">{{item.description}}</option>
+								</optgroup>
+							</select>
+						</td>
+						<td *ngIf="!editable || labour.product_labour_id !== null">{{getLabourDescription(labour)}}</td>
+
+						<td *ngIf="editable && labour.product_labour_id === null" class="shrink"><input class="form-control text-right" style="width: 150px;" [(ngModel)]="labour.labour_hours" (change)="formatNumbers()"></td>
+						<td *ngIf="!editable || labour.product_labour_id !== null" class="shrink text-right">{{labour.labour_hours | decimal:0:2}}</td>
+
+						<td *ngIf="data.pricing" class="text-center">{{getLabourCost(labour) | decimal:2:2:true:'GBP'}}</td>
+						<td *ngIf="data.pricing" class="text-center">{{getLabourPrice(labour) | decimal:2:2:true:'GBP'}}</td>
+						<td *ngIf="!data.pricing"></td>
+
+						<td class="shrink nowrap">
+							<a *ngIf="editable && labour.product_labour_id === null" class="text-danger" (click)="deleteLabour(labour)"><i class="md md-delete"></i> Delete</a>
+							<span *ngIf="!editable && labour.product_labour_id === null" class="text-info">Adjustment</span>
+						</td>
+					</tr>
+					<tr *ngIf="data.details.labour.length === 0">
+						<td [attr.colspan]="data.pricing ? 5 : 4">No labour.</td>
+					</tr>
+					<tr *ngIf="editable">
+						<td [attr.colspan]="data.pricing ? 5 : 4"><a class="text-success" (click)="addLabour()"><i class="md md-add"></i> Add labour</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div *ngIf="!data.exclude_subscriptions" class="card-box">
+			<h3>Subscriptions</h3>
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th>Subscription type</th>
+						<th class="shrink nowrap text-right">{{data.details.is_single ? 'Quantity' : 'Unit quantity'}}</th>
+						<th *ngIf="data.pricing" class="text-center">{{data.details.is_single ? 'Cost' : 'Unit cost'}}</th>
+						<th *ngIf="data.pricing" class="text-center">{{data.details.is_single ? 'Price' : 'Unit price'}}</th>
+						<th class="text-center">Frequency</th>
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+
+					<ng-container *ngIf="editable">
+						<tr *ngFor="let setup of subscriptionFixedList" [ngClass]="{ info: setup.matched }">
+							<td>{{getSubscriptionDescription(setup.matched)}}</td>
+							<td class="shrink text-right">{{setup.matched.quantity | decimal:0:2}}</td>
+							<td *ngIf="data.pricing" class="text-center">{{getSubscriptionCost(setup.matched) | decimal:2:2:true:'GBP'}}</td>
+							<td *ngIf="data.pricing" class="text-center">{{getSubscriptionPrice(setup.matched) | decimal:2:2:true:'GBP'}}</td>
+							<td class="text-center">{{setup.matched.frequency}}</td>
+							<td class="shrink nowrap text-info">Fixed</td>
+						</tr>
+						<tr *ngFor="let setup of subscriptionOptionalList" [ngClass]="{ info: setup.matched }">
+							<td>
+								<div class="checkbox checkbox-primary m-0">
+									<label>
+										<input type="checkbox" [ngModel]="!!setup.matched" (ngModelChange)="setSubscriptionSetup(setup, $event)">
+										<span>{{getSubscriptionDescription(setup)}}</span>
+									</label>
+								</div>
+							</td>
+							<td class="shrink text-right"><span *ngIf="setup.matched">{{setup.matched.quantity | decimal:0:2}}</span></td>
+							<td *ngIf="data.pricing" class="text-center"><span *ngIf="setup.matched">{{getSubscriptionCost(setup.matched) | decimal:2:2:true:'GBP'}}</span></td>
+							<td *ngIf="data.pricing" class="text-center"><span *ngIf="setup.matched">{{getSubscriptionPrice(setup.matched) | decimal:2:2:true:'GBP'}}</span></td>
+							<td class="text-center"><span *ngIf="setup.matched">{{setup.matched.frequency}}</span></td>
+							<td class="shrink nowrap text-info">Optional</td>
+						</tr>
+						<tr *ngIf="subscriptionSelectList.length" [ngClass]="{ info: !!subscriptionSelected }">
+							<td class="shrink">
+								<select class="form-control" style="width: auto;" [(ngModel)]="subscriptionSelected" (change)="updateSubscriptionSelection()">
+									<option [ngValue]="null"></option>
+									<option *ngFor="let setup of subscriptionSelectList" [ngValue]="setup">{{getSubscriptionDescription(setup)}}</option>
+								</select>
+							</td>
+							<td class="shrink text-right"><span *ngIf="subscriptionSelected?.matched">{{subscriptionSelected.matched.quantity | decimal:0:2}}</span></td>
+							<td *ngIf="data.pricing" class="text-center"><span *ngIf="subscriptionSelected?.matched">{{getSubscriptionCost(subscriptionSelected.matched) | decimal:2:2:true:'GBP'}}</span></td>
+							<td *ngIf="data.pricing" class="text-center"><span *ngIf="subscriptionSelected?.matched">{{getSubscriptionPrice(subscriptionSelected.matched) | decimal:2:2:true:'GBP'}}</span></td>
+							<td class="text-center"><span *ngIf="subscriptionSelected?.matched">{{subscriptionSelected.matched.frequency}}</span></td>
+							<td class="shrink nowrap text-info">Select</td>
+						</tr>
+						<ng-container *ngFor="let subscription of data.details.subscription">
+							<tr *ngIf="subscription.product_subscription_id === null" class="info">
+								<td class="shrink">
+									<select class="form-control" style="width: auto;" [(ngModel)]="subscription.subscription_type_id" (change)="updateSubscription(subscription)">
+										<option [ngValue]="null">None</option>
+										<optgroup *ngFor="let category of data.subscription_categories" label="{{category.description}}">
+											<option *ngFor="let item of category.types" [ngValue]="item.id">{{item.description}}</option>
+										</optgroup>
+									</select>
+								</td>
+
+								<td class="shrink"><input class="form-control text-right" style="width: 150px;" [(ngModel)]="subscription.quantity" (change)="formatNumbers()"></td>
+
+								<td *ngIf="data.pricing" class="text-center">{{getSubscriptionCost(subscription) | decimal:2:2:true:'GBP'}}</td>
+								<td *ngIf="data.pricing" class="text-center">{{getSubscriptionPrice(subscription) | decimal:2:2:true:'GBP'}}</td>
+								<td class="text-center">{{subscription.frequency}}</td>
+								<td class="shrink nowrap"><a class="text-danger" (click)="deleteSubscription(subscription)"><i class="md md-delete"></i> Delete</a></td>
+							</tr>
+						</ng-container>
+					</ng-container>
+
+					<ng-container *ngIf="!editable">
+						<tr *ngFor="let subscription of data.details.subscription">
+							<td>{{getSubscriptionDescription(subscription)}}</td>
+							<td class="shrink text-right">{{subscription.quantity | decimal:0:2}}</td>
+							<td *ngIf="data.pricing" class="text-center">{{getSubscriptionCost(subscription) | decimal:2:2:true:'GBP'}}</td>
+							<td *ngIf="data.pricing" class="text-center">{{getSubscriptionPrice(subscription) | decimal:2:2:true:'GBP'}}</td>
+							<td class="text-center">{{subscription.frequency}}</td>
+							<td class="shrink nowrap"><span *ngIf="subscription.product_subscription_id === null" class="text-info">Adjustment</span></td>
+						</tr>
+					</ng-container>
+
+					<tr *ngIf="data.details.subscription.length === 0 && (!editable || (!subscriptionOptionalList.length && !subscriptionSelectList.length))">
+						<td [attr.colspan]="data.pricing ? 6 : 4">No subscriptions.</td>
+					</tr>
+					<tr *ngIf="editable">
+						<td [attr.colspan]="data.pricing ? 6 : 4"><a class="text-success" (click)="addSubscription()"><i class="md md-add"></i> Add subscription</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</ng-container>
+</app-modal>

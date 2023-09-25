@@ -1,0 +1,32 @@
+<app-mobile-building-header moduleName="control/devices"></app-mobile-building-header>
+
+<ng-container *ngIf="data">
+
+	<div class="card-box">
+		<h4>Devices</h4>
+		<hr>
+		<table class="table table-hover vam no-border text-small">
+			<tbody>
+				<ng-container *ngFor="let area of areas">
+					<tr class="alt-header">
+						<th colspan="4"><h5 class="m-0">{{area.description}}</h5></th>
+					</tr>
+					<tr *ngFor="let device of area.devices" [ngClass]="{ 'primary': selected === device.id }" (click)="selectDevice(device)" style="cursor:pointer;">
+						<td class="shrink p-r-0">
+							<span *ngIf="device.icon_text" class="badge-icon" [ngClass]="{ 'bg-primary': knx[device.knx_id]?.typedValue, 'bg-muted': !knx[device.knx_id]?.typedValue }">{{device.icon_text}}</span>
+							<span *ngIf="!device.icon_text" class="badge-icon" [ngClass]="{ 'bg-primary': device.show_mode === 'on', 'bg-muted': device.show_mode === 'off' }"><i class="eticon eticon-plug"></i></span>
+						</td>
+						<td>
+							{{device.description}}
+						</td>
+						<td class="shrink text-center"><app-knx-input [knxValue]="knx[device.knx_id]" (change)="updateKnxValue(knx[device.knx_id])"></app-knx-input></td>
+						<td class="shrink text-right">
+							<a class="btn btn-default btn-solid btn-sm" (click)="deviceDetails(device.id)"><i class="md md-edit"></i></a>
+						</td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+
+</ng-container>

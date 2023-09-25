@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+
+	<!-- <meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="pragma" content="no-cache"> -->
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+	<!-- MY BOOTSTRAP -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+	<!-- MY FONTAWESOME - v5.0.7-->
+	<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+	<link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/manifest.json">
+	<meta name="msapplication-TileColor" content="#39a57a">
+	<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+	<meta name="theme-color" content="#39a57a">
+
+	<title><?php
+		// IBG Cloud //
+
+		include '../../inc/init.app.php';
+		echo (BRANDING === 'elanet' ? 'Elanet Cloud' : 'IBG Cloud');
+	?></title>
+
+	<script>
+		var base = location.pathname.split('/');
+		while(base.length && base[base.length - 1] !== 'v3') base.pop();
+		base = base.join('/') + '/';
+
+		document.write('<base href="' + base + '">');
+	</script>
+	<base href="/v3/">
+
+	<link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="assets/css/bootstrap-xl.css" rel="stylesheet" type="text/css">
+	<link href="assets/css/icons.css" rel="stylesheet" type="text/css">
+	<link href="assets/css/eticon.css?rev=1.0.11" rel="stylesheet" type="text/css" />
+	<link href="assets/css/eticom-icons.css?rev=4" rel="stylesheet" type="text/css" />
+	
+	<!--my style CSS -->
+	<link href="assets/css/mystyle-login.css" rel="stylesheet" type="text/css">
+
+	<link href="assets/plugins/primeng/themes/nova-light/custom.css" rel="stylesheet" type="text/css" />
+	<link href="assets/plugins/primeng/primeng.min.css" rel="stylesheet" type="text/css" />
+
+	
+	<script src="assets/js/modernizr.min.js"></script>
+	<script src="assets/js/mangler.js"></script>
+
+	<!-- jQuery  -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/fastclick.js"></script>
+	<script src="assets/js/waves.js"></script>
+	<script src="assets/js/jquery.panzoom.min.js"></script>
+	<script src="assets/js/jquery.scrollTo.min.js"></script>
+	<script src="assets/js/jquery.scrollintoview.min.js"></script>
+	<script src="assets/plugins/jquery-sparkline/jquery.sparkline.min.js"></script>
+
+	<!-- Chart.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+
+	<!-- Stripe -->
+	<script src="https://js.stripe.com/v3/"></script>
+	
+	<!-- MY BOOTSTRAP -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Rubik:400,500&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Quicksand:500,600&display=swap" rel="stylesheet">
+	
+	<!--MY Fonts--><!--font-family: 'Poppins', sans-serif;-->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+	
+
+	<script>
+		var resizefunc = [];
+		var branding = '<?= BRANDING ?>';
+
+		if(branding.startsWith('<')) branding = 'eticom';
+
+		$(function() {
+			$('html').addClass(branding + ' theme-light');
+		});
+	</script>
+</head>
+
+<body>
+	<app-root></app-root>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+<div class="fill flex-parent-column">
+	<header class="text-center"><h3>Edit History</h3></header>
+	<div class="flex-weight-1 padded scrollable">
+		<table class="table">
+			<tr *ngFor="let item of history">
+				<td class="shrink">
+					<app-gravatar email="{{item.getUserEmail()}}" size="48"></app-gravatar>
+				</td>
+				<td><span class="text-white">{{item.getName()}}</span><br>{{item.data.update_date | mySQLDateToISO | date:'shortDate'}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.data.update_date | mySQLDateToISO | date:'mediumTime'}}</td>
+				<td class="text-white text-right"><br>{{item.data.count_added + item.data.count_modified + item.data.count_deleted}}</td>
+				<td class="shrink nowrap"><br><span *ngFor="let ch of item.changeCubes" class="change {{ch.cl}}" title="{{ch.title}}"></span></td>
+			</tr>
+		</table>
+	</div>
+</div>

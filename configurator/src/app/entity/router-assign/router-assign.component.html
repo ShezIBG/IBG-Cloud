@@ -1,0 +1,29 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>{{entity.getTypeDescription()}}: {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span><button *ngIf="screen.assignables.length" (click)="assignAll()" class="btn btn-success pull-right"><i class="md md-add-circle"></i> Assign collectors</button></h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Assigned collectors</th>
+					<th>Area</th>
+					<th>Type</th>
+					<th>Serial</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let gateway of entity.assigned" [ngClass]="{ 'bg-hover': hovered === gateway }" (mouseenter)="hovered = gateway" (mouseleave)="hovered = null">
+					<td><i class="{{gateway.getIconClass()}}"></i> {{gateway.getDescription()}} <span *ngIf="gateway.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></td>
+					<td>{{gateway.getAreaDescription()}}</td>
+					<td>{{gateway.type === 'smoothpower' ? 'SmoothPower' : (gateway.data.type || 'Fibre')}}</td>
+					<td>{{gateway.type === 'smoothpower' ? gateway.data.serial : gateway.data.pi_serial}}</td>
+					<td class="shrink">
+						<a class="text-danger nowrap" (click)="gateway.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

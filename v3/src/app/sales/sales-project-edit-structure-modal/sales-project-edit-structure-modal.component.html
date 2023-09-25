@@ -1,0 +1,29 @@
+<app-modal [modalTitle]="title" [buttons]="buttons" (event)="modalEvent($event)">
+	<ng-container *ngIf="data">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="data.details.description" appAutoFocus>
+				</div>
+			</div>
+			<div *ngIf="data.parents" class="form-group">
+				<label class="col-sm-4 control-label">{{parentDescription}}</label>
+				<div class="col-sm-5">
+					<select class="form-control" [(ngModel)]="data.details.parent_id">
+						<option *ngFor="let item of data.parents" [ngValue]="item.id">{{item.description}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div *ngIf="data.children || data.products" class="text-danger">
+			<hr>
+			<p><i class="md md-warning"></i> Deleting this {{typeDescription.toLowerCase()}} will also remove:</p>
+			<ul class="m-b-0">
+				<li *ngIf="data.children">{{data.children}} {{data.children === 1 ? 'area' : 'areas'}}</li>
+				<li *ngIf="data.products">{{data.products}} {{data.products === 1 ? 'product' : 'products'}}</li>
+			</ul>
+		</div>
+	</ng-container>
+</app-modal>

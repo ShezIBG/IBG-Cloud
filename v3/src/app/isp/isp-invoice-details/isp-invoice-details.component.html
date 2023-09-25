@@ -1,0 +1,124 @@
+<ng-container *ngIf="data">
+	<div *ngIf="data.invoice.status === 'not_approved'" class="alert alert-warning h3 paper">Not approved</div>
+	<div *ngIf="data.invoice.status === 'outstanding'" class="alert alert-info h3 paper">Outstanding</div>
+	<div *ngIf="data.invoice.status === 'paid'" class="alert alert-success h3 paper">Paid</div>
+	<div *ngIf="data.invoice.status === 'cancelled'" class="alert alert-danger h3 paper">Cancelled</div>
+
+	<div class="card-box print paper">
+		<div class="row">
+			<div class="col-sm-12">
+				<table style="width: 100%; table-layout: fixed;">
+					<tr>
+						<td style="width: 20%;" [style.background]="'url(\'' + data.logo_url + '\') left center / contain no-repeat' | safeStyle"></td>
+						<td class="text-right" style="width: 80%">
+							<div><b>{{data.invoice.owner_name}}</b></div>
+							<div *ngFor="let line of ownerAddress">{{line}}</div>
+							<div *ngIf="data.invoice.vat_reg_number" class="m-t-15">VAT reg: {{data.invoice.vat_reg_number}}</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<div class="shaded-3 text-light m-t-30 m-b-40" style="height: 3px;"></div>
+
+		<h2 class="m-t-0 m-b-30">
+			{{data.invoice.description}}
+		</h2>
+		<div>{{data.invoice.customer_name}}</div>
+		<div>&nbsp;</div>
+		<div *ngFor="let line of customerAddress">{{line}}</div>
+
+		<div class="row m-t-40">
+			<div class="col-sm-12">
+				<div class="large"><b>Date of issue: {{data.invoice.bill_date | mySQLDateToISO | date:'shortDate'}}</b></div>
+				<div>Period from {{data.invoice.period_start_date | mySQLDateToISO | date:'shortDate'}} to {{data.invoice.period_end_date | mySQLDateToISO | date:'shortDate'}}</div>
+				<div>&nbsp;</div>
+				<div *ngIf="data.invoice.customer_ref">Customer Reference: {{data.invoice.customer_ref}}</div>
+				<div>Invoice Number: {{data.invoice.invoice_no}}</div>
+			</div>
+		</div>
+		<br>
+
+		<table class="table no-border m-t-30 m-b-30">
+			<thead>
+				<tr>
+					<th class="shaded-3 text-light large">Items</th>
+					<th class="shaded-3 text-light large text-right">Unit price</th>
+					<th class="shaded-3 text-light large text-right">Quantity</th>
+					<th class="shaded-3 text-light large text-right">Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="large" *ngFor="let line of data.lines">
+					<td>{{line.description}}</td>
+					<td class="text-right">{{line.unit_price | decimal:2:4:true:'GBP'}}</td>
+					<td class="text-right">{{line.quantity | decimal:0:2}}</td>
+					<td class="text-right">{{line.line_total | decimal:2:2:true:'GBP'}}</td>
+				</tr>
+				<tr class="large">
+					<td colspan="4">&nbsp;</td>
+				</tr>
+				<tr class="large">
+					<td colspan="2"></td>
+					<td class="shaded-1">Subtotal</td>
+					<td class="shaded-1 text-right">{{data.invoice.subtotal | decimal:2:2:true:'GBP'}}</td>
+				</tr>
+				<tr class="large">
+					<td colspan="2"></td>
+					<td class="shaded-2">VAT ({{data.invoice.vat_rate | decimal:0:2}}%)</td>
+					<td class="shaded-2 text-right">{{data.invoice.vat_due | decimal:2:2:true:'GBP'}}</td>
+				</tr>
+				<tr class="large total">
+					<td colspan="2"></td>
+					<td class="shaded-3 text-light">Total now due</td>
+					<td class="shaded-3 text-light text-right">{{data.invoice.bill_total | decimal:2:2:true:'GBP'}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="print-footer">
+			<table class="table no-border">
+				<td style="vertical-align: bottom;">
+					<div><b>Payment is due by {{data.invoice.due_date | mySQLDateToISO | date:'shortDate'}}</b></div>
+					<div *ngIf="data.invoice.bank_name && data.invoice.bank_sort_code && data.invoice.bank_account_number">
+						<br>Payment by BACS to {{data.invoice_owner_name}}<br>
+						{{data.invoice.bank_name}}<br>
+						Sort Code: {{data.invoice.bank_sort_code | sortcode}}<br>
+						Account: {{data.invoice.bank_account_number}}
+					</div>
+				</td>
+				<td class="text-right" style="vertical-align: bottom;">
+					<img [src]="data.logo_url" style="width: 150px;">
+				</td>
+			</table>
+		</div>
+	</div>
+
+	<div class="card-box no-print">
+		<h2>Actions</h2>
+
+		<div class="row">
+			<div *ngIf="data.invoice.status === 'not_approved'" class="col-md-6">
+				<button class="btn btn-warning" (click)="approveInvoice()" [disabled]="disabled">Approve invoice</button>
+				<p class="p-t-10">Once the invoice has been approved, the amount will be debited to the customer's account. If the amount is payable by Direct Debit, the transaction will be submitted to GoCardless.</p>
+			</div>
+
+			<div *ngIf="data.invoice.status !== 'cancelled'" class="col-md-6">
+				<button class="btn btn-danger" (click)="setInvoiceStatus('cancelled')" [disabled]="disabled">Cancel invoice</button>
+				<p class="p-t-10">Cancelling an invoice will hide it from the customer and cancels the debit from their account. Associated payment transactions <b>will not</b> be refunded or modified automatically, and the customer's account may be in credit.</p>
+			</div>
+
+			<div *ngIf="data.invoice.status === 'outstanding'" class="col-md-6">
+				<button class="btn btn-success" (click)="setInvoiceStatus('paid')" [disabled]="disabled">Mark invoice as paid</button>
+				<p class="p-t-10">Marking the invoice as paid <b>will not</b> create or modify any payment transactions.</p>
+			</div>
+
+			<div *ngIf="data.invoice.status === 'paid' || data.invoice.status === 'cancelled'" class="col-md-6">
+				<button class="btn btn-default" (click)="setInvoiceStatus('outstanding')" [disabled]="disabled">Mark invoice as outstanding</button>
+				<p class="p-t-10">Marking the invoice as outstanding <b>will not</b> refund or modify any payment transactions.</p>
+			</div>
+		</div>
+	</div>
+
+</ng-container>

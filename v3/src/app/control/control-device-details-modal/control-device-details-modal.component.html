@@ -1,0 +1,69 @@
+<app-modal *ngIf="data" [modalTitle]="data.info.type_description" size="large" [buttons]="buttons" (event)="modalHandler($event)">
+	<!-- <ul class="nav nav-pills nav-pills-small">
+		<li [ngClass]="{ active: tab === 'details' }"><a (click)="setTab('details')">Details</a></li>
+		<li [ngClass]="{ active: tab === 'history' }"><a (click)="setTab('history')">History</a></li>
+	</ul> -->
+	<div *ngIf="tab === 'details'" class="container" [ngClass]="{ 'p-0': isMobile() }" style="min-height: 400px;">
+		<div class="row">
+			<div class="col-md-6">
+				<h3 *ngIf="!isMobile()">Device Details</h3>
+				<h4 *ngIf="isMobile()">Device Details</h4>
+				<table class="table vam" [ngClass]="{ 'text-small': isMobile() }">
+					<tbody>
+						<tr><th class="text-right shrink nowrap">Description</th><td>{{data.info.description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Type</th><td>{{data.info.type_description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Building</th><td>{{data.location.building_description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Block</th><td>{{data.location.floor_description}}</td></tr>
+						<tr><th class="text-right shrink nowrap">Area</th><td>{{data.location.area_description}}</td></tr>
+
+						<tr *ngIf="data.schedules.length">
+							<th class="text-right shrink nowrap">Schedule</th>
+							<td>
+								<select class="form-control" [(ngModel)]="data.info.weekly_schedule_id" (ngModelChange)="refreshButtons()">
+									<option [ngValue]="null">None</option>
+									<option *ngFor="let s of data.schedules" [ngValue]="s.id">{{s.description}}</option>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-6">
+				<h3 *ngIf="!isMobile()">Current Status</h3>
+				<h4 *ngIf="isMobile()">Current Status</h4>
+				<table class="table vam" [ngClass]="{ 'text-small': isMobile() }">
+					<tbody>
+						<tr *ngFor="let item of data.knx">
+							<th class="text-right shrink nowrap">{{item.description}}</th>
+							<td>
+								<app-knx-input [knxValue]="knx[item.id]" (change)="refreshButtons()"></app-knx-input>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div *ngIf="tab === 'history'" class="container scrollable" style="height: 400px;">
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-hover" [ngClass]="{ 'text-small': isMobile() }">
+					<thead>
+						<tr>
+							<th>Date/Time</th>
+							<th>User</th>
+							<th>Event</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of data.history">
+							<td>{{item.datetime | date:'shortDate'}} {{item.datetime | date:'shortTime'}}</td>
+							<td>{{item.user_name}}</td>
+							<td [innerHtml]="item.html"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</app-modal>

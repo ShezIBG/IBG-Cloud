@@ -1,0 +1,176 @@
+<div class="layout-dashboard myContainer-moveRight">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div *ngIf="buildingLayout.length" class="flex-2 flex-col">
+			<ng-container *ngFor="let layout of buildingLayout">
+				<div *ngIf="layout[1]" class="flex-row">
+					<div *ngFor="let building of layout" class="widget hoverable" routerLink="../building/{{building.id}}">
+						<header class="gradient theme-dark">
+							<div class="flex-row flex-center">
+								<i class="header-icon ei ei-site"></i>
+								<h2 class="flex-1">{{building.description}}</h2>
+								<a class="btn btn-default btn-sm">View Building</a>
+							</div>
+						</header>
+						<div [style.background]="'url(\'' + building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+					</div>
+				</div>
+				<div *ngIf="!layout[1]" class="flex-row">
+					<div *ngFor="let building of [layout[0]]" class="widget hoverable" routerLink="../building/{{building.id}}">
+						<header class="gradient theme-dark">
+							<div class="flex-row flex-center">
+								<i class="header-icon ei ei-site"></i>
+								<h2 class="flex-1">{{building.description}}</h2>
+								<a class="btn btn-default btn-sm">View Building</a>
+							</div>
+						</header>
+						<div class="flex-row p-0">
+							<div class="flex-1" [style.background]="'url(\'' + building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+							<div class="flex-1 m-r-20">
+								<div class="v-center">
+									<table class="table vam">
+										<thead>
+											<tr>
+												<th colspan="3">List of Devices</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr *ngFor="let c of building.categories">
+												<td class="shrink"><span class="badge-icon badge-default">{{c.icon}}</span></td>
+												<td>{{c.description}}</td>
+												<td class="shrink text-right">{{c.device_count}}x</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+
+		<div *ngIf="!buildingLayout.length" class="flex-2 widget">
+			<header class="flex-row">
+				<h2 class="flex-3">Sites</h2>
+				<div class="flex-2">
+					<div class="input-group">
+						<span class="input-group-addon"><i class="md md-search"></i></span>
+						<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+					</div>
+				</div>
+			</header>
+			<div class="scrollable p-0">
+				<table class="table table-striped table-hover vam">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Description</th>
+							<th>Address</th>
+							<th class="text-center">Lights</th>
+							<th class="text-center" colspan="2">Pass</th>
+							<th class="text-center" colspan="2">Warning</th>
+							<th class="text-center" colspan="2">Fail</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let building of data.buildings | keywords:search:['description', 'address', 'posttown', 'postcode']" class="clickable" routerLink="../building/{{building.id}}">
+							<td class="text-center shrink">
+								<i *ngIf="building.status === 1" class="ei ei-pass-o ei-lg text-success"></i>
+								<i *ngIf="building.status === 0" class="ei ei-warning-o ei-lg text-warning"></i>
+								<i *ngIf="building.status === -1" class="ei ei-fail-o ei-lg text-danger"></i>
+							</td>
+							<td>{{building.description}}</td>
+							<td [innerHtml]="getAddress(building)"></td>
+							<td class="text-center">{{building.light_count}}</td>
+
+							<td class="text-right shrink text-success">{{building.light_pass ? building.light_pass : ''}}</td>
+							<td class="shrink text-success" style="font-size:0.8em;">{{building.light_pass_perc ? '(' + building.light_pass_perc + '%)' : ''}}</td>
+
+							<td class="text-right shrink text-warning">{{building.light_warning ? building.light_warning : ''}}</td>
+							<td class="shrink text-warning" style="font-size:0.8em;">{{building.light_warning_perc ? '(' + building.light_warning_perc + '%)' : ''}}</td>
+
+							<td class="text-right shrink text-danger">{{building.light_fail ? building.light_fail : ''}}</td>
+							<td class="shrink text-danger" style="font-size:0.8em;">{{building.light_fail_perc ? '(' + building.light_fail_perc + '%)' : ''}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="flex-col">
+
+			<div class="flex-2 widget">
+				<header>
+					<h2>User History</h2>
+					<hr>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover no-top-border vam">
+						<tr *ngFor="let item of data.history">
+							<td class="shrink">
+								<app-gravatar [email]="item.user_email" size="55"></app-gravatar>
+							</td>
+							<td>
+								<div [innerHtml]="item.html"></div>
+								<div class="m-t-10">
+									<span>{{item.user_name}}</span>
+									<span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>Overall Status</h2>
+					<hr>
+				</header>
+				<div class="flex-row flex-center scrollable">
+					<div class="flex-col flex-center">
+						<div>
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.state_on }">
+								<span class="relay-icon text-primary"><i class="ei ei-power"></i></span>
+								<span class="h4">{{data.device_statuses.state_on}}</span>
+								{{data.device_statuses.state_on !== 1 ? 'devices' : 'device'}} on
+							</div>
+
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.state_off }">
+								<span class="relay-icon text-muted"><i class="ei ei-power"></i></span>
+								<span class="h4">{{data.device_statuses.state_off}}</span>
+								{{data.device_statuses.state_off !== 1 ? 'devices' : 'device'}} off
+							</div>
+
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.faulty }">
+								<span class="relay-icon text-danger"><i class="ei ei-ac-faulty"></i></span>
+								<span class="h4">{{data.device_statuses.faulty}}</span>
+								{{data.device_statuses.faulty !== 1 ? 'devices' : 'device'}} faulty
+							</div>
+						</div>
+					</div>
+					<div class="flex-col flex-center">
+						<div>
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.mode_schedule }">
+								<span class="relay-icon text-primary"><i class="ei ei-schedule"></i></span>
+								<span class="h4">{{data.device_statuses.mode_schedule}}</span>
+								in schedule mode
+							</div>
+
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.mode_override }">
+								<span *ngIf="!data.device_statuses.mode_override" class="relay-icon"><i class="ei ei-override"></i></span>
+								<img *ngIf="data.device_statuses.mode_override" src="assets/img/relay/override.svg" style="width: 2em;">
+								<span class="h4">{{data.device_statuses.mode_override}}</span>
+								in override mode
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>

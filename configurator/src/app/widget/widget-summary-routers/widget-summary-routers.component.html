@@ -1,0 +1,13 @@
+<div class="container padded text-center">
+	<div class="row">
+		<div class="col-sm-4">
+			<icon-with-badge caption="Routers" icon="ei ei-router" [badge]="em.entities.router.length"></icon-with-badge>
+		</div>
+		<div class="col-sm-4">
+			<icon-with-badge caption="Collectors" icon="ei ei-gateway" [badge]="em.entities.gateway.length + em.entities.hes.length + em.entities.building_server.length"></icon-with-badge>
+		</div>
+		<div class="col-sm-4">
+			<icon-with-badge caption="Devices" icon="ei ei-device" [badge]="getDevices()"></icon-with-badge>
+		</div>
+	</div>
+</div>

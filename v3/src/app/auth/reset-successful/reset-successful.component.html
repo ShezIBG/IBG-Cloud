@@ -1,0 +1,17 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header></app-auth-header>
+		<div class="flex-1 flex-col auth-background">
+			<div class="flex-1 flex-row flex-center">
+				<div class="auth-foreground card-box">
+					<app-auth-logo-section></app-auth-logo-section>
+					<h2>Password Reset</h2>
+					<p>We've sent you an email containing a link that will allow you to reset your password for the next 24 hours.</p>
+					<p class="m-b-20">Please check your spam folder if the email doesn’t appear within a few minutes.</p>
+					<button class="btn btn-primary" routerLink="../login">Return to Sign In</button>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

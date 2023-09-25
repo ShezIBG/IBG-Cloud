@@ -1,0 +1,232 @@
+<div *ngIf="data" class="layout-tool">
+
+	<div *ngIf="data.pricing && editable && (unsynced.price.length || unsynced.labour.length || unsynced.subscription.length)" class="alert alert-warning">
+		<div class="flex-row flex-center">
+			<div class="flex-1"><i class="md md-warning"></i> Prices have changed since products were added to the project.</div>
+			<a class="btn btn-primary btn-sm" (click)="syncPrices()">Update product prices</a>
+			<a class="btn btn-warning btn-solid btn-sm m-l-10" (click)="dismissSyncWarning()">Dismiss</a>
+		</div>
+	</div>
+
+	<div *ngIf="!editable" class="alert alert-info">
+		<i class="md md-info"></i> Shown in view only mode. Projects can only be edited in the <b>Lead</b> or <b>Survey</b> stage.
+	</div>
+
+	<div *ngIf="editable && data.discontinued.length" class="alert alert-danger">
+		<i class="md md-error"></i> Project has one or more products which have been discontinued since they have been added.
+	</div>
+
+	<div class="flex-row">
+
+		<div class="flex-col theme-dark" style="min-width: 320px; max-width: 320px;">
+
+			<div class="widget">
+				<header>
+					<h2>
+						Areas
+						<button *ngIf="editable && sales.selectedStructure" class="btn btn-sm btn-default pull-right" (click)="editStructure()" title="Edit selected area"><i class="md md-edit"></i></button>
+						<button *ngIf="editable && sales.selectedStructure" class="btn btn-sm btn-primary pull-right" (click)="editStructure('area')" title="Add area"><i class="md md-add"></i> Area</button>
+						<button *ngIf="editable" class="btn btn-sm btn-primary pull-right" (click)="editStructure('floor')" title="Add block"><i class="md md-add"></i> Block</button>
+					</h2>
+				</header>
+				<div class="scrollable">
+					<table class="table table-hover no-border vam">
+						<tbody>
+							<tr class="selectable" [ngClass]="{ 'bg-primary': sales.selectedStructure === null, alt: sales.selectedStructure !== null }" (click)="selectStructure(null)">
+								<td>All areas</td>
+								<td *ngIf="data.pricing" class="text-right text-small shrink nowrap"><b>{{data.project.total | decimal:2:2:true:'GBP'}}</b></td>
+							</tr>
+							<ng-container *ngFor="let item of data.structure">
+								<tr *ngIf="!item.hidden" class="selectable scrollto-structure-{{item.id}} structure-{{item.type}}" [ngClass]="{ 'bg-primary': sales.selectedStructure === item, alt: item.type === 'floor' && sales.selectedStructure !== item }" (click)="selectStructure(item)">
+									<td>
+										<i *ngIf="item.type === 'floor'" class="fa fa-fw" [ngClass]="{ 'fa-caret-down': sales.isFloorExpanded(item.id), 'fa-caret-right': !sales.isFloorExpanded(item.id) }"></i>
+										{{item.description}}
+									</td>
+									<td *ngIf="data.pricing" class="text-right shrink nowrap"><span *ngIf="item.total" class="text-small">{{item.total | decimal:2:2:true:'GBP'}}</span></td>
+								</tr>
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>
+						Systems
+						<button *ngIf="editable && sales.selectedSystem" class="btn btn-sm btn-default pull-right" (click)="editSystem()" title="Edit selected system"><i class="md md-edit"></i></button>
+						<button *ngIf="editable" class="btn btn-sm btn-primary pull-right" (click)="addRemoveSystem()" title="Add/remove systems"><i class="md md-add"></i><i class="md md-remove"></i></button>
+					</h2>
+				</header>
+				<div class="scrollable">
+					<table class="table table-hover no-border vam">
+						<tbody>
+							<tr class="selectable" [ngClass]="{ 'bg-primary': sales.selectedSystem === null && sales.selectedModule === null, alt: !(sales.selectedSystem === null && sales.selectedModule === null) }" (click)="selectSystem(null)">
+								<td>All systems</td>
+								<td *ngIf="data.pricing" class="text-right text-small shrink nowrap">{{data.project.total | decimal:2:2:true:'GBP'}}</td>
+							</tr>
+							<ng-container *ngFor="let m of data.modules">
+								<tr class="selectable scrollto-module-{{m.id}}" [ngClass]="{ 'bg-primary': sales.selectedModule === m, alt: sales.selectedModule !== m }" (click)="selectModule(m)">
+									<td>
+										<i class="fa fa-fw" [ngClass]="{ 'fa-caret-down': sales.isModuleExpanded(m.id), 'fa-caret-right': !sales.isModuleExpanded(m.id) }"></i>
+										{{m.description}}
+									</td>
+									<td *ngIf="data.pricing" class="text-right text-small shrink nowrap">{{m.total | decimal:2:2:true:'GBP'}}</td>
+								</tr>
+								<ng-container *ngIf="sales.isModuleExpanded(m.id);">
+									<tr *ngFor="let s of m.systems" class="selectable scrollto-system-{{s.id}} listitem-system" [ngClass]="{ 'bg-primary': sales.selectedSystem === s }" (click)="selectSystem(s)">
+										<td>{{s.description}}</td>
+										<td *ngIf="data.pricing" class="text-right text-small shrink nowrap">{{s.total | decimal:2:2:true:'GBP'}}</td>
+									</tr>
+								</ng-container>
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-col">
+
+			<div *ngIf="editable && sales.selectedStructure?.type === 'area'" class="widget flex-0" style="min-height: 250px; max-height: 250px;">
+				<header>
+					<h2>
+						Toolbox
+						<div class="input-group pull-right" style="width: 300px; margin-top: -6px; margin-right: -6px;">
+							<span class="input-group-addon" (click)="toolboxSearch = ''"><i class="md" [ngClass]="{ 'md-search': !toolboxSearch, 'md-clear': toolboxSearch }"></i></span>
+							<input class="form-control" placeholder="Search" [(ngModel)]="toolboxSearch">
+						</div>
+					</h2>
+				</header>
+				<div class="flex-row scrollable">
+					<div *ngFor="let item of data.toolbox | keywords:toolboxSearch:['sku', 'manufacturer_name', 'model']" class="item flex-col" [ngClass]="{ 'bg-primary': toolboxHover === item }" (mouseenter)="toolboxHover = item" (mouseleave)="toolboxHover = null" (click)="addProductFromToolbox(item)" title="{{item.short_description}}">
+						<div *ngIf="!sales.selectedSystem" class="text-small">{{item.system_description}}</div>
+						<div class="image flex-1 m-t-0" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+						<div class="desc m-t-0">
+							<b *ngIf="item.model">{{item.model}}</b>
+							<div *ngIf="item.manufacturer_name">{{item.manufacturer_name}}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2 style="display: inline-block;">Products</h2>
+					<div class="checkbox checkbox-primary m-l-15" style="display: inline-block;">
+						<label>
+							<input type="checkbox" [(ngModel)]="expand">
+							<span>Expand accessories</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-primary m-l-15" style="display: inline-block;">
+						<label>
+							<input type="checkbox" [(ngModel)]="showAllSystems">
+							<span>Show all products</span>
+						</label>
+					</div>
+					<button *ngIf="editable && data.systems.length && sales.selectedStructure && sales.selectedStructure.type === 'area'" class="btn btn-sm btn-default pull-right m-t-5" (click)="addCustomLine()"><i class="md md-add"></i> Add line</button>
+					<button *ngIf="editable && data.systems.length && sales.selectedStructure && sales.selectedStructure.type === 'area'" class="btn btn-sm btn-primary pull-right m-t-5" (click)="addProduct()"><i class="md md-add"></i> Add product</button>
+					<button class="btn btn-sm btn-default pull-right m-t-5" (click)="editUI()"><i class="ei ei-reorder"></i></button>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover table-condensed vam">
+						<thead>
+							<tr>
+								<ng-container *ngFor="let col of data.columns">
+									<th *ngIf="col === 'product'" colspan="3">Product</th>
+									<th *ngIf="col === 'system'">System</th>
+									<th *ngIf="col === 'area'">Area</th>
+									<th *ngIf="col === 'price' && data.pricing" class="text-right">Price</th>
+									<th *ngIf="col === 'labour' && !data.exclude_labour" class="text-right">Labour</th>
+									<th *ngIf="col === 'quantity'" class="text-center" colspan="4">Quantity</th>
+									<th *ngIf="col === 'actions'" class="shrink"></th>
+								</ng-container>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let item of data.lines" class="selectable scrollto-product-{{item.id}}" [ngClass]="{ 'parent-item': item.parent_id === null, 'alt': item.parent_id !== null, 'primary': sales.selectedProjectLine === item }" (click)="selectProjectLine(item)">
+								<ng-container *ngFor="let col of data.columns">
+
+									<ng-container *ngIf="col === 'product' && item.parent_id === null">
+										<td class="shrink" (click)="toggleCollapsed(item.id)">
+											<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+										</td>
+										<td colspan="2">
+											<b>{{item.product_id !== null ? item.model : item.description}}</b>
+											<div *ngIf="item.manufacturer_name">{{item.manufacturer_name}}</div>
+											<div *ngIf="item.short_description" class="text-small">{{item.short_description}}</div>
+											<div *ngIf="isDiscontinued(item.product_id)" class="text-danger"><i class="md md-error"></i> Product discontinued</div>
+											<div *ngIf="item.notes" class="text-info"><i class="md md-info"></i> {{item.notes}}</div>
+											<div *ngIf="item.collapsed && item.accessories_count"><a class="text-success" (click)="toggleCollapsed(item.id)"><i class="md md-add-box"></i> {{item.accessories_count}} {{item.accessories_count === 1 ? 'accessory' : 'accessories'}}</a></div>
+										</td>
+									</ng-container>
+
+									<ng-container *ngIf="col === 'product' && item.parent_id !== null">
+										<td class="shrink text-center">
+											<i class="md md-keyboard-arrow-up"></i>
+										</td>
+										<td class="shrink">
+											<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+										</td>
+										<td>
+											<b>{{item.product_id !== null ? item.model : item.description}}</b>
+											<div *ngIf="item.manufacturer_name">{{item.manufacturer_name}}</div>
+											<div *ngIf="item.short_description" class="text-small">{{item.short_description}}</div>
+											<div *ngIf="isDiscontinued(item.product_id)" class="text-danger"><i class="md md-error"></i> Product discontinued</div>
+											<div *ngIf="item.notes" class="text-info"><i class="md md-info"></i> {{item.notes}}</div>
+										</td>
+									</ng-container>
+
+									<td *ngIf="col === 'system'"><a *ngIf="item.system_id" (click)="selectSystem(item.system_id)">{{item.system_description}}</a></td>
+
+									<td *ngIf="col === 'area'"><a *ngIf="item.structure_id" (click)="selectStructure(item.structure_id)">{{item.parent_id === null ? item.structure_description : ''}}</a></td>
+
+									<td *ngIf="col === 'price' && data.pricing" class="text-right" [ngClass]="{ warning: hasPriceWarning(item.id) }">
+										<div><i *ngIf="hasPriceWarning(item.id)" class="md md-warning text-warning"></i> <b>{{(item.unit_price * item.quantity + (item.collapsed ? item.accessories_price : 0)) | decimal:2:2:true:'GBP'}}</b></div>
+										<div class="text-small">Unit price: {{item.unit_price | decimal:2:4:true:'GBP'}}</div>
+										<div *ngIf="item.collapsed && item.accessories_count" class="text-small">Accessories: {{item.accessories_price | decimal:2:2:true:'GBP'}}</div>
+										<div *ngIf="item.subscription_count" class="text-small text-success"><i class="md md-credit-card"></i> Subscription</div>
+									</td>
+
+									<td *ngIf="col === 'labour' && !data.exclude_labour && data.pricing" class="text-right" [ngClass]="{ warning: hasLabourWarning(item.id) }">
+										<div><i *ngIf="hasLabourWarning(item.id)" class="md md-warning text-warning"></i> <b>{{(item.unit_labour_price * item.quantity + (item.collapsed ? item.accessories_labour_price : 0)) | decimal:2:2:true:'GBP'}}</b></div>
+										<div class="text-small">Unit price: {{item.unit_labour_price | decimal:2:4:true:'GBP'}}</div>
+										<div *ngIf="item.collapsed && item.accessories_count" class="text-small">Accessories: {{item.accessories_labour_price | decimal:2:2:true:'GBP'}}</div>
+									</td>
+
+									<td *ngIf="col === 'labour' && !data.exclude_labour && !data.pricing" class="text-right" [ngClass]="{ warning: hasLabourWarning(item.id) }">
+										<div><i *ngIf="hasLabourWarning(item.id)" class="md md-warning text-warning"></i> <b>{{(item.unit_labour_hours * item.quantity + (item.collapsed ? item.accessories_labour_hours : 0)) | decimal:2:2:true}} h</b></div>
+										<div class="text-small">Unit: {{item.unit_labour_hours | decimal:2:2:true}} h</div>
+										<div *ngIf="item.collapsed && item.accessories_count" class="text-small">Accessories: {{item.accessories_labour_hours | decimal:2:2:true}} h</div>
+									</td>
+
+									<ng-container *ngIf="col === 'quantity'">
+										<td class="shrink"><button *ngIf="editable && !item.is_single && !item.is_bundle_item" class="btn btn-primary btn-sm" (click)="increaseLineQuantity(item, -1)" [disabled]="item.quantity <= 1"><i class="md md-remove"></i></button></td>
+										<td class="shrink text-right">{{item.quantity | decimal:0:4}}</td>
+										<td class="shrink">{{item.unit_name}}</td>
+										<td class="shrink">
+											<button *ngIf="editable && item.is_single && !item.is_bundle_item" class="btn btn-primary btn-sm" (click)="copyLine(item)"><i class="md md-content-copy"></i></button>
+											<button *ngIf="editable && !item.is_single && !item.is_bundle_item" class="btn btn-primary btn-sm" (click)="increaseLineQuantity(item, 1)"><i class="md md-add"></i></button>
+										</td>
+									</ng-container>
+
+									<td *ngIf="col === 'actions'" class="shrink nowrap">
+										<button *ngIf="!item.is_bundle_item" class="btn btn-default btn-sm" (click)="editLine(item)"><i class="md" [ngClass]="{ 'md-edit': editable, 'md-info-outline': !editable }"></i></button>
+										<button *ngIf="editable && !item.is_bundle_item" class="btn btn-sm btn-danger" (click)="deleteLine(item)"><i class="md md-delete"></i></button>
+									</td>
+
+								</ng-container>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="data.lines.length === 0" class="m-l-5 text-muted">No products found.</p>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

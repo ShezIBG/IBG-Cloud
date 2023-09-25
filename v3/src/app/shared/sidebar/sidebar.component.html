@@ -1,0 +1,64 @@
+<div class="side-menu bg-theme bx-shadow" [ngClass]="{ off: menu.length === 0 }"></div>
+<div class="side-menu bg-theme bx-shadow fill" [ngClass]="{ off: menu.length === 0 }">
+	<div id="sidebar-menu" [ngClass]="{ off: menu.length === 0 }">
+		<div *ngIf="app.productOwners?.length && app.routeData.showOwner" class="btn-group menu-header">
+			<button class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown" [disabled]="!(!app.blockOwnerChange && app.routeData.changeOwner)">
+				{{app.getProductOwnerRecord()?.description}}
+				<span *ngIf="!app.blockOwnerChange && app.routeData.changeOwner" class="caret"></span>
+			</button>
+			<ul *ngIf="!app.blockOwnerChange && app.routeData.changeOwner" class="dropdown-menu" role="menu">
+				<li *ngFor="let o of app.productOwners"><a (click)="app.selectedProductOwner = o.id">{{o.description}}</a></li>
+			</ul>
+		</div>
+
+		<div *ngIf="dropdown.length > 1" class="btn-group menu-header">
+			<button class="btn btn-primary btn-block dropdown-toggle" data-toggle="dropdown">
+				<ng-container *ngFor="let o of dropdown">
+					<ng-container *ngIf="o.selected">
+						<i *ngIf="o.icon" class="{{o.icon}} m-r-5"></i>
+						{{o.name}}
+					</ng-container>
+				</ng-container>
+				<!-- &nbsp;<span class="caret"></span> -->
+			</button>
+			<ul class="dropdown-menu" role="menu">
+				<li *ngFor="let o of dropdown"><a [routerLink]="o.route"><i *ngIf="o.icon" class="{{o.icon}} m-r-5"></i> {{o.name}}</a></li>
+			</ul>
+		</div>
+
+		<ul>
+			<li *ngFor="let item of menu" [ngClass]="{ has_sub: !!item.items, subdrop: isOpen(item), 'menu-title': item.header }" (click)="toggleOpen(item)">
+				<span *ngIf="item.header" style="margin-left: -15px;">{{item.name}}</span>
+
+				<a *ngIf="!item.header && item.url" class="waves-effect waves-dark text-white" [ngClass]="{ 'bg-theme-alt': isActive(item) }" href="{{item.url}}" target="_blank">
+					<i *ngIf="item.icon" class="item-icon {{item.icon}}"></i>
+					<span *ngIf="item.badgeIcon || item.badge" class="badge badge-danger pull-right"><i class="{{item.badgeIcon}}"></i> {{item.badge}}</span>
+					<span>{{item.name}}</span>
+					<i *ngIf="item.items" class="md md-chevron-right menu-arrow"></i>
+				</a>
+				<a *ngIf="!item.header && item.route" class="waves-effect waves-dark text-white" [ngClass]="{ 'bg-theme-alt': isActive(item) }" [routerLink]="item.route">
+					<i *ngIf="item.icon" class="item-icon {{item.icon}}"></i>
+					<span *ngIf="item.badgeIcon || item.badge" class="badge badge-danger pull-right"><i class="{{item.badgeIcon}}"></i> {{item.badge}}</span>
+					<span>{{item.name}}</span>
+					<i *ngIf="item.items" class="md md-chevron-right menu-arrow"></i>
+				</a>
+				<a *ngIf="!item.header && !item.url && !item.route" class="waves-effect waves-dark text-white" [ngClass]="{ 'bg-theme-alt': isActive(item) }">
+					<i *ngIf="item.icon" class="item-icon {{item.icon}}"></i>
+					<span *ngIf="item.badgeIcon || item.badge" class="badge badge-danger pull-right"><i class="{{item.badgeIcon}}"></i> {{item.badge}}</span>
+					<span>{{item.name}}</span>
+					<i *ngIf="item.items" class="md md-chevron-right menu-arrow"></i>
+				</a>
+
+				<ul *ngIf="!item.header && item.items" class="list-unstyled submenu" style="display:block;">
+					<li *ngFor="let subitem of item.items">
+						<a *ngIf="subitem.url" href="{{subitem.url}}" class="waves-effect waves-dark text-white" [ngClass]="{ 'bg-theme-alt': isActive(subitem) }" target="_blank">{{subitem.name}}</a>
+						<a *ngIf="subitem.route" [routerLink]="subitem.route" class="waves-effect waves-dark text-white" [ngClass]="{ 'bg-theme-alt': isActive(subitem) }">{{subitem.name}}</a>
+					</li>
+				</ul>
+			</li>
+		</ul>
+		<div class="clearfix"></div>
+	</div>
+
+	<div class="clearfix"></div>
+</div>

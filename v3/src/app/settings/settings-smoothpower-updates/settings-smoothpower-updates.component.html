@@ -1,0 +1,59 @@
+<ng-container *ngFor="let channel of channels">
+	<h3>{{channel.description}}</h3>
+	<div class="card-box">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Version</th>
+					<th>File size</th>
+					<th>Bytes</th>
+					<th>Build date/time</th>
+					<th>
+						{{channel.id === 'release' ? 'Publish date/time' : 'Upload date/time'}}
+					</th>
+					<th class="text-center">Rollback?</th>
+					<th>Notes</th>
+					<th class="shrink"></th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let p of list[channel.id]" [ngClass]="{ danger: p.rollback }">
+					<td>{{p.id}}</td>
+					<td>{{p.version}}</td>
+					<td>{{p.filesize}}</td>
+					<td>{{p.filebytes}}</td>
+					<td>{{p.build_datetime}}</td>
+					<td>{{p.datetime}}</td>
+					<td class="text-center">
+						<a *ngIf="!p.rollback" class="text-success" (click)="setRollback(p.id, 1)"><i class="md md-check"></i> No rollback</a>
+						<a *ngIf="p.rollback" class="text-danger" (click)="setRollback(p.id, 0)"><i class="md md-close"></i> Rollback active</a>
+					</td>
+					<td>{{p.notes}}</td>
+					<td class="shrink nowrap"><a *ngIf="channel.id === 'test' && !isVersionReleased(p.version)" (click)="setChannel(p.id, 'release')"><i class="md md-file-upload"></i> Publish</a></td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="deletePackage(p.id)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!list[channel.id].length">
+					<td colspan="10">No packages in channel.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>
+
+<h3>Upload new package</h3>
+<div class="card-box">
+	<p class="text-info">
+		<i class="md md-info"></i>
+		New packages are .tar.gz archives built with the development tool. All uploaded packages start in the test channel and can be pushed to release once verified.
+	</p>
+	<p class="text-danger">
+		<i class="md md-error"></i>
+		If a faulty package has been submitted to the release channel, it must be removed, and the last stable version MUST be marked as rollback. Any devices that have updated to the broken package will then be forced to download the older package marked as rollback.
+	</p>
+	<p>Drop package file in the area below to upload.</p>
+	<input type="file" class="hidden" (change)="uploadPackage()" #fileInput>
+	<div class="file-drop" [ngClass]="{ active: draggedOver }" (dragover)="fileDragOver($event)" (dragleave)="draggedOver = false" (drop)="fileDrop($event)">
+	</div>
+</div>

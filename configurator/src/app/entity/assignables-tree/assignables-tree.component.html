@@ -1,0 +1,28 @@
+<div class="flex-parent-column fill">
+	<header class="p-0">
+		<ul class="nav nav-pills nav-pills-small">
+			<li [ngClass]="{ active: screen.assignablesMode === 'all-assignable' }"><a class="text-white" (click)="screen.assignablesMode = 'all-assignable'">All assignable</a></li>
+			<li [ngClass]="{ active: screen.assignablesMode === 'unassigned' }"><a class="text-white" (click)="screen.assignablesMode = 'unassigned'">Unassigned</a></li>
+			<li [ngClass]="{ active: screen.assignablesMode === 'all-unassigned' }"><a class="text-white" (click)="screen.assignablesMode = 'all-unassigned'">All unassigned items</a></li>
+		</ul>
+	</header>
+	<div class="jstree jstree-default flex-weight-1 scrollable p-0">
+		<ul class="jstree-container-ul" class="m-t-15 p-l-0">
+			<ng-template #recursive let-list>
+				<li *ngFor="let entity of list | assignables:parent:screen.assignablesMode | entitySort; last as isLast" class="{{entity.getScrollClass()}}" [ngClass]="{ 'jstree-node': true, 'jstree-open': isOpen(entity), 'jstree-closed': !isOpen(entity), 'jstree-leaf': isLeaf(entity), 'jstree-last': isLast }">
+					<i class="jstree-icon jstree-ocl" (click)="toggleNode(entity)"></i>
+					<a class="jstree-anchor" [ngClass]="{ 'jstree-hovered': hover === entity, 'jstree-clicked': screen.isAssignableSelected(entity) }" (mouseenter)="hover = entity" (mouseleave)="hover = null" (click)="toggleAssignable(entity)">
+						<i *ngIf="entity.canAssignTo(parent)" class="jstree-icon jstree-checkbox"></i>
+						<i class="jstree-icon jstree-themeicon jstree-themeicon-custom" [ngClass]="entity.getIconClass()"></i>
+						<span [ngClass]="{ 'text-success': entity.canAssignTo(parent), 'text-info': entity.isAssignedTo(parent), 'text-danger': !entity.isAssignedTo(parent) && entity.isAssignableTo(parent) && !entity.canAssignTo(parent) }">{{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span></span>
+						<span *ngIf="entity.getAssignedToType(parent)" class="subtitle"><i class="md md-link"></i> {{entity.getAssignedToInfo(entity.getAssignedToType(parent))}}</span>
+					</a>
+					<ul *ngIf="entity.items.length" class="jstree-children">
+						<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: entity.items }"></ng-container>
+					</ul>
+				</li>
+			</ng-template>
+			<ng-container *ngTemplateOutlet="recursive; context:{ $implicit: building.items }"></ng-container>
+		</ul>
+	</div>
+</div>

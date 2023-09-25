@@ -1,0 +1,132 @@
+/* MY CODE*/
+
+.testA {
+    background-color: red!important;
+}
+.testB {
+    background-color: green!important;
+
+}
+.testC {
+    background-color: pink!important;
+}
+.testD {
+    background-color: orange!important;
+}
+.testE {
+    background-color: blue!important;
+}
+
+/*h1 { font-size: 1.7em; }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.4em; }
+h5 { font-size: 1.3em; }
+h6 { font-size: 1.2em; }*/
+
+.myH1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.7rem;
+}
+.myH2 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.6rem;
+}
+.myH3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+}
+.myH4 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.4rem;
+}
+.myH5 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.3rem;
+}
+.myH6 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+}
+.myH7 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+}
+.myH8 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+}
+
+.myH8:link, .myH8:visited {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    text-decoration: none;
+}
+.myH8:hover, .myH8:active {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.myLogin-link1:link, .myLogin-link1:visited {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    text-decoration: none;
+    color: red;
+}
+.myLogin-link1:hover, .myLogin-link1:active {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    text-decoration: none;
+    color: orange;
+}
+
+.myBrand-colorB{
+    color: #465262 !important;
+}
+.myBrand-colorB-bg {
+    background-color: #465262;
+}
+.myBrand-colorFooter-bg {
+    background-color: #ebedef;
+}
+.container .myLoginContainer {
+    width: 750px;
+}
+.myLogin-left-eticom { 
+    background-image: url(../img/mine/login.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.myLogin-left {
+    background-image: url(../img/mine/login.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.myLogin-right {
+    padding: 20px;
+    background-color: white;
+
+}
+.myShadow {
+    -webkit-box-shadow: 1px 4px 15px -2px rgba(0,0,0,0.81);
+    box-shadow: 1px 4px 15px -2px rgba(0,0,0,0.81);
+}
+
+.myLogin-right-container{
+    padding: 20px;
+
+
+}
+
+.myForm-control{
+
+    margin-bottom: 5px;
+
+}
+
+.myBtn-A{
+
+    font-size: 0.8rem!important;
+
+}

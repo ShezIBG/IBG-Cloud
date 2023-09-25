@@ -1,0 +1,37 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header></app-auth-header>
+		<div class="flex-1 flex-col auth-background">
+			<div *ngIf="showForm" class="flex-1 flex-row flex-center">
+				<div class="auth-foreground card-box">
+					<app-auth-logo-section></app-auth-logo-section>
+					<ng-container *ngIf="formMode === 'reset'">
+						<h2>Password Reset</h2>
+						<p>Set a new password for <b>{{email}}</b> below. Your new password must be at least 7 characters long.</p>
+						<form (ngSubmit)="updatePassword()">
+							<div class="theme-light">
+								<input type="password" class="form-control" [(ngModel)]="data.new_password" name="new_password" placeholder="New password" autocomplete="new-password" appDesktopFocus>
+								<input type="password" class="form-control" [(ngModel)]="data.new_password_conf" name="new_password_conf" placeholder="Confirm password" autocomplete="new-password">
+								<button class="btn btn-primary" type="submit">Save New Password</button>
+							</div>
+						</form>
+					</ng-container>
+					<ng-container *ngIf="formMode === 'invalid'">
+						<div class="info-panel bg-danger text-status">
+							<img src="assets/img/auth/icon-alert.svg">
+							This link is no longer valid.
+						</div>
+						<p>Please request a new password reset email by clicking on the link on the sign in page.</p>
+						<button class="btn btn-primary m-t-15" routerLink="/auth/login">Return to Sign In</button>
+					</ng-container>
+					<ng-container *ngIf="formMode === 'success'">
+						<h2>Password Saved</h2>
+						<p>You can sign in to the portal now using your new password.</p>
+						<button class="btn btn-primary m-t-15" routerLink="/auth/login">Return to Sign In</button>
+					</ng-container>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

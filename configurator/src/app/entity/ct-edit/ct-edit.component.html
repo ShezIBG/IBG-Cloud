@@ -1,0 +1,40 @@
+<app-modal modalTitle="Edit CT" [buttons]="['Cancel', '*OK']" (event)="modalHandler($event)">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="form-group">
+				<label>Long description</label>
+				<input type="text" class="form-control" [(ngModel)]="data.long_description" autofocus>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-6">
+			<div class="form-group">
+				<label>Short description</label>
+				<input type="text" class="form-control" [(ngModel)]="data.short_description">
+			</div>
+		</div>
+		<div *ngIf="pm12" class="col-lg-6">
+			<div class="form-group">
+				<label>PM12 Pin</label>
+				<input type="text" class="form-control" [(ngModel)]="ct.data.pm12_pin" readonly>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="form-group m-0">
+				<label>Categories</label>
+				<div class="checkbox checkbox-primary pull-right m-0">
+					<label>
+						<input type="checkbox" [(ngModel)]="editCategories">
+						<span>Edit categories</span>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-12">
+			<category-tree [selected]="categories" [editMode]="editCategories"></category-tree>
+		</div>
+	</div>
+</app-modal>

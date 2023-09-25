@@ -1,0 +1,159 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Basic details</h3>
+	<div class="card-box">
+		<div class="row">
+			<div class="col-sm-9 col-lg-7">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Contact name</label>
+						<div class="col-sm-5 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.contact_name" appDesktopFocus>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Company name</label>
+						<div class="col-sm-5 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.company_name">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Reference number</label>
+						<div class="col-sm-4 col-lg-6">
+							<input class="form-control" [(ngModel)]="details.reference_no">
+						</div>
+					</div>
+					<hr>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Email address</label>
+						<div class="col-sm-5 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.email_address">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Phone number</label>
+						<div class="col-sm-5 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.phone_number">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Mobile number</label>
+						<div class="col-sm-5 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.mobile_number">
+						</div>
+					</div>
+					<hr>
+					<div *ngIf="details.id === 'new'" class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label"></label>
+						<p class="col-sm-5 col-lg-7 text-info"><i class="md md-info"></i> You will have the option to use the site address as the customer's address when adding a contract.</p>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Address</label>
+						<div class="col-sm-5 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.address_line_1">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-5 col-lg-7 col-sm-offset-4 col-lg-offset-5">
+							<input class="form-control" [(ngModel)]="details.address_line_2">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-5 col-lg-7 col-sm-offset-4 col-lg-offset-5">
+							<input class="form-control" [(ngModel)]="details.address_line_3">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Town</label>
+						<div class="col-sm-4 col-lg-6">
+							<input class="form-control" [(ngModel)]="details.posttown">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Postcode</label>
+						<div class="col-sm-3 col-lg-5">
+							<input class="form-control" [(ngModel)]="details.postcode">
+						</div>
+					</div>
+					<hr>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Notes</label>
+						<div class="col-sm-5 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.notes">
+						</div>
+					</div>
+					<hr>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Visibility</label>
+						<div class="col-sm-5 col-lg-7">
+							<div class="checkbox checkbox-danger">
+								<label>
+									<input type="checkbox" [(ngModel)]="details.archived">
+									<span [ngClass]="{ 'text-danger': details.archived }">Archived</span>
+								</label>
+							</div>
+							<ng-container *ngIf="details.archived">
+								<p class="text-danger m-t-10"><i class="md md-info"></i> Archived customers will be hidden from the customer list by default and no new contracts can be created for them.</p>
+								<p *ngIf="archiveWarnings.length" class="text-warning">
+									<i class="md md-warning"></i> Warning
+								</p>
+								<ul *ngIf="archiveWarnings.length" class="text-warning">
+									<li *ngFor="let line of archiveWarnings">{{line}}</li>
+								</ul>
+								<p *ngIf="archiveWarnings.length === 0" class="text-success"><i class="md md-check"></i> No issues found, customer can be archived.</p>
+							</ng-container>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<h3>Invoice address</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-3">
+					<button class="btn btn-default" (click)="copyAddress()"><i class="md md-content-copy"></i> Copy customer address</button>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.invoice_address_line_1">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-3">
+					<input class="form-control" [(ngModel)]="details.invoice_address_line_2">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-3">
+					<input class="form-control" [(ngModel)]="details.invoice_address_line_3">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Town</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.invoice_posttown">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Postcode</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.invoice_postcode">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

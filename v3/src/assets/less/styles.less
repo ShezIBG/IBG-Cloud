@@ -1,0 +1,87 @@
+@import "elements.less";
+
+//
+// Eticom
+//
+
+@muted: #909eb2;
+@danger: #d85959;
+@success: #313f4c;//#40b587; original theme color
+@warning: #e2a854;
+@primary: #313f4c;//#39a57a; original theme color
+@controlprimary: #39a57a;
+@info: #909eb2;
+
+@text-status: #fcfcfe; // Text over context sensitive parts
+@always-dark: #465262;
+
+@box-shadow: 0px 1px 8px #00000026;
+
+@font-body: 'Rubik', sans-serif;
+@font-heading: 'Quicksand', sans-serif;
+@font-button: 'Quicksand', sans-serif;
+
+
+@import "core.less";
+
+html.eticom {
+	&.theme-light, .theme-light, .theme-dark .theme-light {
+		@dark: #465262;
+		@light: #fcfcfe;
+		@light-alt: #f0f0f4;
+		@light-base: #edeef2;
+		@light-control: #d4d7db;
+		@inverse: @dark;
+
+		color: @dark;
+
+		@import (multiple) "themed.less";
+	}
+
+	&.theme-dark, .theme-dark, .theme-light .theme-dark {
+		@dark: #fcfcfe;
+		@light: #465262;
+		@light-alt: #384352;
+		@light-base: #344152;
+		@light-control: #2D3948;
+		@inverse: @dark;
+
+		color: @dark;
+
+		@import (multiple) "themed.less";
+	}
+}
+
+//
+// Elanet
+//
+
+html.elanet {
+	@primary: #4299e1;
+
+	&.theme-light, .theme-light, .theme-dark .theme-light {
+		@dark: #465262;
+		@light: #fcfcfe;
+		@light-alt: #f0f0f4;
+		@light-base: #edeef2;
+		@light-control: #d4d7db;
+		@inverse: @dark;
+
+		color: @dark;
+
+		@import (multiple) "themed.less";
+	}
+
+	&.theme-dark, .theme-dark, .theme-light .theme-dark {
+		@dark: #fcfcfe;
+		@light: #465262;
+		@light-alt: #384352;
+		@light-base: #344152;
+		@light-control: #2D3948;
+		@inverse: @dark;
+
+		color: @dark;
+
+		@import (multiple) "themed.less";
+	}
+}

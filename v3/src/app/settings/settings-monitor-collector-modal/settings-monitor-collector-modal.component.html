@@ -1,0 +1,51 @@
+<app-modal modalTitle="Collector details" size="large" [buttons]="buttons" (event)="modalHandler($event)">
+	<table *ngIf="item" class="table">
+		<thead>
+			<tr>
+				<th>Client</th>
+				<th>Location</th>
+				<th>Collector</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>{{item.client}}</td>
+				<td>{{item.building}}<br><span class="subtitle">{{item.floor}} / {{item.area}}</span></td>
+				<td>{{item.gateway}}<br><span class="subtitle">{{item.gateway_serial}}</span><br><span class="subtitle">{{item.gateway_type}}</span></td>
+				<td [ngClass]="{ 'text-success': !item.ignored && item.status === 'ok', 'text-danger': !item.ignored && item.status !== 'ok', 'text-muted': item.ignored }">
+					<i class="md" [ngClass]="{ 'md-check': !item.ignored && item.status === 'ok', 'md-error': !item.ignored && item.status !== 'ok', 'md-do-not-disturb': item.ignored }"></i>
+					<span>{{item.message}}</span>
+					<br><span class="subtitle">Last checked: {{item.last_checked}}</span><br><span class="subtitle">Last data received: {{item.last_received}}</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<ng-container *ngIf="customChart">
+		<h3>Last 7 days</h3>
+		<div style="position: relative; width: 100%; height: 100px;">
+			<app-chartjs [custom]="customChart"></app-chartjs>
+		</div>
+	</ng-container>
+	<h3>Status history <span class="subtitle">(latest on top)</span></h3>
+	<div class="clearfix" style="height: 400px; overflow-y: auto;">
+		<table *ngIf="history" class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Date / time</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let h of history">
+					<td>{{h.datetime}}</td>
+					<td [ngClass]="{ 'text-success': h.status === 'ok', 'text-danger': h.status !== 'ok' }">
+						<i class="md" [ngClass]="{ 'md-check': h.status === 'ok', 'md-error': h.status !== 'ok' }"></i>
+						{{h.message}}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p *ngIf="history?.length === 0">No history found.</p>
+	</div>
+</app-modal>

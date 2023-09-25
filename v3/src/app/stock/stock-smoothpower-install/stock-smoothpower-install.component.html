@@ -1,0 +1,190 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+	</span>
+
+	<h3>SmoothPower unit to install</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Serial No</label>
+				<div class="col-sm-6">
+					<input class="form-control" [(ngModel)]="details.serial" disabled>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">System Integrator</label>
+				<div class="col-sm-6">
+					<select class="form-control" [(ngModel)]="details.system_integrator_id" disabled>
+						<option *ngFor="let si of siList" [ngValue]="si.id">{{si.description}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<ng-container *ngIf="hgList && clientList">
+
+		<h3>Select client</h3>
+		<div class="card-box">
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Holding group<br><span class="subtitle">optional</span></label>
+					<div class="col-sm-6">
+						<div class="input-group">
+							<select class="form-control" [(ngModel)]="hgId">
+								<option [ngValue]="null">No holding group</option>
+								<optgroup label="Create new">
+									<option [ngValue]="'new'">New holding group</option>
+								</optgroup>
+								<optgroup *ngIf="hgList.length" label="Existing holding groups">
+									<option *ngFor="let item of hgList" [ngValue]="item.id">{{item.company_name}}</option>
+								</optgroup>
+							</select>
+							<span class="input-group-btn">
+								<button class="btn" [ngClass]="{ 'btn-default': hgId !== 'new', 'btn-primary': hgId === 'new' }" (click)="hgId = 'new'"><i class="md md-add"></i> New</button>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div *ngIf="hgId === 'new'" class="form-group has-success">
+					<label class="col-sm-3 control-label">New holding group name</label>
+					<div class="col-sm-6">
+						<input class="form-control" [(ngModel)]="data.hg_name">
+					</div>
+				</div>
+				<hr>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Client</label>
+					<div class="col-sm-6">
+						<div class="input-group">
+							<select class="form-control" [(ngModel)]="clientId">
+								<option [ngValue]="null">Select client</option>
+								<optgroup label="Create new">
+									<option [ngValue]="'new'">New client</option>
+								</optgroup>
+								<optgroup *ngIf="clientList.length" label="Existing clients">
+									<option *ngFor="let item of clientList" [ngValue]="item.id">{{item.name}}</option>
+								</optgroup>
+							</select>
+							<span class="input-group-btn">
+								<button class="btn" [ngClass]="{ 'btn-default': clientId !== 'new', 'btn-primary': clientId === 'new' }" (click)="clientId = 'new'"><i class="md md-add"></i> New</button>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div *ngIf="clientId === 'new'" class="form-group has-success">
+					<label class="col-sm-3 control-label">New client name</label>
+					<div class="col-sm-6">
+						<input class="form-control" [(ngModel)]="data.client_name">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<ng-container *ngIf="buildingList && clientId">
+			<h3>Select location</h3>
+			<div class="card-box">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label class="col-sm-3 control-label">Building</label>
+						<div class="col-sm-6">
+							<div class="input-group">
+								<select class="form-control" [(ngModel)]="buildingId">
+									<option [ngValue]="null">Select building</option>
+									<optgroup label="Create new">
+										<option [ngValue]="'new'">New building</option>
+									</optgroup>
+									<optgroup *ngIf="buildingList.length" label="Existing buildings">
+										<option *ngFor="let item of buildingList" [ngValue]="item.id">{{item.description}}</option>
+									</optgroup>
+								</select>
+								<span class="input-group-btn">
+									<button class="btn" [ngClass]="{ 'btn-default': buildingId !== 'new', 'btn-primary': buildingId === 'new' }" (click)="buildingId = 'new'"><i class="md md-add"></i> New</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div *ngIf="buildingId === 'new'" class="form-group has-success">
+						<label class="col-sm-3 control-label">New building name</label>
+						<div class="col-sm-6">
+							<input class="form-control" [(ngModel)]="data.building_name">
+						</div>
+					</div>
+
+					<ng-container *ngIf="floorList && buildingId">
+						<hr>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">Block</label>
+							<div class="col-sm-6">
+								<div class="input-group">
+									<select class="form-control" [(ngModel)]="floorId">
+										<option [ngValue]="null">Select block</option>
+										<optgroup label="Create new">
+											<option [ngValue]="'new'">New block</option>
+										</optgroup>
+										<optgroup *ngIf="floorList.length" label="Existing blocks">
+											<option *ngFor="let item of floorList" [ngValue]="item.id">{{item.description}}</option>
+										</optgroup>
+									</select>
+									<span class="input-group-btn">
+										<button class="btn" [ngClass]="{ 'btn-default': floorId !== 'new', 'btn-primary': floorId === 'new' }" (click)="floorId = 'new'"><i class="md md-add"></i> New</button>
+									</span>
+								</div>
+							</div>
+						</div>
+						<div *ngIf="floorId === 'new'" class="form-group has-success">
+							<label class="col-sm-3 control-label">New block name</label>
+							<div class="col-sm-6">
+								<input class="form-control" [(ngModel)]="data.floor_name">
+							</div>
+						</div>
+
+						<ng-container *ngIf="areaList && floorId">
+							<hr>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">Area</label>
+								<div class="col-sm-6">
+									<div class="input-group">
+										<select class="form-control" [(ngModel)]="areaId">
+											<option [ngValue]="null">Select area</option>
+											<optgroup label="Create new">
+												<option [ngValue]="'new'">New area</option>
+											</optgroup>
+											<optgroup *ngIf="areaList.length" label="Existing areas">
+												<option *ngFor="let item of areaList" [ngValue]="item.id">{{item.description}}</option>
+											</optgroup>
+										</select>
+										<span class="input-group-btn">
+											<button class="btn" [ngClass]="{ 'btn-default': areaId !== 'new', 'btn-primary': areaId === 'new' }" (click)="areaId = 'new'"><i class="md md-add"></i> New</button>
+										</span>
+									</div>
+								</div>
+							</div>
+							<div *ngIf="areaId === 'new'" class="form-group has-success">
+								<label class="col-sm-3 control-label">New area name</label>
+								<div class="col-sm-6">
+									<input class="form-control" [(ngModel)]="data.area_name">
+								</div>
+							</div>
+
+							<ng-container *ngIf="areaId">
+								<hr>
+								<p class="text-success text-large text-center">
+									<i class="md md-check"></i> All set, unit is ready to install.
+								</p>
+							</ng-container>
+
+						</ng-container>
+					</ng-container>
+				</div>
+			</div>
+		</ng-container>
+
+		<span class="pull-right">
+			<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+			<button class="btn btn-primary" (click)="install()" [disabled]="disabled">Install Unit</button>
+		</span>
+
+	</ng-container>
+</ng-container>

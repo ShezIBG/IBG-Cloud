@@ -1,0 +1,25 @@
+<app-modal modalTitle="Reseller details" [buttons]="buttons" (event)="modalHandler($event)">
+	<div *ngIf="data" class="form-horizontal">
+		<div *ngIf="data.details.new" class="form-group">
+			<label class="col-sm-3 control-label">Reseller</label>
+			<div class="col-sm-9">
+				<select class="form-control" [(ngModel)]="data.details.reseller">
+					<option [ngValue]="null"></option>
+					<option *ngFor="let r of data.resellers" [ngValue]="r.id">{{r.description}}</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Description</label>
+			<div class="col-sm-5">
+				<select class="form-control" [(ngModel)]="data.details.price_tier">
+					<option value="cost">Cost</option>
+					<option value="distribution">Distribution price</option>
+					<option value="reseller">Reseller price</option>
+					<option value="trade">Trade price</option>
+					<option value="retail">Retail price</option>
+				</select>
+			</div>
+		</div>
+	</div>
+</app-modal>

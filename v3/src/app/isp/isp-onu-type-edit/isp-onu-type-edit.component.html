@@ -1,0 +1,51 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>ONU type</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.description">
+				</div>
+			</div>
+		</div>
+
+		<hr>
+
+		<h2>Instructions when router is offline</h2>
+		<editor [init]="app.tinymce" [(ngModel)]="details.info_offline"></editor>
+
+		<hr>
+
+		<h2>
+			Assets
+			<button class="btn btn-primary pull-right" [disabled]="disabled" (click)="changeImage()"><i class="md md-add"></i> Add image</button>
+		</h2>
+		<div class="help-block">Drag images into the box below to upload them, then you can drag them into the editor above or below to insert. Assets are shared between all ONU types.</div>
+		<input type="file" class="hidden" (change)="uploadImage()" #fileInput>
+		<div class="image-drop" [ngClass]="{ active: draggedOver }" (dragover)="fileDragOver($event)" (dragleave)="draggedOver = false" (drop)="fileDrop($event)">
+			<span *ngFor="let asset of details.assets" (mouseenter)="hover = asset" (mouseleave)="hover = null">
+				<img [src]="asset.url">
+				<ng-container *ngIf="hover === asset">
+					<br><br><button class="btn btn-xs btn-danger" (click)="deleteAsset(asset)"><i class="md md-delete"></i> Delete</button>
+				</ng-container>
+			</span>
+		</div>
+
+		<hr>
+
+		<h2>Instructions to reboot the router</h2>
+		<editor [init]="app.tinymce" [(ngModel)]="details.info_reboot"></editor>
+	</div>
+
+	<button *ngIf="typeId !== 'new' && canDelete" class="btn btn-danger" (click)="deleteOnuType()" [disabled]="disabled">Delete ONU Type</button>
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

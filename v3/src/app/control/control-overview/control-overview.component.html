@@ -1,0 +1,89 @@
+<div class="layout-dashboard">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div *ngIf="buildingLayout.length" class="flex-2 flex-col">
+			<ng-container *ngFor="let layout of buildingLayout">
+				<div *ngIf="layout[1]" class="flex-row">
+					<div *ngFor="let building of layout" class="widget hoverable" routerLink="../building/{{building.id}}">
+						<header class="gradient theme-dark">
+							<div class="flex-row flex-center">
+								<i class="header-icon ei ei-site"></i>
+								<h2 class="flex-1">{{building.description}}</h2>
+								<a class="btn btn-sm btn-default">View Building</a>
+							</div>
+						</header>
+						<div [style.background]="'url(\'' + building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+					</div>
+				</div>
+				<div *ngIf="!layout[1]" class="flex-row">
+					<div *ngFor="let building of [layout[0]]" class="widget hoverable" routerLink="../building/{{building.id}}">
+						<header class="gradient theme-dark">
+							<div class="flex-row flex-center">
+								<i class="header-icon ei ei-site"></i>
+								<h2 class="flex-1">{{building.description}}</h2>
+								<a class="btn btn-sm btn-default">View Building</a>
+							</div>
+						</header>
+						<div class="flex-row p-0">
+							<div class="flex-1" [style.background]="'url(\'' + building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+							<div class="flex-1 flex-center-self m-r-20">
+								<table class="table vam">
+									<thead>
+										<tr>
+											<th colspan="3">List of Devices</th>
+										</tr>
+									</thead>
+									<tr *ngFor="let item of building.device_types; let index = index">
+										<td class="shrink">
+											<span *ngIf="item.icon_text" class="badge-icon bg-primary">{{item.icon_text}}</span>
+											<span *ngIf="!item.icon_text" class="badge-icon bg-primary"><i class="eticon eticon-plug"></i></span>
+										</td>
+										<td><b>{{item.description}}</b></td>
+										<td class="shrink text-right">{{item.item_count}}x</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+
+		<div *ngIf="!buildingLayout.length" class="flex-2 widget">
+			<header class="">				
+				<div class="flex-1">
+					
+					<div class="input-group">
+						<h2 class="flex-1">Buildings</h2>
+						<span class="input-group-addon"><i class="md md-search"></i></span>
+						<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+					</div>
+				</div>
+			</header>
+			<div class="scrollable p-0">
+				<table class="table table-striped table-hover vam">
+					<thead>
+						<tr>
+							<th colspan=2>Description</th>
+							<th>Address</th>
+							<!--<th class="text-center divider-left">Lights</th>
+							<th class="text-center divider-left">On</th>
+							<th class="text-center divider-left">Off</th>-->
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let building of data.buildings | keywords:search:['description', 'address', 'posttown', 'postcode']" class="clickable" routerLink="../building/{{building.id}}">
+							<td style="width: 64px; height: 64px;" [style.background]="'url(\'' + building.image + '\') center center / cover no-repeat' | safeStyle"></td>
+							<td>{{building.description}}</td>
+							<td [innerHtml]="getAddress(building)"></td>
+							<!-- <td class="text-center divider-left">{{building.light_count}}</td>
+							<td class="text-center divider-left text-danger">{{building.light_on || ''}}</td>
+							<td class="text-center divider-left text-success">{{building.light_off || ''}}</td>-->
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

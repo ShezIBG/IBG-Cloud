@@ -1,0 +1,875 @@
+<ng-container *ngIf="app.header.activeTab === 'details' && details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">SKU</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.sku" [disabled]="!editable">
+				</div>
+				<div class="col-sm-3">
+					<img *ngIf="details.sku" [src]="barcodeImageURL(details.sku)" class="barcode">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Manufacturer</label>
+				<div class="col-sm-6">
+					<div [ngClass]="{ 'input-group': editable }">
+						<select class="form-control" [(ngModel)]="details.manufacturer_id" (ngModelChange)="refreshManufacturerSuppliers(true)" [disabled]="!editable">
+							<option [ngValue]="null">Unknown</option>
+							<option [ngValue]="'new'">New Manufacturer</option>
+							<option *ngFor="let item of list.manufacturers" [ngValue]="item.id">{{item.name}}</option>
+						</select>
+						<span *ngIf="editable" class="input-group-btn">
+							<button class="btn" [ngClass]="{ 'btn-default': details.manufacturer_id !== 'new', 'btn-primary': details.manufacturer_id === 'new' }" (click)="details.manufacturer_id = 'new'"><i class="md md-add"></i> New</button>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div *ngIf="details.manufacturer_id === 'new'" class="form-group has-success">
+				<label class="col-sm-3 control-label">New manufacturer name</label>
+				<div class="col-sm-6">
+					<input class="form-control" [(ngModel)]="details.manufacturer_name" [disabled]="!editable">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Model</label>
+				<div class="col-sm-6">
+					<input class="form-control" [(ngModel)]="details.model" [disabled]="!editable">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Manufacturer SKU</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.manufacturer_sku" [disabled]="!editable">
+				</div>
+				<div class="col-sm-3">
+					<img *ngIf="details.manufacturer_sku" [src]="barcodeImageURL(details.manufacturer_sku)" class="barcode">
+				</div>
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-sm-9 col-lg-7">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Category</label>
+						<div class="col-sm-6 col-lg-7">
+							<div [ngClass]="{ 'input-group': editable }">
+								<select class="form-control" [(ngModel)]="details.category_id" [disabled]="!editable">
+									<option [ngValue]="null">None</option>
+									<option [ngValue]="'new'">New Category</option>
+									<option *ngFor="let item of list.categories" [ngValue]="item.id">{{item.name}}</option>
+								</select>
+								<span *ngIf="editable" class="input-group-btn">
+									<button class="btn" [ngClass]="{ 'btn-default': details.category_id !== 'new', 'btn-primary': details.category_id === 'new' }" (click)="details.category_id = 'new'"><i class="md md-add"></i> New</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div *ngIf="details.category_id === 'new'" class="form-group has-success">
+						<label class="col-sm-4 col-lg-5 control-label">New category name</label>
+						<div class="col-sm-6 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.category_name" [disabled]="!editable">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Short description</label>
+						<div class="col-sm-8 col-lg-7">
+							<input class="form-control" [(ngModel)]="details.short_description" [disabled]="!editable">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Long description</label>
+						<div class="col-sm-8 col-lg-7">
+							<textarea rows="5" class="form-control" [(ngModel)]="details.long_description" [disabled]="!editable"></textarea>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 col-lg-5 control-label">Sales</label>
+						<div class="col-sm-8 col-lg-7">
+							<div class="checkbox checkbox-primary">
+								<label>
+									<input type="checkbox" [(ngModel)]="soldToCustomer" [disabled]="!editable">
+									<span>Sold to customer</span>
+								</label>
+							</div>
+							<div *ngIf="editable" class="checkbox checkbox-primary">
+								<label>
+									<input type="checkbox" [(ngModel)]="soldToReseller">
+									<span>Sold to reseller</span>
+								</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4 col-sm-offset-3 col-lg-offset-0 col-lg-3 img-container">
+				<input type="file" class="hidden" (change)="uploadImage()" #fileInput>
+				<ng-container *ngIf="!details.image_id && editable">
+					<div class="image-drop" [ngClass]="{ active: draggedOver }" (dragover)="fileDragOver($event)" (dragleave)="draggedOver = false" (drop)="fileDrop($event)">
+						No image
+					</div>
+					<button class="btn btn-primary" [disabled]="disabled" (click)="changeImage()"><i class="md md-file-upload"></i> Upload image</button>
+					<button class="btn btn-default" [disabled]="disabled" (click)="addImageURL()"><i class="md md-add"></i> Add image URL</button>
+				</ng-container>
+				<ng-container *ngIf="details.image_id">
+					<img [src]="imageUrl" style="width: 100%;">
+					<button *ngIf="editable" class="btn btn-danger" [disabled]="disabled" (click)="removeImage()"><i class="md md-delete"></i> Remove image</button>
+				</ng-container>
+			</div>
+		</div>
+		<hr>
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Unit of measure</label>
+				<div class="col-sm-6">
+					<select class="form-control" [(ngModel)]="details.unit_id" [disabled]="!canChangeUnit">
+						<option [ngValue]="null">None</option>
+						<option *ngFor="let item of list.base_units" [ngValue]="item.id">{{item.description}} ({{item.name}})</option>
+					</select>
+					<p *ngIf="!canChangeUnit" class="text-info"><i class="md md-info"></i> Cannot change unit of measure once item is in use.</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Dimensions (mm)</label>
+				<div class="col-sm-2">
+					<div class="input-group">
+						<div class="input-group-addon">W</div>
+						<input class="form-control" [(ngModel)]="details.width" [disabled]="!editable">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="input-group">
+						<div class="input-group-addon">H</div>
+						<input class="form-control" [(ngModel)]="details.height" [disabled]="!editable">
+					</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="input-group">
+							<div class="input-group-addon">D</div>
+							<input class="form-control" [(ngModel)]="details.depth" [disabled]="!editable">
+					</div>
+				</div>
+			</div>
+			<div *ngIf="editable" class="form-group">
+				<label class="col-sm-3 control-label">Assembly</label>
+				<div class="col-sm-2">
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="hasBOM" [disabled]="!canChangeAssembly">
+							<span [ngClass]="{ 'text-success': hasBOM }">Bill of materials</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="isPlaceholder" [disabled]="!canChangeAssembly">
+							<span [ngClass]="{ 'text-success': isPlaceholder }">Placeholder</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="isBundle" [disabled]="!canChangeAssembly">
+							<span [ngClass]="{ 'text-success': isBundle }">Bundle</span>
+						</label>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<p *ngIf="hasBOM" class="text-success m-t-10"><b>Can</b> be assembled. <b>Cost</b> is automatically calculated.</p>
+					<p *ngIf="isPlaceholder" class="text-success m-t-10"><b>Cannot</b> be sold or stocked. <b>Must</b> be replaced on assembly. <b>Cost</b> is automatically calculated.</p>
+					<p *ngIf="isBundle" class="text-success m-t-10">Special product with accessories based on questions and answers.</p>
+					<p *ngIf="!canChangeAssembly && hasBOM" class="text-info"><i class="md md-info"></i> Clear bill of materials to change assembly settings.</p>
+					<p *ngIf="!canChangeAssembly && isPlaceholder" class="text-info"><i class="md md-info"></i> Clear placeholder items to change assembly settings.</p>
+					<p *ngIf="!canChangeAssembly && isBundle" class="text-info"><i class="md md-info"></i> Clear bundle options to change assembly settings.</p>
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Stock</label>
+				<div class="col-sm-2">
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="isStocked" [disabled]="!canChangeStocked">
+							<span>Stocked item</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-8 col-sm-offset-2">
+					<table *ngIf="isStocked && details.warehouses.length" class="table vam">
+						<thead>
+							<tr>
+								<th>Warehouse</th>
+								<th class="shrink nowrap text-right">Minimum Quantity</th>
+								<th class="shrink nowrap text-right">Maximum Quantity</th>
+								<th class="shrink nowrap">Default Location</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let w of details.warehouses">
+								<td>{{w.description}}</td>
+								<td class="shrink"><input class="form-control text-right" style="width: 150px;" [(ngModel)]="w.min_qty"></td>
+								<td class="shrink"><input class="form-control text-right" style="width: 150px;" [(ngModel)]="w.max_qty"></td>
+								<td class="shrink">
+									<select class="form-control" [(ngModel)]="w.location_id">
+										<option [ngValue]="null">None</option>
+										<ng-container *ngFor="let o of list.warehouse_locations">
+											<option *ngIf="w.id === o.warehouse_id" [ngValue]="o.id">{{o.description}}</option>
+										</ng-container>
+									</select>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<ng-container *ngIf="id !== 'new'">
+				<hr>
+				<div class="form-group">
+					<label class="col-sm-3 control-label">Visibility</label>
+					<div class="col-sm-2">
+						<div class="checkbox checkbox-danger">
+							<label>
+								<input type="checkbox" [(ngModel)]="discontinued" [disabled]="!editable">
+								<span [ngClass]="{ 'text-danger': discontinued }">Discontinued</span>
+							</label>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<p *ngIf="discontinued" class="text-danger m-t-5 m-b-0"><i class="md md-info"></i> Product will not appear in product lists.</p>
+						<p *ngIf="discontinued && usedByTotal > 0" class="text-danger m-t-5 m-b-0"><i class="md md-warning"></i> Product will be unlinked from all items on the "used by" tab and all alternatives will be cleared.</p>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+
+	<h3>Pricing</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Pricing structure</label>
+				<div class="col-sm-6">
+					<select class="form-control" [(ngModel)]="details.pricing_structure_id" (change)="refreshSelections()">
+						<option [ngValue]="null">Custom</option>
+						<option *ngFor="let item of list.pricing_structures" [ngValue]="item.id">{{item.description}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<table class="table vam">
+			<thead>
+				<tr>
+					<th class="text-right">Unit cost</th>
+					<th class="text-right">Distribution price</th>
+					<th class="text-right">Reseller price</th>
+					<th class="text-right">Trade price</th>
+					<th class="text-right">Retail price</th>
+				</tr>
+				<tr>
+					<td>
+						<input class="form-control text-right" [(ngModel)]="details.unit_cost" (input)="recalculatePricing('cost')" (change)="formatNumbers()" [disabled]="hasBOM || isPlaceholder">
+					</td>
+					<ng-container *ngFor="let tier of ['distribution', 'reseller', 'trade', 'retail']">
+						<td *ngIf="!selectedPricingStructure || selectedPricingStructure[tier + '_method'] === 'custom'">
+							<input class="form-control text-right" [(ngModel)]="details[tier + '_price']" (input)="recalculatePricing()" (change)="formatNumbers()">
+						</td>
+						<td *ngIf="selectedPricingStructure && selectedPricingStructure[tier + '_method'] !== 'custom'" class="text-right">
+							{{details[tier + '_price'] | decimal:2:4:true:'GBP'}}
+						</td>
+					</ng-container>
+				</tr>
+			</thead>
+		</table>
+	</div>
+
+	<ng-container *ngIf="!isPlaceholder">
+		<h3>Labour</h3>
+		<div class="card-box">
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th>Labour type</th>
+						<th class="shrink nowrap text-right">Labour hours</th>
+
+						<ng-container *ngIf="labourPricing">
+							<th class="text-center">Labour Cost</th>
+							<th class="text-center">Labour Price</th>
+						</ng-container>
+						<th *ngIf="!labourPricing"></th>
+
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let labour of details.labour">
+						<td class="shrink">
+							<select class="form-control" style="width: auto;" [(ngModel)]="labour.labour_type_id" (change)="refreshSelections()" [disabled]="!labour.editable">
+								<option [ngValue]="null">None</option>
+								<optgroup *ngFor="let category of list.labour_categories" label="{{category.description}}">
+									<option *ngFor="let item of category.types" [ngValue]="item.id">{{item.description}}</option>
+								</optgroup>
+							</select>
+						</td>
+						<td class="shrink"><input class="form-control text-right" style="width: 150px;" [(ngModel)]="labour.labour_hours" (change)="formatNumbers()" [disabled]="!labour.editable"></td>
+
+						<ng-container *ngIf="labourPricing">
+							<td class="text-center">{{getLabourCost(labour) | decimal:2:2:true:'GBP'}}</td>
+							<td class="text-center">{{getLabourPrice(labour) | decimal:2:2:true:'GBP'}}</td>
+						</ng-container>
+						<td *ngIf="!labourPricing"></td>
+
+						<td class="shrink nowrap text-right">
+							<a *ngIf="labour.editable" class="text-danger" (click)="deleteLabour(labour)"><i class="md md-delete"></i> Delete</a>
+							<span *ngIf="!labour.editable" class="text-info">Recommended</span>
+						</td>
+					</tr>
+					<tr *ngIf="details.labour.length === 0">
+						<td [attr.colspan]="labourPricing ? 5 : 4">No labour.</td>
+					</tr>
+					<tr>
+						<td [attr.colspan]="labourPricing ? 5 : 4">
+							<a class="text-success" (click)="addLabour()"><i class="md md-add"></i> Add labour</a>
+
+							<a *ngIf="recommendedLabourList.length && this.details.recommended_labour" class="pull-right text-danger" (click)="setRecommendedLabour(0)"><i class="md md-remove"></i> Remove recommended labour</a>
+							<a *ngIf="recommendedLabourList.length && !this.details.recommended_labour" class="pull-right text-success" (click)="setRecommendedLabour(1)"><i class="md md-add"></i> Add recommended labour</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<h3>Subscriptions</h3>
+		<div class="card-box">
+			<table class="table table-hover vam">
+				<thead>
+					<tr>
+						<th>Subscription type</th>
+						<th class="shrink">Selection</th>
+						<th class="shrink nowrap text-right">Quantity</th>
+
+						<ng-container *ngIf="subscriptionPricing">
+							<th class="text-center">Cost</th>
+							<th class="text-center">Price</th>
+						</ng-container>
+						<th *ngIf="!subscriptionPricing"></th>
+
+						<th class="shrink"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let subscription of details.subscription">
+						<td class="shrink">
+							<select class="form-control" style="width: auto;" [(ngModel)]="subscription.subscription_type_id" (change)="refreshSelections()" [disabled]="!subscription.editable">
+								<option [ngValue]="null">None</option>
+								<optgroup *ngFor="let category of list.subscription_categories" label="{{category.description}}">
+									<option *ngFor="let item of category.types" [ngValue]="item.id">{{item.description}}</option>
+								</optgroup>
+							</select>
+						</td>
+						<td class="shrink">
+							<select class="form-control" style="width: auto;" [(ngModel)]="subscription.selection" [disabled]="!subscription.editable">
+								<option value="fixed">Fixed</option>
+								<option value="optional">Optional</option>
+								<option value="select">Select One</option>
+							</select>
+						</td>
+						<td class="shrink"><input class="form-control text-right" style="width: 150px;" [(ngModel)]="subscription.quantity" (change)="formatNumbers()" [disabled]="!subscription.editable"></td>
+
+						<ng-container *ngIf="subscriptionPricing">
+							<td class="text-center">{{getSubscriptionCost(subscription) | decimal:2:2:true:'GBP'}}</td>
+							<td class="text-center">{{getSubscriptionPrice(subscription) | decimal:2:2:true:'GBP'}}</td>
+						</ng-container>
+						<td *ngIf="!subscriptionPricing"></td>
+
+						<td class="shrink nowrap text-right">
+							<a *ngIf="subscription.editable" class="text-danger" (click)="deleteSubscription(subscription)"><i class="md md-delete"></i> Delete</a>
+							<span *ngIf="!subscription.editable" class="text-info">Set by owner</span>
+						</td>
+					</tr>
+					<tr *ngIf="details.subscription.length === 0">
+						<td [attr.colspan]="subscriptionPricing ? 6 : 5">No subscriptions.</td>
+					</tr>
+					<tr>
+						<td [attr.colspan]="subscriptionPricing ? 6 : 5"><a class="text-success" (click)="addSubscription()"><i class="md md-add"></i> Add subscription</a></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<ng-container *ngIf="editable && !isPlaceholder && !isBundle">
+			<h3>Suppliers</h3>
+			<div class="card-box">
+				<table class="table table-hover vam">
+					<thead>
+						<tr>
+							<th class="shrink nowrap">Supplier's SKU</th>
+							<th>Name</th>
+							<th>Location</th>
+							<th class="text-center">Primary?</th>
+							<th class="shrink nowrap"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let item of details.suppliers" [ngClass]="{ primary: item.is_primary }">
+							<td class="shrink">
+								<input class="form-control" style="width: 200px;" [(ngModel)]="item.sku">
+							</td>
+							<td>{{item.name}}</td>
+							<td>{{item.posttown}} <small>{{item.postcode}}</small></td>
+							<td class="text-center">
+								<span *ngIf="item.is_primary" class="badge badge-primary badge-sm">Primary Supplier</span>
+								<a *ngIf="!item.is_primary" (click)="setPrimarySupplier(item.id)">Set primary</a>
+							</td>
+							<td class="shrink nowrap text-right">
+								<a class="text-danger" (click)="removeSupplier(item.id)"><i class="md md-delete"></i> Delete</a>
+							</td>
+						</tr>
+						<tr *ngIf="!details.suppliers.length">
+							<td colspan="5">No suppliers.</td>
+						</tr>
+					</tbody>
+				</table>
+				<a class="btn btn-primary" (click)="modalAddSupplier()"><i class="md md-add"></i> Add supplier</a>
+				<a *ngIf="manufacturerSuppliers.length" class="btn btn-default" (click)="addManufacturerSuppliers(true)"><i class="md md-refresh"></i> Reset to manufacturer defaults</a>
+			</div>
+		</ng-container>
+	</ng-container>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>
+
+<ng-container *ngIf="app.header.activeTab === 'placeholder' && details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Placeholder items</h3>
+	<div class="card-box">
+		<p class="text-info"><i class="md md-info"></i> Placeholder items must have the same <b>unit of measure</b> as the product. Product's <b>cost</b> will match the placeholder item with the highest cost. Placeholder items cannot be placeholders themselves.</p>
+		<table class="table table-hover vam clearfix">
+			<thead>
+				<tr>
+					<th class="shrink"></th>
+					<th>Model / Manufacturer</th>
+					<th>SKU</th>
+					<th class="text-right">Cost</th>
+					<th></th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of details.placeholders" [ngClass]="{ success: highlightedPlaceholder === item, danger: details.unit_id !== item.unit_id }">
+					<td class="shrink">
+						<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+					</td>
+					<td>
+						{{item.model}}
+						<div *ngIf="item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+					</td>
+					<td>{{item.sku}}</td>
+					<td class="text-right">{{item.unit_cost | decimal:2:2:true:'GBP'}}</td>
+					<td>
+						<span *ngIf="details.unit_id !== item.unit_id" class="text-danger">Base unit mismatch<br><span class="subtitle">Will be deleted</span></span>
+					</td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="deletePlaceholderProduct(item)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!details.placeholders.length">
+					<td colspan="6">No placeholder items found.</td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn btn-primary" (click)="addPlaceholderProduct()"><i class="md md-add"></i> Add product</button>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>
+
+<ng-container *ngIf="app.header.activeTab === 'bom' && details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Bill of materials</h3>
+	<div class="card-box">
+		<p class="text-info"><i class="md md-info"></i> The product's <b>cost</b> will be the sum of its parts'. Placeholders in the bill of materials will be replaced with actual products on assembly. Placeholder items may be marked as <b>separable</b>, which makes it possible to select different items up to the quantity specified.</p>
+		<table class="table table-hover vam clearfix">
+			<thead>
+				<tr>
+					<th class="shrink"></th>
+					<th>Model / Manufacturer</th>
+					<th>SKU</th>
+					<th class="text-right">Quantity</th>
+					<th>Unit</th>
+					<th *ngIf="showIsSeparableColumn" class="text-center">Separable?</th>
+					<th class="text-right">Cost</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of details.bom" [ngClass]="{ success: highlightedBom === item }">
+					<td class="shrink">
+						<div *ngIf="item.info.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.info.image_url + '\')' | safeStyle"></div>
+					</td>
+					<td>
+						{{item.info.model}}
+						<div *ngIf="item.info.manufacturer_name" class="small">{{item.info.manufacturer_name}}</div>
+					</td>
+					<td>{{item.info.sku}}</td>
+					<td>
+						<input class="form-control text-right" [(ngModel)]="item.quantity" (input)="recalculatePricing()" (change)="formatNumbers()">
+					</td>
+					<td>
+						<select class="form-control" [(ngModel)]="item.unit_id" (change)="formatNumbers()">
+							<option *ngFor="let unit of item.info.units" [ngValue]="unit.id">{{unit.name}}</option>
+						</select>
+					</td>
+					<td *ngIf="showIsSeparableColumn" class="text-center">
+						<div *ngIf="item.info.canBeSeparable" class="checkbox checkbox-primary">
+							<label>
+								<input type="checkbox" [ngModel]="!!item.is_separable" (ngModelChange)="item.is_separable = $event ? 1 : 0">
+								<span>&nbsp;</span>
+							</label>
+						</div>
+					</td>
+					<td class="text-right">{{item.cost | decimal:2:2:true:'GBP'}}</td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="deleteBomProduct(item)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!details.bom.length">
+					<td colspan="7">No bill of materials found.</td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn btn-primary" (click)="addBomProduct()"><i class="md md-add"></i> Add product</button>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>
+
+<ng-container *ngIf="app.header.activeTab === 'bundle' && details && bundle">
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Base products</h3>
+	<div class="card-box">
+		<div *ngIf="bundle.record.id && bundle.record.new_version" class="alert alert-info">
+			<i class="md md-info"></i> To avoid issues with existing products, bundle options will be saved as a new revision.
+		</div>
+		<table class="table table-hover vam">
+			<thead>
+				<tr>
+					<th colspan="2">Product</th>
+					<th>Description</th>
+					<th class="shrink text-right">Quantity</th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of bundle.products" [ngClass]="{ danger: item.quantity === 0 }">
+					<td class="shrink">
+						<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+					</td>
+					<td>
+						{{item.model}}
+						<div *ngIf="item.manufacturer_name" class="text-small">{{item.manufacturer_name}}</div>
+					</td>
+					<td class="text-small">{{item.short_description}}</td>
+					<td class="shrink"><input class="form-control text-right" style="width: 100px;" [(ngModel)]="item.quantity" (change)="bundle.formatProductQuantities()"></td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="bundle.removeProduct(item)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!bundle.products.length">
+					<td colspan="5">No base products.</td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn btn-primary" (click)="bundleAddBaseProduct()"><i class="md md-add"></i> Add base product</button>
+	</div>
+
+	<h3>Accumulators</h3>
+	<div class="card-box">
+		<table class="table table-hover vam">
+			<thead>
+				<tr>
+					<th>Description</th>
+					<th>Products</th>
+					<th class="shrink nowrap"></th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of bundle.counters">
+					<td>{{item.description}}</td>
+					<td>
+						<ng-container *ngFor="let p of item.products">
+							<div *ngIf="p.image_url" class="product-image m-r-5 bg-white bx-shadow" [style.backgroundImage]="'url(\'' + p.image_url + '\')' | safeStyle"></div>
+						</ng-container>
+					</td>
+					<td class="shrink nowrap"><a (click)="bundleEditCounter(item)"><i class="md md-edit"></i> Edit</a></td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="bundle.removeCounter(item)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!bundle.counters.length">
+					<td colspan="4">No accumulators.</td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn btn-primary" (click)="bundleEditCounter()"><i class="md md-add"></i> Add accumulator</button>
+	</div>
+
+	<h3>Questions</h3>
+	<div class="card-box">
+		<table class="table table-hover vam">
+			<thead>
+				<tr>
+					<th>Question</th>
+					<th class="shrink"></th>
+					<th>Type</th>
+					<th>Default</th>
+					<th>Condition</th>
+					<th>Products</th>
+					<th class="shrink"></th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let q of bundle.questions" [ngClass]="{ primary: hoveredQuestion?.parent === q, warning: q.parent === hoveredQuestion, info: q.parent === hoveredQuestion?.parent }" (mouseenter)="hoveredQuestion = q" (mouseleave)="hoveredQuestion = null">
+					<td [style.paddingLeft.px]="8 + 20 * q.depth">
+						<span *ngIf="q.image_url" class="product-image m-r-5 bg-white bx-shadow" [style.backgroundImage]="'url(\'' + q.image_url + '\')' | safeStyle"></span>
+						<span *ngIf="!q.image_url" class="product-image m-r-5 bg-white bx-shadow"></span>
+						{{q.question}}
+						<button class="btn btn-primary btn-sm m-l-5" [ngClass]="{ invisible: hoveredQuestion !== q }" (click)="bundleEditQuestion(q)"><i class="md md-add"></i></button>
+					</td>
+					<td class="shrink nowrap">
+						<button class="btn btn-primary btn-sm m-r-5" [ngClass]="{ invisible: hoveredQuestion !== q || q.first_child }" (click)="bundle.moveQuestion(q,-1)"><i class="md md-keyboard-arrow-up"></i></button>
+						<button class="btn btn-primary btn-sm" [ngClass]="{ invisible: hoveredQuestion !== q || q.last_child }" (click)="bundle.moveQuestion(q,1)"><i class="md md-keyboard-arrow-down"></i></button>
+					</td>
+					<td>
+						<span *ngIf="q.type === 'numeric'">Numeric</span>
+						<span *ngIf="q.type === 'select'">Select</span>
+						<span *ngIf="q.type === 'multi-select'">Multi-select</span>
+						<span *ngIf="q.type === 'checkbox'">Checkbox</span>
+					</td>
+					<td>{{bundleQuestionDefaultValue(q)}}</td>
+					<td>{{bundleQuestionCondition(q)}}</td>
+					<td>
+						<ng-container *ngFor="let p of q.products">
+							<div *ngIf="p.image_url" class="product-image m-r-5 bg-white bx-shadow" [style.backgroundImage]="'url(\'' + p.image_url + '\')' | safeStyle"></div>
+						</ng-container>
+					</td>
+					<td class="shrink nowrap"><a (click)="bundleEditQuestion(q.parent, q)"><i class="md md-edit"></i> Edit</a></td>
+					<td class="shrink nowrap"><a (click)="bundle.removeQuestion(q)" class="text-danger"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!bundle.questions.length">
+					<td colspan="7">No questions.</td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn btn-primary" (click)="bundleEditQuestion()"><i class="md md-add"></i> Add question</button>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>
+
+<ng-container *ngIf="app.header.activeTab === 'alternative' && details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Alternative products</h3>
+	<div class="card-box">
+		<p class="text-info"><i class="md md-info"></i> A product may be replaced with its alternative in case it's not in stock at the time of assembly or sale. Alternative products must have the same <b>unit of measure</b> as the base product. Placeholder products are not valid alternatives.</p>
+		<table class="table table-hover vam clearfix">
+			<thead>
+				<tr>
+					<th class="shrink">Relationship</th>
+					<th class="shrink"></th>
+					<th>Model / Manufacturer</th>
+					<th>SKU</th>
+					<th class="text-right">Cost</th>
+					<th></th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of details.alternatives" [ngClass]="{ success: highlightedAlternative === item, danger: details.unit_id !== item.unit_id }">
+					<td class="shrink">
+						<select class="form-control" [(ngModel)]="item.relationship" style="width: auto;">
+							<option value="0">Product is an alternative to</option>
+							<option value="1">Product can be replaced with</option>
+							<option value="-1">Product can be a replacement for</option>
+						</select>
+					</td>
+					<td class="shrink">
+						<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+					</td>
+					<td>
+						{{item.model}}
+						<div *ngIf="item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+					</td>
+					<td>{{item.sku}}</td>
+					<td class="text-right">{{item.unit_cost | decimal:2:2:true:'GBP'}}</td>
+					<td>
+						<span *ngIf="details.unit_id !== item.unit_id" class="text-danger">Base unit mismatch<br><span class="subtitle">Will be deleted</span></span>
+					</td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="deleteAlternativeProduct(item)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!details.alternatives.length">
+					<td colspan="7">No alternative products found.</td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn btn-primary" (click)="addAlternativeProduct()"><i class="md md-add"></i> Add product</button>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>
+
+<ng-container *ngIf="app.header.activeTab === 'accessories' && details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Accessories</h3>
+	<div class="card-box">
+		<table class="table table-hover vam clearfix">
+			<thead>
+				<tr>
+					<th class="shrink"></th>
+					<th>Model / Manufacturer</th>
+					<th>SKU</th>
+					<th class="shrink">System</th>
+					<th class="shrink nowrap text-right">Default Quantity</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of details.accessories" [ngClass]="{ success: highlightedAccessory === item }">
+					<td class="shrink">
+						<div *ngIf="item.image_url" class="product-image" [style.backgroundImage]="'url(\'' + item.image_url + '\')' | safeStyle"></div>
+					</td>
+					<td>
+						{{item.model}}
+						<div *ngIf="item.manufacturer_name" class="small">{{item.manufacturer_name}}</div>
+					</td>
+					<td>{{item.sku}}</td>
+					<td class="shrink">
+						<select class="form-control" [(ngModel)]="item.system_id" style="width: auto;">
+							<option [ngValue]="null">Same as product</option>
+							<optgroup *ngFor="let m of list.modules" label="{{m.description}}">
+								<option *ngFor="let s of m.systems" [ngValue]="s.id">{{s.description}}</option>
+							</optgroup>
+						</select>
+					</td>
+					<td class="shrink nowrap text-right"><input class="form-control text-right" [(ngModel)]="item.default_quantity" style="width: 120px;"></td>
+					<td class="shrink nowrap"><a class="text-danger" (click)="deleteAccessory(item)"><i class="md md-delete"></i> Delete</a></td>
+				</tr>
+				<tr *ngIf="!details.accessories.length">
+					<td colspan="6">No accessories found.</td>
+				</tr>
+			</tbody>
+		</table>
+		<button class="btn btn-primary" (click)="addAccessory()"><i class="md md-add"></i> Add accessory</button>
+	</div>
+
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>
+
+<ng-container *ngIf="app.header.activeTab === 'used' && details">
+	<h3>Totals</h3>
+	<div class="card-box">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Usage</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngIf="usedBy.system.length">
+					<td>Systems</td>
+					<td>{{usedBy.system.length}} {{usedBy.system.length === 1 ? 'system' : 'systems'}}</td>
+				</tr>
+				<tr *ngIf="usedBy.bom.length">
+					<td>Bill of materials</td>
+					<td>{{usedBy.bom.length}} {{usedBy.bom.length === 1 ? 'product' : 'products'}}</td>
+				</tr>
+				<tr *ngIf="usedBy.placeholder.length">
+					<td>Placeholder item</td>
+					<td>{{usedBy.placeholder.length}} {{usedBy.placeholder.length === 1 ? 'product' : 'products'}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<h3>Details</h3>
+	<div class="card-box">
+		<table *ngIf="usedBy.system.length" class="table table-hover">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>System name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of usedBy.system">
+					<td class="shrink">{{item.id}}</td>
+					<td>{{item.description}}</td>
+				</tr>
+			</tbody>
+		</table>
+		<table *ngIf="usedBy.bom.length || usedBy.placeholder.length" class="table table-hover">
+			<thead>
+				<tr>
+					<th>Usage</th>
+					<th>SKU</th>
+					<th>Manufacturer</th>
+					<th>Model</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of usedBy.bom">
+					<td>Bill of materials</td>
+					<td>{{item.sku}}</td>
+					<td>{{item.manufacturer_name}}</td>
+					<td>{{item.model}}</td>
+				</tr>
+				<tr *ngFor="let item of usedBy.placeholder">
+					<td>Placeholder item</td>
+					<td>{{item.sku}}</td>
+					<td>{{item.manufacturer_name}}</td>
+					<td>{{item.model}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>

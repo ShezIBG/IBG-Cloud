@@ -1,0 +1,23 @@
+/* <!-- JEANE CHANGE COLOUR CHART AND STEP  --> */
+
+
+html, body {
+	height: 100%;
+	font-size: 0.95em;
+}
+
+#print { padding: 2em; }
+
+#print .bg-e { background: #0ea8a1 !important; }
+#print .bg-g { background: #2E3C47 !important; }
+#print .bg-w { background: #6cbf65 !important; }
+#print .bg-s { background: #A2B83A !important; }
+
+#print .bg-blue { background: #2E3C47 !important; }
+
+#print .text-e { color: #0ea8a1 !important; }
+#print .text-g { color: #2E3C47 !important; }
+#print .text-w { color: #6cbf65 !important; }
+#print .text-s { color: #A2B83A !important; }
+
+#print .text-white { color: #fff !important; }

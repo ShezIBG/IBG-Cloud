@@ -1,0 +1,31 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Processing</label>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="entity.isActive">
+							<span [ngClass]="{ 'text-danger': !entity.isActive }">Active</span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<entity-assignments [entity]="entity"></entity-assignments>
+	</div>
+</div>

@@ -1,0 +1,97 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Serial number</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.serial_number">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Local IP</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.local_ip_address">
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Processing</label>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="entity.isActive">
+							<span [ngClass]="{ 'text-danger': !entity.isActive }">Active</span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<table class="table vam">
+			<thead>
+				<tr>
+					<th>Direction</th>
+					<th>Port</th>
+					<th>Pin description</th>
+					<th class="shrink text-center">Active?</th>
+					<th class="shrink nowrap">Assigned to</th>
+					<th class="shrink"></th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let pin of entity.items">
+					<td class="shrink">
+						<select class="form-control" style="width: auto;" [(ngModel)]="pin.data.direction">
+							<option value="input">Input</option>
+							<option value="output">Output</option>
+						</select>
+					</td>
+					<td class="shrink">
+						<input class="form-control" [(ngModel)]="pin.port" style="width: 60px;">
+					</td>
+					<td>
+						<input class="form-control" [(ngModel)]="pin.data.description">
+					</td>
+					<td class="shrink text-center">
+						<div class="checkbox checkbox-primary" style="margin: -23px 0 0 8px;">
+							<label>
+								<input type="checkbox" [(ngModel)]="pin.isActive">
+								<span></span>
+							</label>
+						</div>
+					</td>
+
+					<td *ngIf="pin.assigned.length" class="shrink nowrap"><a (click)="pin.assigned[0].jumpTo(app)" class="text-info"><i class="md md-arrow-forward"></i> {{pin.assigned[0].getDescription()}}</a></td>
+					<td *ngIf="!pin.assigned.length" class="shrink nowrap">&ndash;</td>
+
+					<td class="shrink nowrap">
+						<a *ngIf="pin.assigned.length && pin.assigned[0].unassignFrom" class="text-danger nowrap" (click)="pin.assigned[0].unassignFrom(pin)"><i class="md md-remove-circle"></i> Unassign</a>
+					</td>
+					<td class="shrink nowrap">
+						<entity-delete [entity]="pin" type="link"></entity-delete>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="7">
+						<a class="text-success" (click)="addPin()"><i class="md md-add"></i> Add relay pin</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<entity-assignments [entity]="entity"></entity-assignments>
+	</div>
+</div>

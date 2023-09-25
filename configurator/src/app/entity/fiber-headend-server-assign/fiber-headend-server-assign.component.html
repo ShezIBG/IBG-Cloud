@@ -1,0 +1,27 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>{{entity.getTypeDescription()}}: {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span><button *ngIf="screen.assignables.length" (click)="assignAll()" class="btn btn-success pull-right"><i class="md md-add-circle"></i> Assign OLTs</button></h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Assigned OLTs</th>
+					<th>Area</th>
+					<th>Serial</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let olt of entity.assigned" [ngClass]="{ 'bg-hover': hovered === olt }" (mouseenter)="hovered = olt" (mouseleave)="hovered = null">
+					<td><i class="{{olt.getIconClass()}}"></i> {{olt.getDescription()}}</td>
+					<td>{{olt.getAreaDescription()}}</td>
+					<td>{{olt.data.serial_number}}</td>
+					<td class="shrink">
+						<a class="text-danger nowrap" (click)="olt.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

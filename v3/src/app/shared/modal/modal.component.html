@@ -1,0 +1,20 @@
+<div class="modal fade" [ngClass]="{ 'in': animate }" style="display: block; overflow-y: auto;">
+	<div class="modal-dialog" [ngClass]="{ 'modal-lg': size === 'large', 'modal-sm': size === 'small' }">
+		<div class="modal-content" [ngClass]="{ 'bg-base': boxed }">
+			<div class="modal-header">
+				<button *ngIf="canClose" type="button" class="close" (click)="closeClicked()" [disabled]="disableButtons"><i class="md md-close"></i></button>
+				<h2><i *ngIf="icon" class="{{icon}}"></i> {{modalTitle}} <span class="subtitle">{{subtitle}}</span></h2>
+			</div>
+			<div class="modal-body" [ngClass]="{ 'p-0': boxed }">
+				<form (ngSubmit)="submitModal()">
+					<ng-content></ng-content>
+					<input type="submit" style="display: none;">
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button *ngFor="let button of buttons" class="btn btn-{{button.type}}" [ngClass]="{ 'pull-left': button.pull === 'left' }" (click)="buttonClicked(button)" [disabled]="disableButtons">{{button.name}}</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal-backdrop fade" [ngClass]="{ 'in': animate }"></div>

@@ -1,0 +1,119 @@
+<ng-container *ngIf="overview">
+
+	<div *ngIf="overview.gocardless_warning" class="alert alert-warning">
+		<div class="flex-row flex-center">
+			<div class="flex-1"><i class="md md-warning"></i> In order to receive payouts, you need to verify your GoCardless account.</div>
+			<a class="btn btn-primary btn-sm" href="{{overview.pg_url}}" target="_blank">Manage payment gateways</a>
+		</div>
+	</div>
+
+	<div *ngIf="overview.owner.type === 'SP'" class="row">
+		<div class="col-md-3 col-sm-6 text-center"><div class="card-box selectable" routerLink="../system-integrator"><app-icon-with-badge icon="md md-local-shipping" [badge]="overview.system_integrators" caption="System Integrators"></app-icon-with-badge></div></div>
+		<div class="col-md-3 col-sm-6 text-center"><div class="card-box selectable" routerLink="../client"><app-icon-with-badge icon="md md-work" [badge]="overview.clients" caption="Clients"></app-icon-with-badge></div></div>
+		<div class="col-md-3 col-sm-6 text-center"><div class="card-box selectable" routerLink="../site"><app-icon-with-badge icon="md md-business" [badge]="overview.buildings" caption="Tenanted Buildings"></app-icon-with-badge></div></div>
+		<div class="col-md-3 col-sm-6 text-center"><div class="card-box selectable" routerLink="../customer"><app-icon-with-badge icon="md md-person" [badge]="overview.customers" caption="Customers"></app-icon-with-badge></div></div>
+	</div>
+
+	<div *ngIf="overview.owner.type === 'SI'" class="row">
+		<div class="col-md-4 col-sm-6 text-center"><div class="card-box selectable" routerLink="../client"><app-icon-with-badge icon="md md-work" [badge]="overview.clients" caption="Clients"></app-icon-with-badge></div></div>
+		<div class="col-md-4 col-sm-6 text-center"><div class="card-box selectable" routerLink="../site"><app-icon-with-badge icon="md md-business" [badge]="overview.buildings" caption="Tenanted Buildings"></app-icon-with-badge></div></div>
+		<div class="col-md-4 col-sm-12 text-center"><div class="card-box selectable" routerLink="../customer"><app-icon-with-badge icon="md md-person" [badge]="overview.customers" caption="Customers"></app-icon-with-badge></div></div>
+	</div>
+
+	<div *ngIf="overview.owner.type === 'HG' || overview.owner.type === 'C'" class="row">
+		<div class="col-sm-6 text-center"><div class="card-box selectable" routerLink="../site"><app-icon-with-badge icon="md md-business" [badge]="overview.buildings" caption="Tenanted Buildings"></app-icon-with-badge></div></div>
+		<div class="col-sm-6 text-center"><div class="card-box selectable" routerLink="../customer"><app-icon-with-badge icon="md md-person" [badge]="overview.customers" caption="Customers"></app-icon-with-badge></div></div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6 col-xl-3">
+			<div class="card-box">
+				<h2 class="text-center">Revenue<br><span class="subtitle">Lifetime Total</span></h2>
+				<h1 class="text-center text-success">{{overview.totals.revenue | decimal:2:2:true:'GBP'}}</h1>
+				<table class="table table-hover">
+					<tbody>
+						<tr>
+							<td>Direct Debit payments</td>
+							<td class="text-right text-success"><b>{{overview.totals.revenue_dd | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+						<tr>
+							<td>Card payments</td>
+							<td class="text-right text-success"><b>{{overview.totals.revenue_card | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+						<tr>
+							<td>Other payments</td>
+							<td class="text-right text-success"><b>{{overview.totals.revenue_other | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-md-6 col-xl-3">
+			<div class="card-box">
+				<h2 class="text-center">Revenue<br><span class="subtitle">Last 30 days</span></h2>
+				<h1 class="text-center text-success">{{overview.totals.revenue_30 | decimal:2:2:true:'GBP'}}</h1>
+				<table class="table table-hover">
+					<tbody>
+						<tr>
+							<td>Direct Debit payments</td>
+							<td class="text-right text-success"><b>{{overview.totals.revenue_30_dd | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+						<tr>
+							<td>Card payments</td>
+							<td class="text-right text-success"><b>{{overview.totals.revenue_30_card | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+						<tr>
+							<td>Other payments</td>
+							<td class="text-right text-success"><b>{{overview.totals.revenue_30_other | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-md-6 col-xl-3">
+			<div class="card-box">
+				<h2 class="text-center">Pending<br><span class="subtitle">Total</span></h2>
+				<h1 class="text-center text-warning">{{overview.totals.pending | decimal:2:2:true:'GBP'}}</h1>
+				<table class="table table-hover">
+					<tbody>
+						<tr>
+							<td>Direct Debit payments</td>
+							<td class="text-right text-warning"><b>{{overview.totals.pending_dd | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+						<tr>
+							<td>Card payments</td>
+							<td class="text-right text-warning"><b>{{overview.totals.pending_card | decimal:2:2:true:'GBP'}}</b></td>
+						</tr>
+						<tr>
+							<td>Transactions</td>
+							<td class="text-right text-warning"><b>{{overview.totals.pending_count}}</b></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-md-6 col-xl-3">
+			<div class="card-box">
+				<h2 class="text-center">Outstanding<br><span class="subtitle">Total</span></h2>
+				<h1 class="text-center text-danger">{{overview.totals.outstanding | decimal:2:2:true:'GBP'}}</h1>
+				<table class="table table-hover">
+					<tbody>
+						<tr>
+							<td>Failed Direct Debits</td>
+							<td class="text-right text-danger"><b>{{overview.totals.failed_dd}}</b></td>
+						</tr>
+						<tr>
+							<td>Failed card payments</td>
+							<td class="text-right text-danger"><b>{{overview.totals.failed_card}}</b></td>
+						</tr>
+						<tr>
+							<td>Outstanding invoices</td>
+							<td class="text-right text-danger"><b>{{overview.totals.outstanding_invoices}}</b></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+</ng-container>

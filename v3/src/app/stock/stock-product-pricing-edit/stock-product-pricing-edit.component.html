@@ -1,0 +1,97 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.description">
+				</div>
+			</div>
+		</div>
+		<hr>
+		<table class="table vam">
+			<thead>
+				<tr>
+					<th>Price tier</th>
+					<th colspan="2" class="divider-left">Calculation method</th>
+					<th colspan="2" class="divider-left">Rounding</th>
+					<th class="divider-left">Minimum price</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let tier of ['distribution', 'reseller', 'trade', 'retail']">
+					<td *ngIf="tier === 'distribution'">Distribution</td>
+					<td *ngIf="tier === 'reseller'">Reseller</td>
+					<td *ngIf="tier === 'trade'">Trade</td>
+					<td *ngIf="tier === 'retail'">Retail</td>
+
+					<td class="divider-left shrink">
+						<select class="form-control" [(ngModel)]="details[tier + '_method']" style="width: auto;" (change)="formatNumbers()">
+							<option value="custom">Custom price</option>
+							<option value="recommended">Recommended</option>
+							<option value="markup">Markup %</option>
+							<option value="margin">Margin %</option>
+							<option value="profit">Profit &pound;</option>
+						</select>
+					</td>
+					<td>
+						<input *ngIf="['markup', 'margin', 'profit'].indexOf(details[tier + '_method']) !== -1" class="form-control text-right" [(ngModel)]="details[tier + '_value']" (input)="refreshSample()" (change)="formatNumbers()">
+					</td>
+					<td class="divider-left shrink">
+						<select *ngIf="details[tier + '_method'] !== 'custom'" class="form-control" [(ngModel)]="details[tier + '_round']" style="width: auto;" (change)="formatNumbers()">
+							<option [ngValue]="null">None</option>
+							<option value="round">Round to nearest &pound;</option>
+							<option value="floor">Round down to nearest &pound;</option>
+							<option value="ceiling">Round up to nearest &pound;</option>
+						</select>
+					</td>
+					<td>
+						<input *ngIf="['round', 'floor', 'ceiling'].indexOf(details[tier + '_round']) !== -1" class="form-control text-right" [(ngModel)]="details[tier + '_round_to_nearest']" (input)="refreshSample()" (change)="formatNumbers()">
+					</td>
+					<td class="divider-left">
+						<input *ngIf="details[tier + '_method'] !== 'custom'" class="form-control text-right" [(ngModel)]="details[tier + '_minimum_price']" (input)="refreshSample()" (change)="formatNumbers()">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="text-info">
+			<i class="md md-info"></i> If the calculation method is set to recommended, it is either the sum of all BOM items, or the recommended pricing set by the product's owner.
+		</p>
+	</div>
+
+	<h3>Sample</h3>
+	<div class="card-box">
+		<table class="table vam">
+			<thead>
+				<tr>
+					<th class="text-center">Cost</th>
+					<th class="text-center">Distribution price</th>
+					<th class="text-center">Reseller price</th>
+					<th class="text-center">Trade price</th>
+					<th class="text-center">Retail price</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="text-center"><input class="form-control text-right" [(ngModel)]="sample.cost" (input)="refreshSample()" (change)="formatNumbers()"></td>
+					<ng-container *ngFor="let tier of ['distribution', 'reseller', 'trade', 'retail']">
+						<td *ngIf="sample[tier + '_message']" class="subtitle text-center">{{sample[tier + '_message']}}</td>
+						<td *ngIf="!sample[tier + '_message']" class="text-center"><b>&pound;{{sample[tier + '_price']}}</b></td>
+					</ng-container>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<button *ngIf="id !== 'new' && !linkCount" class="btn btn-danger" (click)="delete()" [disabled]="disabled">Delete</button>
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

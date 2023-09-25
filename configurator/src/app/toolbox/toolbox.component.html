@@ -1,0 +1,16 @@
+<div class="flex-parent-column fill">
+	<header class="p-0">
+		<ul class="nav nav-pills nav-pills-small">
+			<li *ngFor="let group of groups" [ngClass]="{ active: selectedGroup === group }"><a class="text-white" (click)="selectedGroup = group">{{group.name}}</a></li>
+		</ul>
+	</header>
+	<div class="flex-weight-1">
+		<div *ngIf="selectedGroup" class="fill flex-parent-row scrollable">
+			<span *ngFor="let entity of selectedGroup.items" class="item" style="flex-shrink: 0" [ngClass]="{ 'bg-hover': hovered === entity }" (mouseenter)="hovered = entity" (mouseleave)="hovered = null" (click)="addEntity(entity)">
+				<i class="{{entity.getIconClass()}}" style="font-size:300%;"></i><br>
+				{{entity.getDescription()}}
+				<i class="add md md-add-box text-white" *ngIf="hovered === entity"></i>
+			</span>
+		</div>
+	</div>
+</div>

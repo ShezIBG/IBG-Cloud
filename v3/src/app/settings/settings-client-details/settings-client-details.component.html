@@ -1,0 +1,115 @@
+<app-settings-sites *ngIf="id && app.header.activeTab === 'sites'" level="C" [levelId]="id"></app-settings-sites>
+<app-settings-users *ngIf="id && app.header.activeTab === 'users'" level="C" [levelId]="id"></app-settings-users>
+<app-settings-user-roles *ngIf="id && app.header.activeTab === 'user-roles'" level="C" [levelId]="id"></app-settings-user-roles>
+<app-settings-payment-gateways *ngIf="id && app.header.activeTab === 'payment-gateways'" level="C" [levelId]="id"></app-settings-payment-gateways>
+<app-settings-emails *ngIf="id && app.header.activeTab === 'emails'" level="C" [levelId]="id"></app-settings-emails>
+
+<ng-container *ngIf="id && app.header.activeTab === 'overview' && details">
+	<div class="card-box">
+		<h2 class="m-t-0">
+			<span class="pull-right">
+				<a class="btn btn-primary" routerLink="edit"><i class="md md-edit"></i> Edit</a>
+			</span>
+			{{details.name}}
+		</h2>
+		<div class="row">
+			<div class="col-md-4">
+				<div class="text-muted m-b-15">Client #{{details.id}}</div>
+				<div *ngIf="details.email_address || details.phone_number || details.mobile_number" class="m-b-15">
+					<div *ngIf="details.email_address"><i class="md md-mail"></i>&nbsp;&nbsp;<a href="mailto:{{details.email_address}}">{{details.email_address}}</a></div>
+					<div *ngIf="details.phone_number"><i class="md md-phone"></i>&nbsp;&nbsp;{{details.phone_number}}</div>
+					<div *ngIf="details.mobile_number"><i class="md md-smartphone"></i>&nbsp;&nbsp;{{details.mobile_number}}</div>
+				</div>
+				<div *ngIf="details.address_line_1">{{details.address_line_1}}</div>
+				<div *ngIf="details.address_line_2">{{details.address_line_2}}</div>
+				<div *ngIf="details.address_line_3">{{details.address_line_3}}</div>
+				<div *ngIf="details.posttown">{{details.posttown}}</div>
+				<div *ngIf="details.postcode">{{details.postcode}}</div>
+				<div *ngIf="details.vat_reg_number" class="m-t-15">VAT reg: {{details.vat_reg_number}}</div>
+			</div>
+			<div class="col-md-4">
+				<h3>Invoice address</h3>
+				<div *ngIf="!details.invoice_address_line_1 && !details.invoice_address_line_2 && !details.invoice_address_line_3 && !details.invoice_posttown && !details.invoice_postcode" class="text-muted">Same address.</div>
+				<div *ngIf="details.invoice_address_line_1">{{details.invoice_address_line_1}}</div>
+				<div *ngIf="details.invoice_address_line_2">{{details.invoice_address_line_2}}</div>
+				<div *ngIf="details.invoice_address_line_3">{{details.invoice_address_line_3}}</div>
+				<div *ngIf="details.invoice_posttown">{{details.invoice_posttown}}</div>
+				<div *ngIf="details.invoice_postcode">{{details.invoice_postcode}}</div>
+			</div>
+			<div class="col-md-4">
+				<h3>Bank Details</h3>
+				<div *ngIf="!details.bank_name && !details.bank_sort_code && !details.bank_account_number" class="text-muted">Not set.</div>
+				<ng-container *ngIf="details.bank_name || details.bank_sort_code || details.bank_account_number">
+					<div>{{details.bank_name}}</div>
+					<div>{{details.bank_sort_code | sortcode}}</div>
+					<div>{{details.bank_account_number}}</div>
+				</ng-container>
+			</div>
+		</div>
+	</div>
+
+	<ng-container *ngFor="let pa of paymentAccounts">
+		<div *ngIf="pa" class="card-box">
+			<div class="row">
+				<div class="col-xs-6">
+					<h2 class="m-t-0">{{pa.contact_name && pa.company_name ? pa.contact_name + ', ' + pa.company_name : pa.contact_name + pa.company_name}}</h2>
+					<h3>Account balance</h3>
+					<h1 [ngClass]="{ 'text-success' : pa.outstanding >= 0, 'text-danger' : pa.outstanding < 0 }">{{Math.abs(pa.outstanding) | decimal:2:2:true:'GBP'}}</h1>
+					<p *ngIf="pa.outstanding < 0">in debit</p>
+					<p *ngIf="pa.outstanding > 0">in credit</p>
+					<a href="{{pa.account_url}}" target="_blank" class="btn btn-default btn-sm"><i class="md md-open-in-new"></i> Manage account</a>
+				</div>
+				<div class="col-xs-6 text-right">
+					<img src="{{pa.owner_logo}}" class="m-b-15" style="max-width: 150px; max-height: 100px;">
+					<div *ngIf="pa.owner_name">{{pa.owner_name}}</div>
+					<div *ngIf="pa.owner_address_line_1">{{pa.owner_address_line_1}}</div>
+					<div *ngIf="pa.owner_address_line_2">{{pa.owner_address_line_2}}</div>
+					<div *ngIf="pa.owner_address_line_3">{{pa.owner_address_line_3}}</div>
+					<div *ngIf="pa.owner_posttown">{{pa.owner_posttown}}</div>
+					<div *ngIf="pa.owner_postcode">{{pa.owner_postcode}}</div>
+				</div>
+			</div>
+
+			<ng-container *ngFor="let c of pa.contracts">
+				<hr>
+				<h2>
+					{{c.description}}
+					<span *ngIf="c.status === 'unconfirmed'" class="badge badge-default pull-right">Unconfirmed contract</span>
+					<span *ngIf="c.status === 'not_signed'" class="badge badge-default pull-right">Not signed</span>
+					<span *ngIf="c.status === 'pending'" class="badge badge-default pull-right">Pending contract</span>
+					<span *ngIf="c.status === 'active'" class="badge badge-success pull-right">Active contract</span>
+					<span *ngIf="c.status === 'ending'" class="badge badge-warning pull-right">Ending contract</span>
+					<span *ngIf="c.status === 'ended'" class="badge badge-primary pull-right">Ended contract</span>
+					<span *ngIf="c.status === 'cancelled'" class="badge badge-danger pull-right">Cancelled contract</span>
+				</h2>
+
+				<table *ngFor="let ci of c.invoices" class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>Description</th>
+							<th class="text-right">Unit price</th>
+							<th class="text-right">Quantity</th>
+							<th class="text-right">Total</th>
+							<th class="shrink nowrap"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let cil of ci.lines">
+							<td>{{cil.description}}</td>
+							<td class="text-right">{{cil.unit_price | decimal:2:4:true:'GBP'}}</td>
+							<td class="text-right">
+								<span *ngIf="cil.quantity_description">{{cil.quantity_description}}</span>
+								<span *ngIf="!cil.quantity_description">{{cil.quantity}}</span>
+							</td>
+							<td class="text-right">
+								<span *ngIf="cil.total_description">{{cil.total_description}}</span>
+								<span *ngIf="!cil.total_description">{{cil.total | decimal:2:2:true:'GBP'}}</span>
+							</td>
+							<td class="shrink nowrap">{{cil.frequency}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</ng-container>
+		</div>
+	</ng-container>
+</ng-container>

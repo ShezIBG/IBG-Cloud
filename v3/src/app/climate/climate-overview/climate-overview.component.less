@@ -1,0 +1,25 @@
+@import "../climate.module.less";
+
+.ac-icon {
+	vertical-align: middle;
+	font-size: 3em;
+
+	&.ac-cool { color: @status-cool; }
+	&.ac-heat { color: @status-heat; }
+	&.ac-dry { color: @status-dry; }
+	&.ac-fan { color: @status-fan; }
+	&.ac-inactive { color: @status-inactive; }
+	&.ac-faulty { color: @status-faulty; }
+}
+
+.status {
+	padding: 0 32px;
+
+	.ac-icon {
+		display: inline-block;
+		width: 1.5em;
+		text-align: center;
+	}
+
+	table { margin: auto; }
+}

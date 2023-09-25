@@ -1,0 +1,10 @@
+<app-modal modalTitle="Edit area note" [buttons]="['0|Cancel', '1|*Save']" (event)="modalEvent($event)">
+	<div class="form-horizontal">
+		<div class="form-group">
+			<label class="col-sm-3 control-label">Note</label>
+			<div class="col-sm-9">
+				<input class="form-control" [(ngModel)]="notes" appAutoFocus>
+			</div>
+		</div>
+	</div>
+</app-modal>

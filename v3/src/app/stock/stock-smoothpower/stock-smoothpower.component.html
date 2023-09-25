@@ -1,0 +1,103 @@
+<ng-container *ngIf="available">
+	<div class="card-box">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="md md-search"></i></span>
+					<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+				</div>
+			</div>
+			<div class="col-md-6">
+				<button class="btn btn-primary pull-right" (click)="refresh()">Refresh</button>
+			</div>
+		</div>
+	</div>
+
+	<h3>Available Units</h3>
+	<div class="card-box">
+		<table class="table vam table-striped table-hover">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Serial</th>
+					<th>System integrator</th>
+					<th *ngIf="canEdit" class="shrink"></th>
+					<th *ngIf="canInstall" class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let item of available | keywords:search:['serial', 'system_integrator_name', 'building_name'] | count:count:'available'">
+					<tr>
+						<td class="shrink">{{item.id}}</td>
+						<td>{{item.serial}}</td>
+						<td class="small">{{item.system_integrator_name}}</td>
+						<td *ngIf="canEdit" class="shrink nowrap"><a [routerLink]="[item.id]"><i class="md md-edit"></i> Edit</a></td>
+						<td *ngIf="canInstall" class="shrink nowrap"><a class="text-success" [routerLink]="[item.id, 'install']"><i class="md md-add"></i> Install Unit</a></td>
+					</tr>
+				</ng-container>
+				<tr *ngIf="!count.available">
+					<td [attr.colspan]="3 + (canEdit ? 1 : 0) + (canInstall ? 1 : 0)">No available units found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<h3>Installed Units</h3>
+	<div class="card-box">
+		<table class="table vam table-striped table-hover">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Serial</th>
+					<th>System integrator</th>
+					<th>Location</th>
+
+					<th class="shrink nowrap text-center">Status</th>
+					<th class="shrink nowrap text-center">Surge</th>
+					<th class="shrink nowrap text-center" colspan="2">Temperature</th>
+					<th class="shrink nowrap text-center" colspan="3">Voltage</th>
+
+					<th></th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let item of installed | keywords:search:['serial', 'system_integrator_name', 'building_name'] | count:count:'installed'">
+					<tr>
+						<td class="shrink">{{item.id}}</td>
+						<td>{{item.serial}}</td>
+						<td class="small">{{item.system_integrator_name}}</td>
+						<td class="small">{{item.client_name}} / {{item.building_name}}</td>
+
+						<td class="shrink nowrap text-center"><i class="eticon eticon-circle" [ngClass]="{ 'text-silver': item.status === null, 'text-success': item.status === true, 'text-danger': item.status === false }"></i></td>
+						<td class="shrink nowrap text-center"><i class="eticon eticon-circle" [ngClass]="{ 'text-silver': item.surge_status === null, 'text-success': item.surge_status === true, 'text-danger': item.surge_status === false }"></i></td>
+
+						<td class="shrink nowrap text-center">{{ item.temp_top !== null ? item.temp_top + ' °C' : '' }}</td>
+						<td class="shrink nowrap text-center">{{ item.temp_bottom !== null ? item.temp_bottom + ' °C' : '' }}</td>
+
+						<ng-container *ngIf="item.status === null">
+							<td class="shrink nowrap text-center" colspan="3"></td>
+						</ng-container>
+						<ng-container *ngIf="item.status !== null">
+							<td class="shrink nowrap text-center">{{ item.voltage_input ? item.voltage_input + ' V' : '?' }}</td>
+							<td *ngIf="!item.voltage_reduction" class="shrink nowrap text-center text-small p-l-0 p-r-0"><i class="md md-chevron-right"></i></td>
+							<td *ngIf="item.voltage_reduction" class="shrink nowrap text-center text-small p-l-0 p-r-0">
+								<i class="md md-chevron-right"></i>
+								{{-item.voltage_reduction >= 0 ? '+' : ''}}{{-item.voltage_reduction | decimal:1:1}}%
+								<i class="md md-chevron-right"></i>
+							</td>
+							<td class="shrink nowrap text-center">{{ item.voltage_output ? item.voltage_output + ' V' : '?' }}</td>
+						</ng-container>
+
+						<td *ngIf="canInstall"></td>
+						<td *ngIf="canInstall" class="shrink nowrap"><a class="text-danger" (click)="removeUnit(item)"><i class="md md-close"></i> Remove Unit</a></td>
+					</tr>
+				</ng-container>
+				<tr *ngIf="!count.installed">
+					<td [attr.colspan]="canInstall ? 11 : 13">No installed units found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</ng-container>

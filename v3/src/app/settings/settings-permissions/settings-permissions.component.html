@@ -1,0 +1,26 @@
+<table class="table table-hover">
+	<tbody>
+		<ng-container *ngFor="let m of ui">
+			<tr class="selectable module-heading" (click)="toggle(m.toggle, m)">
+				<td class="shrink text-center text-light" [ngClass]="{ 'bg-muted': !isAllowed(m.toggle) }" [style.background]="m.color"><i class="{{m.icon}}"></i></td>
+				<td [ngClass]="{ 'text-muted': !isAllowed(m.toggle) }">{{m.toggle.description}}</td>
+				<td class="shrink">
+					<div class="checkbox checkbox-primary m-0">
+						<label><input type="checkbox" [ngModel]="isAllowed(m.toggle)" (change)="false"><span (click)="false"></span></label>
+					</div>
+				</td>
+			</tr>
+			<ng-container *ngIf="isAllowed(m.toggle)">
+				<tr *ngFor="let op of m.options" class="selectable" (click)="toggle(op)">
+					<td class="shrink"></td>
+					<td [ngClass]="{ 'text-muted': !isAllowed(op) }" class="p-l-30">{{op.description}}</td>
+					<td class="shrink">
+						<div class="checkbox checkbox-primary m-0">
+							<label><input type="checkbox" [ngModel]="isAllowed(op)" (change)="false"><span (click)="false"></span></label>
+						</div>
+					</td>
+				</tr>
+			</ng-container>
+		</ng-container>
+	</tbody>
+</table>

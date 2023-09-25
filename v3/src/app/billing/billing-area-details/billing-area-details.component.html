@@ -1,0 +1,45 @@
+<ng-container *ngIf="data">
+	<h3>Contracts</h3>
+	<div class="card-box">
+		<table  *ngIf="data.area.contracts?.length > 0" class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th>Customer</th>
+					<th>Building / Area</th>
+					<th>Description</th>
+					<th>Start date</th>
+					<th>End date</th>
+					<th class="text-center">Status</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of data.area.contracts">
+					<td class="shrink">{{item.id}}</td>
+					<td>
+						<a *ngIf="item.customer_type === 'SI'" [routerLink]="['/billing', owner, 'system_integrator', item.customer_id]"><i class="md md-local-shipping"></i> &nbsp;{{item.customer_name}}</a>
+						<a *ngIf="item.customer_type === 'C'" [routerLink]="['/billing', owner, 'client', item.customer_id]"><i class="md md-work"></i> &nbsp;{{item.customer_name}}</a>
+						<a *ngIf="item.customer_type === 'CU'" [routerLink]="['/billing', owner, 'customer', item.customer_id]"><i class="md md-person"></i> &nbsp;{{item.customer_name}}</a>
+					</td>
+					<td>{{item.area_id ? (item.building_description + ' / ' + item.area_description) : ''}}</td>
+					<td>{{item.description}}</td>
+					<td>{{item.start_date | mySQLDateToISO | date:'shortDate'}}</td>
+					<td>{{item.end_date | mySQLDateToISO | date:'shortDate'}}</td>
+					<td class="text-center">
+						<span *ngIf="item.status === 'unconfirmed'" class="badge badge-default">Unconfirmed</span>
+						<span *ngIf="item.status === 'not_signed'" class="badge badge-default">Not signed</span>
+						<span *ngIf="item.status === 'pending'" class="badge badge-default">Pending</span>
+						<span *ngIf="item.status === 'active'" class="badge badge-success">Active</span>
+						<span *ngIf="item.status === 'ending'" class="badge badge-warning">Ending</span>
+						<span *ngIf="item.status === 'ended'" class="badge badge-primary">Ended</span>
+						<span *ngIf="item.status === 'cancelled'" class="badge badge-danger">Cancelled</span>
+					</td>
+					<td class="shrink nowrap"><a [routerLink]="['/billing', owner, 'contract', item.id, 'edit']"><i class="md md-edit"></i> Edit</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<p *ngIf="!data.area.contracts || data.area.contracts.length === 0">No contracts found.</p>
+	</div>
+
+</ng-container>

@@ -1,0 +1,30 @@
+<app-modal [modalTitle]="title" size="large" [buttons]="['0|Cancel']" (event)="modalHandler($event)">
+	<div class="input-group m-b-15">
+		<span class="input-group-addon"><i class="md md-search"></i></span>
+		<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search" appDesktopFocus>
+	</div>
+
+	<div style="height: 600px; overflow-y: auto;" class="m-b-15">
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Name</th>
+					<th>Location</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of list | keywords:search:['id', 'name', 'posttown', 'postcode'] | pagination:pagination" class="selectable" (click)="selectItem(item)">
+					<td>{{item.id}}</td>
+					<td>{{item.name}}</td>
+					<td>{{item.posttown}} <small>{{item.postcode}}</small></td>
+				</tr>
+				<tr *ngIf="!pagination.count">
+					<td colspan="3">No entities found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<app-pagination [pagination]="pagination"></app-pagination>
+</app-modal>

@@ -1,0 +1,4 @@
+<header class="{{app.branding}} p-10" [ngClass]="{ 'bg-theme': app.branding === 'eticom', 'bg-primary': app.branding === 'elanet' }">
+	<img class="logo" [src]="app.branding === 'elanet' ? 'assets/img/branding/elanet/elanet_logo_white.png' : 'assets/img/logo/eticom-logo.svg'">
+	<button *ngIf="signOut" class="btn btn-danger btn-solid pull-right" (click)="logout()">Sign Out</button>
+</header>

@@ -1,0 +1,12 @@
+<div *ngIf="app.branding === 'eticom'" class="logo-section flex-row eticom">
+	<img src="assets/img/mine/IBG_logo-dark.svg">
+	<ng-container *ngIf="!isMobile()">
+		<!-- <div class="divider"></div> -->
+	</ng-container>
+</div>
+
+<div *ngIf="app.branding === 'elanet'" class="logo-section flex-row flex-center elanet">
+	<img src="assets/img/branding/elanet/elanet_logo_blue.png">
+	<div class="divider"></div>
+	<div class="tagline flex-1">Super-fast fibre broadband. Experience the future, today.</div>
+</div>

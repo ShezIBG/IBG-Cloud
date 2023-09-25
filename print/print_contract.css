@@ -1,0 +1,24 @@
+html, body { height: 100%; }
+
+#tbl .large { font-size: 1.3em; }
+#tbl .total { font-weight: bold; }
+#tbl .shaded-1 { background: #e0e0e0 !important; }
+#tbl .shaded-2 { background: #f0f0f0 !important; }
+#tbl .shaded-3 { background: #4e81a4 !important; color: #fff !important; }
+
+.shaded-3 { background: #4e81a4 !important; color: #fff !important; }
+
+table.no-border td, table.no-border th {
+	border: none !important;
+}
+
+.print-footer {
+	position: fixed;
+	bottom: 32px;
+	left: 0;
+	right: 0;
+}
+
+.signature {
+	font-family: 'Dancing Script', cursive;
+}

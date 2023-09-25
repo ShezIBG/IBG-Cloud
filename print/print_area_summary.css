@@ -1,0 +1,135 @@
+body, html {
+	margin: 0;
+	color: #534E46;
+	box-sizing: border-box;
+	font-size: 14px;
+}
+
+body {
+	padding: 0 40px;
+}
+
+.pa { position: absolute; }
+.ib { display: inline-block; }
+.w100 { width: 100%; }
+.subtitle { font-size: 0.75em; color: #999; }
+
+.page {
+	page-break-after: always;
+}
+
+header {
+	padding-top: 15px;
+	padding-bottom: 0px;
+}
+
+header .logo {
+	display: inline-block;
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 300px;
+	height: 42px;
+}
+
+header .logo-large {
+	display: inline-block;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: top right;
+	width: 200px;
+	height: 150px;
+}
+
+footer {
+	padding-bottom: 20px;
+	padding-top: 40px;
+}
+
+footer .pageno {
+	float: right;
+	white-space: nowrap;
+}
+
+.svg {
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+.text-m { font-size: 1.2em; }
+
+table.vam td, table.vam th  { vertical-align: middle !important; }
+table.vab td, table.vab th  { vertical-align: bottom !important; }
+table.vat td, table.vat th  { vertical-align: top !important; }
+table.vatb td, table.vatb th  { vertical-align: baseline !important; }
+table.noborder td { border: none !important; }
+table.spaced td { padding-top: 15px; }
+
+hr {
+	margin-top: 0;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #ddd;
+}
+
+/* This is a placeholder to see the column workaround for wkhtmltopdf */
+.col-text {
+	height: 1000px;
+	-webkit-columns: 0 0;
+	width: 50%;
+	-webkit-column-gap: 2em;
+}
+
+h1, h2, h3, h4, h5, h6 { font-weight: bold; }
+
+h1 { font-size: 1.7em; }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.5em; }
+h4 { font-size: 1.4em; }
+h5 { font-size: 1.3em; }
+h6 { font-size: 1.2em; }
+
+h6 + hr { margin-top: -4px; }
+
+table.shrink th, table.shrink td, th.shrink, td.shrink { width: 1%; }
+
+.custom-text {
+	padding: 20px 0;
+}
+
+.table-container + .table-container {
+	margin-top: 50px;
+}
+
+table td, table th {
+	padding: 5px 15px;
+}
+
+table.hardware td, table.hardware th { border: 1px solid #4e82a8; }
+table.hardware th { background: #4e82a8; color: #fff; font-weight: bold; }
+
+table.hardware-total td, table.hardware-total th { border: 1px solid #4e82a8; }
+table.hardware-total th { background: #4e82a8; color: #fff; font-weight: bold; }
+
+table.software td, table.software th { border: 1px solid #8cb6cb; }
+table.software th { background: #8cb6cb; color: #fff; font-weight: bold; }
+
+table.software-total td, table.software-total th { border: 1px solid #8cb6cb; }
+table.software-total th { background: #8cb6cb; color: #fff; font-weight: bold; }
+
+.product-image-container {
+	text-align: center;
+	width: 60px;
+	margin: 0;
+	padding: 0;
+}
+
+.product-image {
+	max-width: 100%;
+	max-height: 60px;
+}
+
+.print-group {
+	page-break-before: avoid;
+	page-break-inside: avoid;
+	page-break-after: avoid;
+}

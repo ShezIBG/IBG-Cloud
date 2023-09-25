@@ -1,0 +1,186 @@
+<div class="layout-dashboard">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div class="flex-col theme-dark" style="min-width: 450px; max-width: 450px;">
+
+			<div class="widget">
+				<header>
+					<h2>
+						Weekly Schedules
+						<button class="btn btn-primary btn-sm pull-right" (click)="addSchedule()"><i class="md md-add"></i></button>
+					</h2>
+				</header>
+				<div *ngIf="data.schedules.length" class="scrollable p-t-0">
+					<table *ngIf="data.schedules.length" class="table table-hover vam no-border">
+						<thead>
+							<tr class="alt-header">
+								<th>Schedule Name</th>
+								<th class="text-center text-small">Lights / Nodes</th>
+								<th class="text-right">Next Event</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let s of data.schedules" class="selectable" [ngClass]="{ 'bg-primary': selectedSchedule === s.id }" (click)="selectSchedule(s.id)">
+								<td>{{s.description}}</td>
+								<td class="text-center text-small">{{s.light_count}} / {{s.node_count}}</td>
+
+								<td *ngIf="s.next_event" class="text-right">{{s.next_event | mySQLDateToISO | date:'shortDate'}} {{s.next_event | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!s.next_event" class="text-right">None</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div *ngIf="!data.schedules.length">
+					<p>No schedules found.</p>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-2 widget">
+			<ng-container *ngIf="!selectedSchedule">
+				<header>
+					<h2>Schedule Details</h2>
+					<hr>
+				</header>
+				<div>Please select a schedule.</div>
+			</ng-container>
+			<ng-container *ngIf="selectedSchedule && schedule">
+				<header>
+					<h2>
+						{{schedule.record.description}}
+						<button *ngIf="!edit" class="btn btn-default btn-sm pull-right" (click)="edit = !edit"><i class="md md-edit"></i> Edit Schedule</button>
+						<button *ngIf="!edit" class="btn btn-default btn-sm pull-right" (click)="testLightGroup()"><i class="md md-check"></i> Test Light Group</button>
+						<button *ngIf="edit && dirty" class="btn btn-primary btn-sm pull-right" (click)="saveSchedule()"><i class="md md-check"></i> Save Schedule</button>
+					</h2>
+					<hr>
+				</header>
+				<div class="scrollable" [ngClass]="{ 'no-edit': !edit }">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Description</label>
+							<div class="col-sm-5">
+								<input class="form-control" [(ngModel)]="schedule.record.description" (ngModelChange)="dirty = true" [disabled]="!edit">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Options</label>
+							<div class="col-sm-8">
+								<div class="checkbox checkbox-primary">
+									<label>
+										<input type="checkbox" [(ngModel)]="schedule.record.off_on_holidays" (ngModelChange)="dirty = true" [disabled]="!edit">
+										<span>Turn devices off on holidays</span>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<table class="table vam" style="max-width: 500px; margin-left: auto; margin-right: auto;">
+						<thead>
+							<tr>
+								<th style="width: 50%;" colspan="2">Time</th>
+								<th class="text-center" style="width: 50%;">On/Off</th>
+								<th class="shrink">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody>
+							<ng-container *ngFor="let day of days">
+								<tr [ngClass]="{ success: copyDay === day, info: copyDay !== day }">
+									<td>
+										<span class="h2" *ngIf="day === 'mon'">Monday</span>
+										<span class="h2" *ngIf="day === 'tue'">Tuesday</span>
+										<span class="h2" *ngIf="day === 'wed'">Wednesday</span>
+										<span class="h2" *ngIf="day === 'thu'">Thursday</span>
+										<span class="h2" *ngIf="day === 'fri'">Friday</span>
+										<span class="h2" *ngIf="day === 'sat'">Saturday</span>
+										<span class="h2" *ngIf="day === 'sun'">Sunday</span>
+									</td>
+									<td colspan="3" class="text-right">
+										<ng-container *ngIf="edit">
+											<button *ngIf="copyDay === null" class="btn btn-default btn-xs" (click)="copyDay = day"><i class="md md-content-copy"></i> Copy</button>
+											<button *ngIf="copyDay === day" class="btn btn-primary btn-xs" (click)="copyDay = null"><i class="md md-check"></i> Done</button>
+											<button *ngIf="copyDay !== null && copyDay !== day" class="btn btn-primary btn-xs" (click)="copyScheduleItems(copyDay, day)"><i class="md md-content-paste"></i> Paste</button>
+										</ng-container>
+									</td>
+								</tr>
+
+								<tr *ngFor="let item of getFilteredItems(day)">
+									<ng-container *ngIf="edit">
+										<td *ngIf="item.type === 'set-time'" [ngClass]="{ 'has-error': !item.time }">
+											<div class="input-group">
+												<span class="input-group-addon"><i class="md md-access-time"></i></span>
+												<input atp-time-picker class="form-control" [(ngModel)]="item.time" (ngModelChange)="dirty = true">
+											</div>
+										</td>
+										<td *ngIf="item.type !== 'set-time'" [ngClass]="{ 'has-error': !item.minutes === '' }">
+											<div class="input-group">
+												<span class="input-group-addon"><i class="eticon" [ngClass]="{ 'eticon-sun': item.type === 'before-sunrise' || item.type === 'after-sunrise', 'eticon-moon': item.type === 'before-sunset' || item.type === 'after-sunset' }"></i></span>
+												<input class="form-control text-right" [(ngModel)]="item.minutes" (ngModelChange)="dirty = true" style="min-width: 60px;">
+												<span class="input-group-addon">minutes</span>
+											</div>
+										</td>
+
+										<td>
+											<select class="form-control" [(ngModel)]="item.type" (ngModelChange)="dirty = true" style="width: auto;">
+												<option value="before-sunrise">Before sunrise</option>
+												<option value="after-sunrise">After sunrise</option>
+												<option value="set-time">Set time</option>
+												<option value="before-sunset">Before sunset</option>
+												<option value="after-sunset">After sunset</option>
+											</select>
+										</td>
+										<td class="text-center">
+											<p-inputSwitch [(ngModel)]="item.light_onoff" (ngModelChange)="dirty = true"></p-inputSwitch>
+										</td>
+										<td class="shrink">
+											<a *ngIf="edit" class="text-danger text-large" (click)="deleteItem(item)"><i class="md md-close"></i></a>
+										</td>
+									</ng-container>
+
+									<ng-container *ngIf="!edit">
+										<td>
+											<ng-container *ngIf="item.type === 'set-time'">
+												<i class="md md-access-time"></i> {{item.time}}
+											</ng-container>
+											<ng-container *ngIf="item.type !== 'set-time'">
+												<i class="eticon" [ngClass]="{ 'eticon-sun': item.type === 'before-sunrise' || item.type === 'after-sunrise', 'eticon-moon': item.type === 'before-sunset' || item.type === 'after-sunset' }"></i>
+												<ng-container *ngIf="item.minutes">
+													{{item.minutes}} minutes
+													{{item.type === 'before-sunrise' || item.type === 'before-sunset' ? 'before' : 'after'}}
+													{{item.type === 'before-sunrise' || item.type === 'after-sunrise' ? 'sunrise' : 'sunset'}}
+												</ng-container>
+												<ng-container *ngIf="!item.minutes">
+													at {{item.type === 'before-sunrise' || item.type === 'after-sunrise' ? 'sunrise' : 'sunset'}}
+												</ng-container>
+											</ng-container>
+										</td>
+										<td class="shrink">
+										</td>
+										<td class="text-center">
+											<p-inputSwitch [(ngModel)]="item.light_onoff" disabled></p-inputSwitch>
+										</td>
+										<td class="shrink">
+											<a *ngIf="edit" class="text-danger text-large" (click)="deleteItem(item)"><i class="md md-close"></i></a>
+										</td>
+									</ng-container>
+								</tr>
+								<tr *ngIf="edit">
+									<td colspan="4">
+										<a class="text-success" (click)="addItem(day)"><i class="md md-add"></i> Add item</a>
+									</td>
+								</tr>
+							</ng-container>
+						</tbody>
+					</table>
+
+					<p *ngIf="edit" class="text-right">
+						<button class="btn btn-danger" (click)="deleteSchedule()"><i class="md md-delete"></i> Delete schedule</button>
+					</p>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+
+</div>

@@ -1,0 +1,17 @@
+<app-modal modalTitle="Add SmoothPower Unit" [buttons]="['Cancel', '*OK']" (event)="modalHandler($event)">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="form-group" [ngClass]="{ 'has-error': !selectedUnit }">
+				<label>SmoothPower unit to add</label>
+				<select class="form-control" [(ngModel)]="selectedUnit">
+					<option [ngValue]="null"></option>
+					<option *ngFor="let u of units" [ngValue]="u">{{u.serial}}</option>
+				</select>
+				<span class="help-block">Required</span>
+			</div>
+			<p *ngIf="units.length === 0" class="text-danger">
+				<i class="md md-info"></i> There are no SmoothPower units available to install.
+			</p>
+		</div>
+	</div>
+</app-modal>

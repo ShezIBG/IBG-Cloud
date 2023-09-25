@@ -1,0 +1,245 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Entity name</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.name">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.email_address">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Phone number</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.phone_number">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Mobile number</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.mobile_number">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.address_line_1">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_2">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_3">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Town</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.posttown">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Postcode</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.postcode">
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Info URL</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.info_url">
+					<p class="help-block"><i class="md md-info"></i> A web address with more information about this entity. Will be displayed as a link.</p>
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Type</label>
+				<div class="col-sm-5">
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="details.is_manufacturer" [disabled]="details.is_manufacturer && details.suppliers.length">
+							<span>Manufacturer</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="details.is_supplier" [disabled]="details.is_supplier && details.manufacturers.length">
+							<span>Supplier</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<ng-container *ngIf="!ownerHasEntity">
+				<hr>
+				<div class="form-group">
+					<label class="col-sm-4 control-label">Owner</label>
+					<div class="col-sm-5">
+						<div class="checkbox checkbox-primary">
+							<label>
+								<input type="checkbox" [(ngModel)]="details.is_owner">
+								<span>This company</span>
+							</label>
+						</div>
+						<p class="text-info m-t-10"><i class="md md-info"></i> Check the box above to indicate that this is your company. You can only have one owner record and you must create one before adding resellers.</p>
+					</div>
+				</div>
+			</ng-container>
+		</div>
+	</div>
+
+	<div class="card-box" *ngIf="details.is_manufacturer">
+		<h2>
+			Default Suppliers
+			<button class="btn btn-primary btn-sm pull-right m-l-10" (click)="modalAddSupplier()"><i class="md md-add"></i> Add supplier</button>
+			<button *ngIf="details.is_manufacturer && details.is_supplier && !suppliesOwnItems" class="btn btn-default btn-sm pull-right" (click)="addThisEntity()"><i class="md md-add"></i> Supplies own items</button>
+		</h2>
+		<p class="text-info"><i class="md md-info"></i> These suppliers will be added to this manufacturer's products by default. You can mark one supplier as primary.</p>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Location</th>
+					<th class="text-center">Primary?</th>
+					<th class="text-center">Status</th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of details.suppliers" [ngClass]="{ success: item.added }">
+					<td>{{item.name}} <span *ngIf="item.id === details.id" class="badge badge-inverse badge-sm m-l-5">This entity</span></td>
+					<td>{{item.posttown}} <small>{{item.postcode}}</small></td>
+					<td class="text-center">
+						<span *ngIf="item.is_primary" class="badge badge-primary badge-sm">Primary Supplier</span>
+						<a *ngIf="!item.is_primary" (click)="setPrimarySupplier(item.id)">Set primary</a>
+					</td>
+					<td class="text-center">
+						<span *ngIf="item.added" class="badge badge-success badge-sm">New</span>
+					</td>
+					<td class="shrink nowrap text-right">
+						<a class="text-danger" (click)="removeSupplier(item.id)"><i class="md md-delete"></i> Delete</a>
+					</td>
+				</tr>
+				<tr *ngFor="let item of details.removed_suppliers" class="danger">
+					<td>{{item.name}} <span *ngIf="item.id === details.id" class="badge badge-inverse badge-sm m-l-5">This entity</span></td>
+					<td>{{item.posttown}} <small>{{item.postcode}}</small></td>
+					<td class="text-center"></td>
+					<td class="text-center">
+						<span *ngIf="item.added" class="badge badge-danger badge-sm">Deleted</span>
+					</td>
+					<td class="shrink nowrap text-right">
+						<a (click)="restoreSupplier(item.id)"><i class="md md-undo"></i> Undo</a>
+					</td>
+				</tr>
+				<tr *ngIf="!details.suppliers.length && !details.removed_suppliers.length">
+					<td colspan="5">No suppliers.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="card-box" *ngIf="details.is_supplier">
+		<h2>
+			Default Manufacturers
+			<button class="btn btn-primary btn-sm pull-right m-l-10" (click)="modalAddManufacturer()"><i class="md md-add"></i> Add manufacturer</button>
+			<button *ngIf="details.is_manufacturer && details.is_supplier && !suppliesOwnItems" class="btn btn-default btn-sm pull-right" (click)="addThisEntity()"><i class="md md-add"></i> Supplies own items</button>
+		</h2>
+		<p class="text-info"><i class="md md-info"></i> This supplier will be added to these manufacturers' products by default. Mark any lines as primary if you want this supplier to be the primary supplier for that manufacturer.</p>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Location</th>
+					<th class="text-center">Primary?</th>
+					<th class="text-center">Status</th>
+					<th class="shrink nowrap"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of details.manufacturers" [ngClass]="{ success: item.added }">
+					<td>{{item.name}} <span *ngIf="item.id === details.id" class="badge badge-inverse badge-sm m-l-5">This entity</span></td>
+					<td>{{item.posttown}} <small>{{item.postcode}}</small></td>
+
+					<td *ngIf="item.id === details.id" class="text-center">
+						<span *ngIf="item.is_primary" class="badge badge-primary badge-sm">Primary Supplier</span>
+						<a *ngIf="!item.is_primary" (click)="setPrimarySupplier(item.id)">Set primary</a>
+					</td>
+					<td *ngIf="item.id !== details.id" class="text-center">
+						<div class="checkbox checkbox-primary m-0">
+							<label><input type="checkbox" [(ngModel)]="item.is_primary"><span></span></label>
+						</div>
+					</td>
+
+					<td class="text-center">
+						<span *ngIf="item.added" class="badge badge-success badge-sm">New</span>
+					</td>
+					<td class="shrink nowrap text-right">
+						<a class="text-danger" (click)="removeManufacturer(item.id)"><i class="md md-delete"></i> Delete</a>
+					</td>
+				</tr>
+				<tr *ngFor="let item of details.removed_manufacturers" class="danger">
+					<td>{{item.name}} <span *ngIf="item.id === details.id" class="badge badge-inverse badge-sm m-l-5">This entity</span></td>
+					<td>{{item.posttown}} <small>{{item.postcode}}</small></td>
+
+					<td class="text-center"></td>
+
+					<td class="text-center">
+						<span *ngIf="item.added" class="badge badge-danger badge-sm">Deleted</span>
+					</td>
+					<td class="shrink nowrap text-right">
+						<a (click)="restoreManufacturer(item.id)"><i class="md md-undo"></i> Undo</a>
+					</td>
+				</tr>
+				<tr *ngIf="!details.manufacturers.length && !details.removed_manufacturers.length">
+					<td colspan="5">No manufacturers.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div *ngIf="showUpdateOptions" class="card-box border-warning border-thick">
+		<h2>Update options</h2>
+		<div *ngIf="hasNew" class="checkbox checkbox-success">
+			<label>
+				<input type="checkbox" [(ngModel)]="details.update_new">
+				<span>Add new suppliers to existing products</span>
+			</label>
+		</div>
+		<div *ngIf="hasRemoved" class="checkbox checkbox-danger">
+			<label>
+				<input type="checkbox" [(ngModel)]="details.update_remove">
+				<span>Remove suppliers from existing products</span>
+			</label>
+		</div>
+		<div *ngIf="hasRecords" class="checkbox checkbox-warning">
+			<label>
+				<input type="checkbox" [(ngModel)]="details.update_primary">
+				<span>Update primary supplier on existing products</span>
+			</label>
+		</div>
+	</div>
+
+	<button *ngIf="!details.archived && !details.is_owner && id !== 'new' && !manufacturerProductCount && !supplierProductCount" class="btn btn-danger" (click)="archive()" [disabled]="disabled">Archive Entity</button>
+	<button *ngIf="details.archived" class="btn btn-danger" (click)="unarchive()" [disabled]="disabled">Restore Entity</button>
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

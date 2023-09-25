@@ -1,0 +1,79 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+
+	<h3>Email template</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">From address</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.from_address">
+					<div class="help-block">Uses SMTP defaults if not set.</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Subject</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.subject">
+				</div>
+			</div>
+		</div>
+
+		<hr>
+		<h2>Email body</h2>
+		<editor [init]="app.tinymce" [(ngModel)]="details.body"></editor>
+	</div>
+
+	<div class="card-box">
+		<h2>
+			Email assets
+			<button class="btn btn-primary pull-right" [disabled]="disabled" (click)="changeImage()"><i class="md md-add"></i> Add image</button>
+		</h2>
+		<div class="help-block">Drag images into the box below to upload them, then you can drag them into the template editor above to insert. Assets are shared between all email templates.</div>
+		<input type="file" class="hidden" (change)="uploadImage()" #fileInput>
+		<div class="image-drop" [ngClass]="{ active: draggedOver }" (dragover)="fileDragOver($event)" (dragleave)="draggedOver = false" (drop)="fileDrop($event)">
+			<span *ngFor="let asset of details.assets" (mouseenter)="hover = asset" (mouseleave)="hover = null">
+				<img [src]="asset.url">
+				<ng-container *ngIf="hover === asset">
+					<br><br><button class="btn btn-xs btn-danger" (click)="deleteAsset(asset)"><i class="md md-delete"></i> Delete</button>
+				</ng-container>
+			</span>
+		</div>
+	</div>
+
+	<div class="card-box">
+		<h2>
+			Meta tags
+			<button class="btn btn-default pull-right" (click)="showAllTags = !showAllTags">{{showAllTags ? 'Show safe tags' : 'Show all tags'}}</button>
+		</h2>
+		<p>You can use the following context sensitive meta tags in the email subject and body. They will be replaced with the correct data when the email is sent.</p>
+		<p *ngIf="showAllTags" class="text-warning"><i class="md md-warning"></i> Some meta tags below may not resolve when the email is sent.</p>
+		<table class="table table-condensed table-hover">
+			<thead>
+				<tr>
+					<th class="shrink text-center">Clipboard</th>
+					<th class="shrink">Tag</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let tag of tags">
+					<tr *ngIf="!tag.hidden && (showAllTags || tag.templates.indexOf(templateType) !== -1)" [ngClass]="{ unsafe: tag.templates.indexOf(templateType) === -1 }">
+						<td class="shrink nowrap text-center"><a (click)="copyTextToClipboard(tag.name)"><i class="md md-content-copy"></i> Copy</a></td>
+						<td class="shrink"><b>{{tag.name}}</b></td>
+						<td>{{tag.description}}</td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+
+	<button class="btn btn-danger" (click)="deleteTemplate()" [disabled]="disabled">Delete Email Template</button>
+	<span class="pull-right">
+		<button class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">Save</button>
+	</span>
+</ng-container>

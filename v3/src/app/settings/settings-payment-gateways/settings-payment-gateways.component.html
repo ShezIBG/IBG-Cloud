@@ -1,0 +1,66 @@
+<div *ngIf="list" class="card-box">
+	<h2>
+		Payment Gateways
+		<div class="btn-group pull-right">
+			<button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown"><i class="md md-add"></i> Add payment gateway <i class="md md-arrow-drop-down"></i></button>
+			<ul class="dropdown-menu" role="menu">
+				<li><a (click)="add('gocardless')">Add GoCardless account</a></li>
+				<li><a (click)="add('stripe')">Add Stripe account</a></li>
+			</ul>
+		</div>
+	</h2>
+	<hr>
+	<table class="table table-striped table-hover vam">
+		<thead>
+			<tr>
+				<th>Description</th>
+				<th>Provider</th>
+				<th>Date added</th>
+				<th class="text-center">Status</th>
+				<th class="shrink"></th>
+				<th class="shrink"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let item of list">
+				<td>
+					{{item.description}}
+					<div *ngIf="item.authorised && item.gocardless_status === 'in_review'" class="subtitle">Once GoCardless has reviewed your account, you will be able to receive payouts.</div>
+					<div *ngIf="item.authorised && item.gocardless_status === 'action_required'" class="subtitle">You need to provide further information to verify your GoCardless account.</div>
+				</td>
+				<td>
+					<span *ngIf="item.type === 'gocardless'">GoCardless</span>
+					<span *ngIf="item.type === 'stripe'">Stripe</span>
+				</td>
+				<td>{{item.date_created | mySQLDateToISO | date:'shortDate'}} {{item.date_created | mySQLDateToISO | date:'shortTime'}}</td>
+				<td class="text-center">
+					<ng-container *ngIf="item.type === 'gocardless'">
+						<span *ngIf="!item.authorised" class="badge badge-danger">Unauthorised</span>
+						<span *ngIf="item.authorised && !item.gocardless_status" class="badge badge-warning">Unknown</span>
+						<span *ngIf="item.authorised && item.gocardless_status === 'successful'" class="badge badge-success">Verified</span>
+						<span *ngIf="item.authorised && item.gocardless_status === 'in_review'" class="badge badge-warning">In Review</span>
+						<span *ngIf="item.authorised && item.gocardless_status === 'action_required'" class="badge badge-danger">Action Required</span>
+					</ng-container>
+					<ng-container *ngIf="item.type === 'stripe'">
+						<span *ngIf="item.authorised" class="badge badge-success">Authorised</span>
+						<span *ngIf="!item.authorised" class="badge badge-danger">Unauthorised</span>
+					</ng-container>
+				</td>
+				<td class="text-primary selectable shrink nowrap" (click)="edit(item.id)"><i class="md md-edit"></i> Edit</td>
+
+				<ng-container *ngIf="item.type === 'stripe'">
+					<td *ngIf="!item.authorised" class="text-danger selectable shrink nowrap" (click)="authorise(item.id)"><i class="md md-vpn-key"></i> Authorise</td>
+					<td *ngIf="item.authorised" class="shrink"></td>
+				</ng-container>
+				<ng-container *ngIf="item.type === 'gocardless'">
+					<td *ngIf="!item.authorised" class="text-danger selectable shrink nowrap" (click)="authorise(item.id)"><i class="md md-vpn-key"></i> Authorise</td>
+					<td *ngIf="item.authorised && item.gocardless_status === 'action_required'" class="shrink nowrap"><a href="{{gocardlessVerificationUrl}}" target="_blank" class="text-danger"><i class="md md-open-in-new"></i> Verify GoCardless account</a></td>
+					<td *ngIf="item.authorised && item.gocardless_status !== 'action_required'" class="shrink"></td>
+				</ng-container>
+			</tr>
+			<tr *ngIf="!list.length">
+				<td colspan="6">No payment gateways found.</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

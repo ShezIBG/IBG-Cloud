@@ -1,0 +1,89 @@
+<div class="layout-dashboard">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div class="flex-col theme-dark" style="min-width: 400px; max-width: 400px;">
+
+			<div class="widget">
+				<header>
+					<h2>Devices</h2>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover vam no-border">
+						<tbody>
+							<ng-container *ngFor="let area of areas">
+								<tr class="alt-header">
+									<th colspan="2"><b>{{area.description}}</b></th>
+									<th class="shrink text-right nowrap"></th>
+									<th class="shrink"></th>
+								</tr>
+								<tr *ngFor="let device of area.devices" [ngClass]="{ 'controlprimary': selected === device.id }" (click)="selectDevice(device)" style="cursor:pointer;">
+									<td class="shrink p-r-0">
+										<span *ngIf="device.icon_text" class="badge-icon" [ngClass]="{ 'bg-controlprimary': knx[device.status_knx_id]?.typedValue, 'bg-muted': !knx[device.status_knx_id]?.typedValue }">{{device.icon_text}}</span>
+										<span *ngIf="!device.icon_text" class="badge-icon" [ngClass]="{ 'bg-controlprimary': device.show_mode === 'on', 'bg-muted': device.show_mode === 'off' }"><i class="eticon eticon-plug"></i></span>
+									</td>
+									<td>
+										{{device.description}}
+									</td>
+									<td class="shrink text-center"><app-knx-input [knxValue]="knx[device.knx_id]" (change)="updateKnxValue(knx[device.knx_id])"></app-knx-input></td>
+									<td class="shrink text-right">
+										<a class="btn btn-default btn-solid btn-sm" (click)="deviceDetails(device.id)"><i class="md md-edit"></i></a>
+									</td>
+								</tr>
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-2 widget">
+			<header>
+				<h2>Floor Plan</h2>
+				<hr>
+			</header>
+			<div class="p-0 floorplan-wrapper">
+				<div *ngIf="selectedFP" class="fill" style="user-select:none;" #plan>
+					<div class="v-center">
+						<div class="floorplan-container">
+							<img src="{{selectedFP.image}}" class="floorplan-image" style="width:100%;">
+							<ng-container *ngFor="let device of data.devices">
+								<ng-container *ngIf="device.floorplan && device.floorplan.id === selectedFP.id && device.floorplan_item">
+									<div *ngIf="device.icon_type === 'text'" class="floorplan-icon text-light" [ngClass]="{ 'diff-area': device.area_id !== selectedArea, selected: device.id === selected, 'bg-controlprimary': knx[device.status_knx_id]?.typedValue }" [style.top]="device.floorplan_item.y + '%'" [style.left]="device.floorplan_item.x + '%'" [style.transform]="'scale(' + (1 / scale) + ')'" (click)="selectDevice(device)">
+										<span>{{device.icon_text}}</span>
+									</div>
+									<div *ngIf="device.icon_type === 'slot'" class="floorplan-text text-light" [ngClass]="{ 'diff-area': device.area_id !== selectedArea, selected: device.id === selected, 'bg-controlprimary': knx[device.status_knx_id]?.typedValue }" [style.top]="device.floorplan_item.y + '%'" [style.left]="device.floorplan_item.x + '%'" [style.transform]="'translate(-50%, -50%) scale(' + (1 / scale) + ')' | safeStyle" (click)="selectDevice(device)">
+										<span><app-knx-output [knxValue]="knx[device.icon_slot]"></app-knx-output></span>
+									</div>
+									<div *ngIf="device.icon_type === 'slot-desc'" class="floorplan-text text-light" [ngClass]="{ 'diff-area': device.area_id !== selectedArea, selected: device.id === selected, 'bg-controlprimary': knx[device.status_knx_id]?.typedValue }" [style.top]="device.floorplan_item.y + '%'" [style.left]="device.floorplan_item.x + '%'" [style.transform]="'translate(-50%, -50%) scale(' + (1 / scale) + ')' | safeStyle" (click)="selectDevice(device)">
+										<b>{{device.description}}</b>
+										<div class="m-t-5">{{data.knxIndex[device.icon_slot]?.slot_description}}: <app-knx-output [knxValue]="knx[device.icon_slot]"></app-knx-output></div>
+									</div>
+									<div *ngIf="device.icon_type === 'slot-full'" class="floorplan-text text-light" [ngClass]="{ 'diff-area': device.area_id !== selectedArea, selected: device.id === selected, 'bg-controlprimary': knx[device.status_knx_id]?.typedValue }" [style.top]="device.floorplan_item.y + '%'" [style.left]="device.floorplan_item.x + '%'" [style.transform]="'translate(-50%, -50%) scale(' + (1 / scale) + ')' | safeStyle" (click)="selectDevice(device)">
+										<b>{{device.description}}</b>
+										<table *ngIf="device.id === selected" class="m-t-5">
+											<tr *ngFor="let knxItem of getDeviceKnx(device)">
+												<td class="text-right text-light p-r-10">{{knxItem.slot_description}}:</td>
+												<td class="text-left text-light"><app-knx-output [knxValue]="knx[knxItem.id]"></app-knx-output></td>
+											</tr>
+										</table>
+									</div>
+								</ng-container>
+							</ng-container>
+						</div>
+					</div>
+				</div>
+				<div *ngIf="selectedFP" class="zoom-container" style="right: 0; left: auto;">
+					<a class="btn btn-sm btn-primary bx-shadow" #zoomin><i class="md md-add"></i></a>
+					<a class="btn btn-sm btn-primary bx-shadow" #zoomout><i class="md md-remove"></i></a>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+
+

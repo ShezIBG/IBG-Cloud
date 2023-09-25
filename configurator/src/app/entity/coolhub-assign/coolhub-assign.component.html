@@ -1,0 +1,30 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>{{entity.getTypeDescription()}}: {{entity.getDescription()}} <span *ngIf="entity.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span><button *ngIf="screen.assignables.length" (click)="assignAll()" class="btn btn-success pull-right"><i class="md md-add-circle"></i> Assign CoolPlugs</button></h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Assigned CoolPlugs</th>
+					<th>Area</th>
+					<th>Line</th>
+					<th>CoolPlug #</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let plug of entity.assigned" [ngClass]="{ 'bg-hover': hovered === plug }" (mouseenter)="hovered = plug" (mouseleave)="hovered = null">
+					<td><i class="{{plug.getIconClass()}}"></i> {{plug.getDescription()}}</td>
+					<td>{{plug.getAreaDescription()}}</td>
+					<td>{{plug.data.line}}</td>
+					<td>{{plug.data.coolplug_id}}</td>
+					<td class="shrink">
+						<a class="text-danger nowrap" (click)="plug.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="text-info"><i class="md md-info"></i> All assigned plugs must have a unique line and plug #.</p>
+	</div>
+</div>

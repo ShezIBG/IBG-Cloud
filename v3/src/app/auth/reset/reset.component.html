@@ -1,0 +1,24 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<!-- <app-auth-header></app-auth-header> -->
+		<div class="flex-1 flex-col auth-background">
+			<div class="flex-1 flex-row flex-center">
+				<div class="auth-foreground card-box myBrand-colorWhite-bg">
+					<app-auth-logo-section></app-auth-logo-section>
+					<h2 class="myBrand-colorB">Forgot Password?</h2>
+					<p class="m-b-20 myBrand-colorB">Please enter your e-mail address in the field below to request a password reset email.</p>
+					<form (ngSubmit)="resetPassword()">
+						<div class="theme-light">
+							<input class="form-control" [(ngModel)]="email" name="email" placeholder="E-mail Address" appDesktopFocus>
+						</div>
+						<button class="btn btn-primary" type="submit">Reset Password</button>
+						<div>
+							<span class="text-right pull-right"><a class="text-primary myLink2" routerLink="../login">Return to Sign In</a></span>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

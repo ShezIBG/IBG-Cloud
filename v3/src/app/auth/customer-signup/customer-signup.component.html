@@ -1,0 +1,38 @@
+<div class="layout-full {{app.branding}}">
+	<div class="flex-col flex-1">
+		<app-auth-header></app-auth-header>
+		<div class="flex-1 flex-col auth-background">
+			<div *ngIf="showForm" class="flex-1 flex-row flex-center">
+				<div class="auth-foreground card-box">
+					<app-auth-logo-section></app-auth-logo-section>
+
+					<ng-container *ngIf="!message">
+						<h2>Customer Sign Up <span class="decoration bg-primary"></span></h2>
+						<p>Welcome <b>{{name}}</b>, please enter your new password below to sign up and manage your account.</p>
+						<form (ngSubmit)="signUp()">
+							<div class="theme-light">
+								<input type="password" class="form-control" [(ngModel)]="password" name="password" placeholder="Password" appDesktopFocus autocomplete="new-password">
+								<input type="password" class="form-control" [(ngModel)]="passwordConf" name="password_conf" placeholder="Confirm password" autocomplete="new-password">
+							</div>
+							<button class="btn btn-primary" type="submit">Sign Up</button>
+						</form>
+					</ng-container>
+
+					<ng-container *ngIf="message && error">
+						<h2>Error</h2>
+						<p class="m-b-20">{{message}}</p>
+						<button class="btn btn-primary" [routerLink]="['/', 'auth', 'login']">Sign In</button>
+					</ng-container>
+
+					<ng-container *ngIf="message && !error">
+						<h2>Success</h2>
+						<p class="m-b-20">Your account is now active, please click the button below to sign in.</p>
+						<button class="btn btn-primary" [routerLink]="['/', 'auth', 'login']">Sign In</button>
+					</ng-container>
+
+				</div>
+			</div>
+		</div>
+		<app-auth-footer></app-auth-footer>
+	</div>
+</div>

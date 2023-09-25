@@ -1,0 +1,62 @@
+<div class="layout-dashboard myContainer-moveRight">
+
+	<div *ngIf="data" class="flex-1 flex-col">
+		<ul class="nav nav-tabs">
+			<li class="no-border pull-right" style="width: 300px;">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="md md-search"></i></span>
+					<input type="text" class="form-control" placeholder="Search" [(ngModel)]="search">
+				</div>
+			</li>
+			<li [ngClass]="{ active: tab === 'active' }"><a (click)="setTab('active')">Active faults <span *ngIf="data.active_faults.length" class="bg-danger text-light inline-badge">{{data.active_faults.length}}</span></a></li>
+			<li [ngClass]="{ active: tab === 'resolved' }"><a (click)="setTab('resolved')">Automatically resolved <span *ngIf="data.resolved_faults.length" class="bg-warning text-light inline-badge">{{data.resolved_faults.length}}</span></a></li>
+			<li [ngClass]="{ active: tab === 'repaired' }"><a (click)="setTab('repaired')">Repaired <span *ngIf="data.repaired_faults.length" class="bg-success text-light inline-badge">{{data.repaired_faults.length}}</span></a></li>
+		</ul>
+		<div class="widget">
+			<div class="flex-1 p-0">
+				<table class="table table-hover table-striped">
+					<thead>
+						<tr>
+							<th colspan="2">Description</th>
+							<th>Area</th>
+							<th>Test failed</th>
+
+							<th>Fault date</th>
+							<th *ngIf="tab !== 'active'">Repair date</th>
+
+							<th *ngIf="tab === 'repaired'">Action taken to safeguard the premises</th>
+							<th *ngIf="tab === 'repaired'">Action taken to rectify the system</th>
+
+							<th class="shrink text-center" title="Circuit failure"><i class="status-icon md md-memory"></i></th>
+							<th class="shrink text-center" title="Battery duration failure"><i class="status-icon md md-timelapse"></i></th>
+							<th class="shrink text-center" title="Battery failure"><i class="status-icon md md-battery-alert"></i></th>
+							<th class="shrink text-center" title="Emergency lamp failure"><i class="status-icon ei ei-control"></i></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let fault of filtered | keywords:search:['action_safeguard', 'action_rectify', 'light_description', 'area_description']" class="selectable" (click)="showLightDetails(fault)">
+							<td class="shrink text-center"><i class="status-icon {{fault.type_icon}}"></i></td>
+							<td>{{fault.light_description}}</td>
+							<td>{{fault.area_description}}</td>
+							<td>{{fault.test_failed}}</td>
+
+							<td>{{fault.fault_datetime | date:'shortDate'}}</td>
+							<td *ngIf="tab !== 'active'">{{fault.repair_datetime | date:'shortDate'}}</td>
+
+							<td *ngIf="tab === 'repaired'">{{fault.action_safeguard}}</td>
+							<td *ngIf="tab === 'repaired'">{{fault.action_rectify}}</td>
+
+							<td class="shrink text-center"><i class="{{getFlagIconClass(fault.circuit_failure, 'md md-memory')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(fault.battery_duration_failure, 'md md-timelapse')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(fault.battery_failure, 'md md-battery-alert')}}"></i></td>
+							<td class="shrink text-center"><i class="{{getFlagIconClass(fault.emergency_lamp_failure, 'ei ei-control')}}"></i></td>
+						</tr>
+					</tbody>
+				</table>
+				<p *ngIf="!filtered.length">No lights found.</p>
+			</div>
+			<footer></footer>
+		</div>
+	</div>
+
+</div>

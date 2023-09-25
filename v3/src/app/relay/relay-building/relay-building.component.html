@@ -1,0 +1,184 @@
+<div class="layout-dashboard">
+
+	<div *ngIf="data" class="flex-row">
+
+		<div class="flex-col">
+			<div class="widget">
+				<header>
+					<h2>Building Details</h2>
+					<hr>
+				</header>
+				<div class="flex-row">
+					<div class="flex-1" [style.background]="'url(\'' + data.building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+					<div class="flex-1 scrollable" [innerHtml]="getAddress(data.building)"></div>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>
+						Weekly Schedules
+						<a class="btn btn-sm btn-primary pull-right" routerLink="schedules">Edit Schedules</a>
+					</h2>
+					<hr>
+				</header>
+
+				<div class="scrollable">
+					<table *ngIf="data.schedules.length" class="table table-hover">
+						<thead>
+							<tr>
+								<th>Schedule Name</th>
+								<th class="text-right">Units</th>
+								<th class="text-right">Next Event</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let s of data.schedules">
+								<td>{{s.description}}</td>
+								<td class="text-right">{{s.device_count}}</td>
+
+								<td *ngIf="s.next_event" class="text-right">{{s.next_event | mySQLDateToISO | date:'shortDate'}} {{s.next_event | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!s.next_event" class="text-right">None</td>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="!data.schedules.length" class="text-warning">No schedules found.</p>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>Building Status</h2>
+					<hr>
+				</header>
+				<div class="flex-row flex-center scrollable">
+					<div class="flex-col flex-center">
+						<div>
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.state_on }">
+								<span class="relay-icon text-primary"><i class="ei ei-power"></i></span>
+								<span class="h4">{{data.device_statuses.state_on}}</span>
+								{{data.device_statuses.state_on !== 1 ? 'devices' : 'device'}} on
+							</div>
+
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.state_off }">
+								<span class="relay-icon text-muted"><i class="ei ei-power"></i></span>
+								<span class="h4">{{data.device_statuses.state_off}}</span>
+								{{data.device_statuses.state_off !== 1 ? 'devices' : 'device'}} off
+							</div>
+
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.faulty }">
+								<span class="relay-icon text-danger"><i class="ei ei-ac-faulty"></i></span>
+								<span class="h4">{{data.device_statuses.faulty}}</span>
+								{{data.device_statuses.faulty !== 1 ? 'devices' : 'device'}} faulty
+							</div>
+						</div>
+					</div>
+					<div class="flex-col flex-center">
+						<div>
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.mode_schedule }">
+								<span class="relay-icon text-primary"><i class="ei ei-schedule"></i></span>
+								<span class="h4">{{data.device_statuses.mode_schedule}}</span>
+								in schedule mode
+							</div>
+
+							<div [ngClass]="{ 'text-muted': !data.device_statuses.mode_override }">
+								<span *ngIf="!data.device_statuses.mode_override" class="relay-icon"><i class="ei ei-override"></i></span>
+								<img *ngIf="data.device_statuses.mode_override" src="assets/img/relay/override.svg" style="width: 2em;">
+								<span class="h4">{{data.device_statuses.mode_override}}</span>
+								in override mode
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="flex-col">
+			<div class="widget">
+				<header>
+					<h2>Devices</h2>
+					<hr>
+				</header>
+				<div class="flex-1 scrollable">
+					<table class="table vam">
+						<tbody>
+							<ng-container *ngFor="let area of areas">
+								<tr class="no-border">
+									<th colspan="3"><b>{{area.description}}</b></th>
+									<th colspan="2" class="text-right">{{area.devices.length}} {{area.devices.length === 1 ? 'Unit' : 'Units'}}</th>
+								</tr>
+								<ng-container *ngFor="let device of area.devices">
+									<tr class="selectable" [ngClass]="{ 'primary': selectedDevice === device }" (click)="selectedDevice = device">
+										<td class="shrink p-r-0"><span class="badge-icon" [ngClass]="{ 'badge-danger': device.override, 'badge-primary': !device.override && device.state, 'badge-default': !device.override && !device.state }">{{device.category_icon}}</span></td>
+										<td>{{device.description}}</td>
+										<td><b>State:</b> {{device.state ? 'On' : 'Off'}}</td>
+										<td><b>Mode:</b> {{device.override ? 'Override' : 'Schedule'}}</td>
+										<td class="shrink">
+											<a class="btn btn-sm btn-primary" (click)="deviceDetails(device)">Details</a>
+										</td>
+									</tr>
+									<tr *ngIf="selectedDevice === device" class="primary">
+										<td colspan="5">
+											<div *ngIf="device.image_url" class="pull-left square-100 m-r-20" [style.background]="'url(\'' + device.image_url + '\') center center / contain no-repeat' | safeStyle"></div>
+
+											<div *ngIf="device.model">{{device.model}}</div>
+											<div>Location: {{area.description}}</div>
+											<div *ngIf="device.serial_no">Serial No.: {{device.serial_no}}</div>
+										</td>
+									</tr>
+								</ng-container>
+							</ng-container>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="flex-col">
+			<div class="flex-2 widget">
+				<header>
+					<h2>User History</h2>
+					<hr>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover no-top-border vam">
+						<tr *ngFor="let item of data.history">
+							<td class="shrink">
+								<app-gravatar [email]="item.user_email" size="55"></app-gravatar>
+							</td>
+							<td>
+								<div [innerHtml]="item.html"></div>
+								<div class="m-t-10">
+									<span>{{item.user_name}}</span>
+									<span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>Faults</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table *ngIf="data.faults.length" class="table no-top-border">
+						<tr *ngFor="let issue of data.faults" class="text-{{issue.severity}}">
+							<td class="shrink">
+								<i *ngIf="issue.severity === 'warning'" class="md md-warning md-lg"></i>
+								<i *ngIf="issue.severity === 'danger'" class="md md-error md-lg"></i>
+							</td>
+							<td>{{issue.description}}</td>
+							<td class="text-right">{{issue.count}}</td>
+						</tr>
+					</table>
+					<p *ngIf="!data.faults.length"><i class="md md-check"></i> No faults detected.</p>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+</div>

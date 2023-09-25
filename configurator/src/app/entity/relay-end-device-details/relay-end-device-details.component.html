@@ -1,0 +1,73 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="form-group">
+					<label>Category</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.category">
+				</div>
+			</div>
+			<div class="col-lg-2">
+				<div class="form-group">
+					<label>Icon</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.category_icon">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Model</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.model">
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Serial number</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.serial_number">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>State relay pin</label>
+					<select class="form-control" [(ngModel)]="entity.data.state_pin_id" (ngModelChange)="entity.refresh()">
+						<option [ngValue]="null">None</option>
+						<optgroup *ngFor="let device of getAssignableRelayDevices(entity.data.state_pin_id)" label="{{device.getDescription()}}">
+							<ng-container *ngFor="let pin of device.items">
+								<option *ngIf="isPinAssignable(pin, entity.data.state_pin_id)" [ngValue]="pin.data.id">{{pin.getSubtitle()}} - {{pin.getDescription()}}</option>
+							</ng-container>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>State relay pin</label>
+					<select class="form-control" [(ngModel)]="entity.data.isolator_pin_id" (ngModelChange)="entity.refresh()">
+						<option [ngValue]="null">None</option>
+						<optgroup *ngFor="let device of getAssignableRelayDevices(entity.data.isolator_pin_id)" label="{{device.getDescription()}}">
+							<ng-container *ngFor="let pin of device.items">
+								<option *ngIf="isPinAssignable(pin, entity.data.isolator_pin_id)" [ngValue]="pin.data.id">{{pin.getSubtitle()}} - {{pin.getDescription()}}</option>
+							</ng-container>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

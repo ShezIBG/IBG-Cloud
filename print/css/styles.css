@@ -1,0 +1,44 @@
+@font-face {
+	font-family: 'Sansation';
+	src: url('../fonts/SansationRegular.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Sansation';
+	src: url('../fonts/SansationBold.woff') format('woff');
+	font-weight: bold;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Sansation';
+	src: url('../fonts/SansationItalic.woff') format('woff');
+	font-weight: normal;
+	font-style: italic;
+}
+@font-face {
+	font-family: 'Sansation';
+	src: url('../fonts/SansationBoldItalic.woff') format('woff');
+	font-weight: bold;
+	font-style: italic;
+}
+
+body {
+	font-family: Sansation, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.large { font-size: 150%; }
+.vlarge { font-size: 250%; }
+
+table.shrink th, table.shrink td, th.shrink, td.shrink { width: 1%; }
+table.vam th, table.vam td, th.vam, td.vam { vertical-align: middle !important; }
+tr.divider td { border-top-width: 3px; }
+
+.print-group {
+	page-break-before: avoid;
+	page-break-inside: avoid;
+	page-break-after: avoid;
+}
+
+.print-break-before { page-break-before: always; }
+.print-break-after { page-break-after: always; }

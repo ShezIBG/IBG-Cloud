@@ -1,0 +1,69 @@
+<div class="fill flex-parent-column">
+	<header>
+		<h3>
+			{{entity.getTypeDescription()}}
+			<entity-delete type="toolbar" [entity]="entity"></entity-delete>
+			<entity-move type="toolbar" [entity]="entity"></entity-move>
+		</h3>
+	</header>
+	<div class="flex-weight-1 padded scrollable">
+		<div class="row">
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Description</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.description" desktopfocus>
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="form-group">
+					<label>IP address</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.data.local_ip">
+				</div>
+			</div>
+			<div class="col-lg-2">
+				<div class="form-group">
+					<label>SSH port</label>
+					<input type="text" class="form-control" [(ngModel)]="entity.ssh_port">
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="form-group">
+					<label>Serial Number</label>
+					<input type="text" class="form-control" style="text-transform: lowercase;" [(ngModel)]="entity.data.pi_serial" (change)="serialChanged()">
+				</div>
+			</div>
+		</div>
+		<table *ngIf="getTotal()" class="table">
+			<thead>
+				<tr>
+					<th>Assignments</th>
+					<th>Area</th>
+					<th>Type</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<ng-container *ngFor="let assignedTo of entity.getAssignedTo() | entityAssignments:entity; let mid = index">
+					<tr *ngIf="assignedTo" [ngClass]="{ 'bg-hover': hovered === mid * 2 }" (mouseenter)="hovered = mid * 2" (mouseleave)="hovered = null">
+						<td><i class="{{assignedTo.getIconClass()}}"></i> {{entity.getAssignedToInfo(assignedTo)}}</td>
+						<td>{{getAreaDescription(assignedTo)}}</td>
+						<td>{{assignedTo.getTypeDescription()}}</td>
+						<td class="shrink">
+							<a *ngIf="entity.unassignFrom" class="text-danger nowrap" (click)="entity.unassignFrom(assignedTo)"><i class="md md-remove-circle"></i> Unassign</a>
+						</td>
+					</tr>
+				</ng-container>
+				<ng-container *ngFor="let assigned of entity.assigned | entityAssignments:entity; let mid = index">
+					<tr *ngIf="assigned" [ngClass]="{ 'bg-hover': hovered === mid * 2 + 1 }" (mouseenter)="hovered = mid * 2 + 1" (mouseleave)="hovered = null">
+						<td><i class="{{assigned.getIconClass()}}"></i> {{assigned.getDescription()}} <span *ngIf="assigned.getSubtitle() as subtitle" class="subtitle">{{subtitle}}</span> <span *ngIf="assigned.getBusID('modbus')" class="subtitle">modbus #{{assigned.getBusID('modbus')}}</span></td>
+						<td>{{getAreaDescription(assigned)}}</td>
+						<td>{{assigned.getTypeDescription()}}</td>
+						<td class="shrink">
+							<a *ngIf="assigned.unassignFrom" class="text-danger nowrap" (click)="assigned.unassignFrom(entity)"><i class="md md-remove-circle"></i> Unassign</a>
+						</td>
+					</tr>
+				</ng-container>
+			</tbody>
+		</table>
+	</div>
+</div>

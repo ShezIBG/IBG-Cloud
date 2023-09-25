@@ -1,0 +1,73 @@
+<div class="row m-b-20">
+	<div class="col-md-6">
+		<button class="btn btn-inverse btn-solid big-button" [routerLink]="['../customer/new', app.selectedProductOwner]">
+			<i class="md md-add"></i><i class="md md-person"></i><br>
+			<span>New Customer</span>
+		</button>
+	</div>
+	<div class="col-md-6">
+		<button class="btn btn-primary big-button" [routerLink]="['../project/new', app.selectedProductOwner]">
+			<i class="md md-add"></i><i class="md md-location-city"></i><br>
+			<span>New Project</span>
+		</button>
+	</div>
+</div>
+
+<ng-container *ngIf="data">
+	<h3>Recent projects</h3>
+	<div class="card-box">
+		<table class="table table-hover table-striped">
+			<thead>
+				<tr>
+					<th class="shrink">#</th>
+					<th *ngIf="!data.si"></th>
+					<th>Created</th>
+					<th class="text-center">Stage</th>
+					<th>Customer</th>
+					<th>Project</th>
+					<th *ngIf="data.pricing" class="text-right">Grand total</th>
+					<th>Location</th>
+					<th class="nowrap">Assigned to</th>
+					<th class="text-center shrink nowrap">Visibility</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let item of data.projects" class="selectable" [routerLink]="['../project', item.id]">
+					<td class="shrink">{{item.project_no}}</td>
+					<td *ngIf="!data.si" class="text-small">{{item.owner_name}}</td>
+					<td>{{item.created | mySQLDateToISO | date:'shortDate'}}</td>
+					<td class="text-center" ><app-sales-project-stage-badge [stage]="item.stage"></app-sales-project-stage-badge></td>
+					<td>
+						<b>{{item.customer_name}}</b>
+						<span *ngIf="item.customer_contact_name" class="text-small"><br><i class="md md-person"></i> {{item.customer_contact_name}} <span *ngIf="item.customer_contact_position">({{item.customer_contact_position}})</span></span>
+						<span *ngIf="item.customer_contact_mobile" class="text-small"><br><i class="md md-phone"></i> {{item.customer_contact_mobile}}</span>
+						<span *ngIf="item.customer_contact_email" class="text-small"><br><i class="md md-email"></i> {{item.customer_contact_email}}</span>
+					</td>
+					<td>
+						<b>{{item.description}}</b>
+						<span *ngIf="item.contact_name" class="text-small"><br><i class="md md-person"></i> {{item.contact_name}} <span *ngIf="item.contact_position">({{item.contact_position}})</span></span>
+						<span *ngIf="item.contact_mobile" class="text-small"><br><i class="md md-phone"></i> {{item.contact_mobile}}</span>
+						<span *ngIf="item.contact_email" class="text-small"><br><i class="md md-email"></i> {{item.contact_email}}</span>
+					</td>
+					<td *ngIf="data.pricing" class="text-right">
+						<ng-container *ngIf="item.grand_total !== null">
+							{{item.grand_total | decimal:2:2:true:'GBP'}}
+						</ng-container>
+					</td>
+					<td>
+						{{item.posttown}}
+						<span *ngIf="item.postcode" class="text-small"><br>{{item.postcode}}</span>
+					</td>
+					<td class="nowrap">{{item.user_name}}</td>
+					<td class="text-center shrink nowrap">
+						<span *ngIf="item.is_public" class="badge badge-success badge-sm"><i class="md md-lock-open"></i> Public</span>
+						<span *ngIf="!item.is_public" class="badge badge-default badge-sm"><i class="md md-lock"></i> Private</span>
+					</td>
+				</tr>
+				<tr *ngIf="!data.projects.length">
+					<td [attr.colspan]="data.pricing ? 10 : 9">No projects found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>

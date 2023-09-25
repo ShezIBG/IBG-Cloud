@@ -1,0 +1,64 @@
+<div *ngIf="type === 'device'" [ngClass]="{ 'flex-parent-row': !screen.wideLayout, 'flex-parent-column': screen.wideLayout }" class="fill p-t-15 p-l-15">
+	<div [ngClass]="{ 'flex-parent-column': !screen.wideLayout, 'flex-parent-row': screen.wideLayout }">
+		<div [ngClass]="{ 'flex-weight-1' : !screen.wideLayout, 'toolbox-height': screen.wideLayout }" class="widget card-box m-b-15 m-r-15 p-0 tree-device-width">
+			<app-tree-device [building]="app.building"></app-tree-device>
+		</div>
+		<div *ngIf="screen.wideLayout && hasToolbox()" class="widget flex-weight-1 card-box m-b-15 m-r-15 p-0 toolbox-height">
+			<app-toolbox></app-toolbox>
+		</div>
+	</div>
+	<div [ngClass]="{ 'flex-parent-column': !screen.wideLayout, 'flex-parent-row': screen.wideLayout }" class="flex-weight-1">
+		<div *ngIf="!screen.wideLayout && hasToolbox()" class="widget card-box m-b-15 m-r-15 p-0 toolbox-height">
+			<app-toolbox></app-toolbox>
+		</div>
+		<div *ngIf="screen.treeEntity" class="widget flex-weight-1 card-box m-b-15 m-r-15 p-0">
+			<ng-container *ngComponentOutlet="screen.treeEntity.getTreeComponent(); content: [screen.treeEntity]"></ng-container>
+		</div>
+	</div>
+</div>
+
+<div *ngIf="type === 'assign'" class="flex-parent-row fill p-t-15 p-l-15">
+	<div class="flex-parent-column">
+		<div class="flex-weight-1 widget card-box m-b-15 m-r-15 p-0 tree-assign-width">
+			<app-tree-assign [building]="app.building"></app-tree-assign>
+		</div>
+	</div>
+	<div class="flex-weight-1 flex-parent-column">
+		<div *ngIf="screen.treeEntity?.hasTag('assignables-tree')" class="widget flex-weight-1 card-box m-b-15 m-r-15 p-0">
+			<app-assignables-tree [parent]="screen.treeEntity"></app-assignables-tree>
+		</div>
+		<div *ngIf="screen.treeEntity?.getAssignComponent()" class="widget flex-weight-1 card-box m-b-15 m-r-15 p-0">
+			<ng-container *ngComponentOutlet="screen.treeEntity.getAssignComponent(); content: [screen.treeEntity]"></ng-container>
+		</div>
+		<div *ngIf="!screen.treeEntity || !screen.treeEntity.getAssignComponent()" class="flex-weight-1 widget card-box m-b-15 m-r-15 p-15">
+			<p>Please select an assignable item on the left.</p>
+		</div>
+	</div>
+</div>
+
+<div *ngIf="type === 'floorplan'" class="flex-parent-row fill p-t-15 p-l-15">
+	<div class="flex-parent-column">
+		<div class="flex-weight-1 widget card-box m-b-15 m-r-15 p-0 tree-device-width">
+			<app-tree-floorplan [building]="app.building"></app-tree-floorplan>
+		</div>
+		<div *ngIf="screen.treeEntity" class="widget card-box m-b-15 m-r-15 p-0 tree-device-width">
+			<app-floorplan-info [entity]="screen.treeEntity"></app-floorplan-info>
+		</div>
+	</div>
+	<div class="flex-weight-1 flex-parent-column">
+		<div *ngIf="!screen.treeEntity" class="flex-weight-1 widget card-box m-b-15 m-r-15 p-15">
+			<p>Please select an item on the left.</p>
+		</div>
+		<div *ngIf="screen.treeEntity" class="flex-weight-1 widget card-box m-b-15 m-r-15 p-0">
+			<app-floorplan [entity]="screen.treeEntity"></app-floorplan>
+		</div>
+	</div>
+	<div class="flex-parent-column">
+		<div *ngIf="screen.treeEntity" class="flex-weight-1 widget card-box m-b-15 m-r-15 p-0 tree-device-width">
+			<app-floorplan-device-list [entity]="screen.treeEntity"></app-floorplan-device-list>
+		</div>
+		<div *ngIf="screen.detailEntity" class="widget card-box m-b-15 m-r-15 p-0 tree-device-width">
+			<app-floorplan-device-info [entity]="screen.detailEntity"></app-floorplan-device-info>
+		</div>
+	</div>
+</div>

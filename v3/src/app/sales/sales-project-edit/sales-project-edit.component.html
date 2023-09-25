@@ -1,0 +1,222 @@
+<ng-container *ngIf="details">
+	<span class="pull-right">
+		<button *ngIf="id === 'new'" class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">{{id === 'new' ? 'Create Project' : 'Update'}}</button>
+	</span>
+
+	<h3>Project details</h3>
+	<div class="card-box">
+		<div class="form-horizontal">
+			<div *ngIf="id !== 'new'" class="form-group">
+				<label class="col-sm-4 control-label">Project no.</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.project_no">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Project description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.description">
+				</div>
+			</div>
+			<div *ngIf="list.si.length > 1" class="form-group">
+				<label class="col-sm-4 control-label">System integrator</label>
+				<div class="col-sm-5">
+					<select class="form-control" [(ngModel)]="details.system_integrator_id" (change)="siChanged()" [disabled]="id !== 'new'">
+						<option *ngFor="let item of list.si" [ngValue]="item.id">{{item.company_name}}</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Customer</label>
+				<div class="col-sm-5">
+					<select class="form-control" [(ngModel)]="details.customer_id" (change)="customerChanged()">
+						<option *ngFor="let item of list.customers" [ngValue]="item.id">{{item.name}}</option>
+					</select>
+				</div>
+			</div>
+			<div *ngIf="details.customer_id === 'new'" class="form-group">
+				<label class="col-sm-4 control-label">New customer's name</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.customer.name">
+				</div>
+			</div>
+			<hr>
+			<div *ngIf="customer" class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<a class="btn btn-default" (click)="copyCustomerAddress()"><i class="md md-content-copy"></i> Use customer's address</a>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Address</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.address_line_1">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_2">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<input class="form-control" [(ngModel)]="details.address_line_3">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Town</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.posttown">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Postcode</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.postcode">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Phone number</label>
+				<div class="col-sm-3">
+					<input class="form-control" [(ngModel)]="details.phone_number">
+				</div>
+			</div>
+			<hr>
+			<div *ngIf="customer" class="form-group">
+				<div class="col-sm-5 col-sm-offset-4">
+					<a class="btn btn-default" (click)="copyCustomerContact()"><i class="md md-content-copy"></i> Use customer's contact</a>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Contact name</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.contact_name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Position</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.contact_position">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email address</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.contact_email">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Mobile</label>
+				<div class="col-sm-4">
+					<input class="form-control" [(ngModel)]="details.contact_mobile">
+				</div>
+			</div>
+			<hr>
+			<app-sales-project-stage-control [project]="details" (stageUpdated)="stageUpdated($event)"></app-sales-project-stage-control>
+			<div *ngIf="showStageNotes" class="form-group m-t-15">
+				<label class="col-sm-4 control-label">Stage notes</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="details.stage_notes">
+					<span class="help-block">Reason why project stage is changing.</span>
+				</div>
+			</div>
+			<hr>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Product price tier</label>
+				<div class="col-sm-3">
+					<select class="form-control" [(ngModel)]="details.price_tier">
+						<option value="cost">Cost only</option>
+						<option value="distribution">Distribution price</option>
+						<option value="reseller">Reseller price</option>
+						<option value="trade">Trade price</option>
+						<option value="retail">Retail price</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Subscription price tier</label>
+				<div class="col-sm-3">
+					<select class="form-control" [(ngModel)]="details.subscription_price_tier">
+						<option value="cost">Cost only</option>
+						<option value="distribution">Distribution price</option>
+						<option value="reseller">Reseller price</option>
+						<option value="trade">Trade price</option>
+						<option value="retail">Retail price</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Exclusions</label>
+				<div class="col-sm-2">
+					<div class="checkbox checkbox-danger">
+						<label>
+							<input type="checkbox" [(ngModel)]="exclude_labour" [disabled]="!canChangeExclusions">
+							<span [ngClass]="{ 'text-danger': exclude_labour }">No labour charges</span>
+						</label>
+					</div>
+					<div class="checkbox checkbox-danger">
+						<label>
+							<input type="checkbox" [(ngModel)]="exclude_subscriptions" [disabled]="!canChangeExclusions">
+							<span [ngClass]="{ 'text-danger': exclude_subscriptions }">No subscriptions</span>
+						</label>
+					</div>
+				</div>
+				<div class="col-sm-4 p-t-5">
+					<p *ngIf="!canChangeExclusions" class="text-info m-t-5 m-b-0"><i class="md md-info"></i> Exclusions can only be changed at <b>lead</b> or <b>survey</b> stage.</p>
+					<p *ngIf="exclude_labour && has_labour" class="text-danger m-t-5 m-b-0"><i class="md md-warning"></i> Existing labour will be removed.</p>
+					<p *ngIf="exclude_subscriptions && has_subscriptions" class="text-danger m-t-5 m-b-0"><i class="md md-warning"></i> Existing subscriptions will be removed.</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">VAT rate</label>
+				<div class="col-sm-3 col-md-2">
+					<div class="input-group">
+						<input class="form-control text-right" [(ngModel)]="details.vat_rate" (change)="formatNumbers()">
+						<span class="input-group-addon">%</span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Assigned to</label>
+				<div class="col-sm-3">
+					<select class="form-control" [(ngModel)]="details.user_id">
+						<option *ngFor="let item of list.users" [ngValue]="item.id">{{item.name}}</option>
+					</select>
+				</div>
+				<div class="col-sm-2">
+					<div class="checkbox checkbox-primary">
+						<label>
+							<input type="checkbox" [(ngModel)]="is_public">
+							<span [ngClass]="{ 'text-success': is_public }">Public project</span>
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-4"></div>
+				<div class="col-sm-5">
+					<p *ngIf="!is_public && !details.user_id" class="text-info"><i class="md md-lock"></i> Only <b>admins</b> can access this project.</p>
+					<p *ngIf="!is_public && details.user_id" class="text-info"><i class="md md-lock"></i> Only <b>admins</b> and <b>{{assigned_to_name}}</b> can access this project.</p>
+					<p *ngIf="is_public" class="text-info"><i class="md md-lock-open"></i> <b>Everyone</b> in the company can access this project.</p>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Quote date</label>
+				<div class="col-sm-3 col-md-2">
+					<p-calendar [(ngModel)]="details.quote_date" dateFormat="dd/mm/yy" inputStyleClass="form-control" appendTo="body"></p-calendar>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Expiry date</label>
+				<div class="col-sm-3 col-md-2">
+					<p-calendar [(ngModel)]="details.expiry_date" dateFormat="dd/mm/yy" inputStyleClass="form-control" appendTo="body"></p-calendar>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<span class="pull-right">
+		<button *ngIf="id === 'new'" class="btn btn-default" (click)="goBack()" [disabled]="disabled">Cancel</button>
+		<button class="btn btn-primary" (click)="save()" [disabled]="disabled">{{id === 'new' ? 'Create Project' : 'Update'}}</button>
+	</span>
+</ng-container>

@@ -1,0 +1,147 @@
+<div *ngIf="data" class="layout-dashboard">
+
+	<div class="flex-row">
+
+		<div class="flex-col">
+
+			<div class="widget">
+				<header>
+					<h2>Building Details</h2>
+					<hr>
+				</header>
+				<div class="flex-row">
+					<div class="flex-1" [style.background]="'url(\'' + data.building.image + '\') center center / cover no-repeat' | safeStyle"></div>
+					<div class="flex-1 scrollable" [innerHtml]="getAddress(data.building)"></div>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>
+						Weekly Schedules
+						<a class="btn btn-primary btn-sm pull-right" routerLink="schedules">Edit Schedules</a>
+					</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table *ngIf="data.schedules.length" class="table table-hover vam">
+						<thead>
+							<tr>
+								<th>Device Type</th>
+								<th>Schedule Name</th>
+								<th class="text-center text-small">Devices</th>
+								<th class="text-right">Next Event</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let s of data.schedules">
+								<td>{{s.item_type_description}}</td>
+								<td>{{s.description}}</td>
+								<td class="text-center text-small">{{s.device_count}}</td>
+
+								<td *ngIf="s.next_event" class="text-right">{{s.next_event | mySQLDateToISO | date:'shortDate'}} {{s.next_event | mySQLDateToISO | date:'shortTime'}}</td>
+								<td *ngIf="!s.next_event" class="text-right">None</td>
+							</tr>
+						</tbody>
+					</table>
+					<p *ngIf="!data.schedules.length" class="text-warning">No schedules found.</p>
+				</div>
+			</div>
+
+			<div class="widget">
+				<header>
+					<h2>Building Status</h2>
+					<hr>
+				</header>
+				<div class="scrollable">
+					<table class="table vam">
+						<thead>
+							<tr>
+								<th>Device Type</th>
+								<th class="text-center"></th>
+								<th class="text-center"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let item of data.device_statuses">
+								<td>{{item.description}}</td>
+								<td class="text-center"><b>{{item.status_on}}</b> <app-knx-output [knxValue]="item.on_knx"></app-knx-output></td>
+								<td class="text-center"><b>{{item.status_off}}</b> <app-knx-output [knxValue]="item.off_knx"></app-knx-output></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-col">
+
+			<div class="widget">
+				<header>
+					<h2>
+						List of Devices
+						<a class="btn btn-primary btn-sm pull-right" routerLink="devices">View Devices</a>
+					</h2>
+					<hr>
+				</header>
+				<div class="flex-0">
+					<table class="table vam no-top-border">
+						<tr *ngFor="let item of data.device_types; let index = index">
+							<td class="shrink">
+								<span *ngIf="item.icon_text" class="badge-icon" [style.background]="ChartjsComponent.getColor(index)">{{item.icon_text}}</span>
+								<span *ngIf="!item.icon_text" class="badge-icon" [style.background]="ChartjsComponent.getColor(index)"><i class="eticon eticon-plug"></i></span>
+							</td>
+							<td><b>{{item.description}}</b></td>
+							<td class="shrink text-right">{{item.item_count}}x</td>
+						</tr>
+					</table>
+				</div>
+				<div>
+					<app-chartjs class="fill" style="left: 40px; right: 40px; top: 20px; bottom: 40px;" [names]="typeNames" [data]="typeValues" [options]="typeOptions"></app-chartjs>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="flex-col">
+
+			<div class="widget">
+				<header>
+					<h2>Available Modules</h2><!-- Change back to User Histroy -->
+					<hr>
+				</header>
+				<div class="scrollable p-t-0">
+					<table class="table table-hover no-top-border vam">
+						<!-- <tr *ngFor="let item of data.history"> -->
+							<!-- <td class="shrink"> -->
+								<!-- <app-gravatar [email]="item.user_email" size="55"></app-gravatar> -->
+							<!-- </td> -->
+							<td>
+								<div [innerHtml]="item.html"></div>
+								<div class="m-t-10">
+									<a href=""><i class="eticon eticon-5x eticon-bulb-alt"></i></a>
+									<span class="pull-right">Total Devices 47</span>
+									<!-- Temp Fix for demo - Shez -->
+									<!-- <span>{{item.user_name}}</span> -->
+									<!-- <span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span> -->
+								</div>
+								<div class="m-t-10">
+									<a href = ""><i class="eticon eticon-5x eticon-climate"></i></a>
+									<span class="pull-right">Total Devices 7</span>
+									<!-- Temp Fix for demo - Shez -->
+									<!-- <span>{{item.user_name}}</span> -->
+									<!-- <span class="pull-right">{{item.datetime | mySQLDateToISO | date:'shortDate'}}&nbsp;{{item.datetime | mySQLDateToISO | date:'mediumTime'}}</span> -->
+								</div>
+
+							</td>
+						<!-- </tr> -->
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>

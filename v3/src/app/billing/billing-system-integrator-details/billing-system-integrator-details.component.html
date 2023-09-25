@@ -1,0 +1,208 @@
+<ng-container *ngIf="details && app.header.activeTab === 'overview'">
+	<div class="card-box">
+		<h2 class="m-t-0">
+			{{details.company_name}}
+		</h2>
+		<div class="row">
+			<div class="col-md-4">
+				<div class="text-muted m-b-15">System Integrator #{{details.id}}</div>
+				<div *ngIf="details.email_address || details.phone_number || details.mobile_number" class="m-b-15">
+					<div *ngIf="details.email_address"><i class="md md-mail"></i>&nbsp;&nbsp;<a href="mailto:{{details.email_address}}">{{details.email_address}}</a></div>
+					<div *ngIf="details.phone_number"><i class="md md-phone"></i>&nbsp;&nbsp;{{details.phone_number}}</div>
+					<div *ngIf="details.mobile_number"><i class="md md-smartphone"></i>&nbsp;&nbsp;{{details.mobile_number}}</div>
+				</div>
+				<div *ngIf="details.address_line_1">{{details.address_line_1}}</div>
+				<div *ngIf="details.address_line_2">{{details.address_line_2}}</div>
+				<div *ngIf="details.address_line_3">{{details.address_line_3}}</div>
+				<div *ngIf="details.posttown">{{details.posttown}}</div>
+				<div *ngIf="details.postcode">{{details.postcode}}</div>
+				<div *ngIf="details.vat_reg_number" class="m-t-15">VAT reg: {{details.vat_reg_number}}</div>
+			</div>
+			<div class="col-md-4">
+				<h3>Invoice address</h3>
+				<div *ngIf="!details.invoice_address_line_1 && !details.invoice_address_line_2 && !details.invoice_address_line_3 && !details.invoice_posttown && !details.invoice_postcode" class="text-muted">Same address.</div>
+				<div *ngIf="details.invoice_address_line_1">{{details.invoice_address_line_1}}</div>
+				<div *ngIf="details.invoice_address_line_2">{{details.invoice_address_line_2}}</div>
+				<div *ngIf="details.invoice_address_line_3">{{details.invoice_address_line_3}}</div>
+				<div *ngIf="details.invoice_posttown">{{details.invoice_posttown}}</div>
+				<div *ngIf="details.invoice_postcode">{{details.invoice_postcode}}</div>
+			</div>
+			<div class="col-md-4">
+				<h3>Bank Details</h3>
+				<div *ngIf="!details.bank_name && !details.bank_sort_code && !details.bank_account_number" class="text-muted">Not set.</div>
+				<ng-container *ngIf="details.bank_name || details.bank_sort_code || details.bank_account_number">
+					<div>{{details.bank_name}}</div>
+					<div>{{details.bank_sort_code | sortcode}}</div>
+					<div>{{details.bank_account_number}}</div>
+				</ng-container>
+			</div>
+		</div>
+	</div>
+
+	<ng-container *ngIf="account">
+		<div class="card-box">
+			<div class="row">
+				<div class="col-md-5">
+					<h2>Account</h2>
+					<h1 [ngClass]="{ 'text-success' : account.outstanding >= 0, 'text-danger' : account.outstanding < 0 }">{{Math.abs(account.outstanding) | decimal:2:2:true:'GBP'}}</h1>
+					<p *ngIf="account.outstanding < 0">in debit</p>
+					<p *ngIf="account.outstanding > 0">in credit</p>
+					<a href="{{account.url}}" target="_blank" class="btn btn-default btn-sm"><i class="md md-open-in-new"></i> Open account page</a>
+				</div>
+				<div class="col-md-6 col-md-offset-1">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th>Payment method</th>
+								<th class="text-center">Status</th>
+								<th class="shrink nowrap"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let item of account.cards">
+								<td><i class="md md-credit-card"></i> {{item.card_type}} card ending {{item.last4}} (expires {{item.exp_month | number:'2.0'}}/{{item.exp_year}})</td>
+								<td class="text-center"><span class="badge badge-success">Active</span></td>
+								<td class="shrink nowrap">
+									<a class="text-danger" (click)="deleteCard(item)"><i class="md md-delete"></i> Delete</a>
+								</td>
+							</tr>
+							<tr *ngFor="let item of account.mandates">
+								<td><i class="md md-account-balance"></i> Direct Debit mandate {{item.gocardless_mandate_id}}</td>
+								<td class="text-center">
+									<span *ngIf="item.status === 'request'" class="badge badge-default">Pending</span>
+									<span *ngIf="item.status === 'authorised'" class="badge badge-success">Active</span>
+									<span *ngIf="item.status === 'cancelled'" class="badge badge-danger">Cancelled</span>
+								</td>
+								<td class="shrink nowrap">
+									<a *ngIf="item.status === 'authorised'" class="text-danger" (click)="cancelMandate(item)"><i class="md md-cancel"></i> Cancel</a>
+								</td>
+							</tr>
+							<tr *ngIf="account.cards.length === 0 && account.mandates.length === 0">
+								<td colspan="3">No payment methods available.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<app-billing-contracts></app-billing-contracts>
+	</ng-container>
+
+	<div *ngIf="!account" class="card-box">
+		<h2>Account</h2>
+		<p class="text-info"><i class="md md-info"></i> This system integrator has no payment account set up. To create a contract and start collecting payments from this system integrator, click the button below.</p>
+		<button class="btn btn-primary" (click)="createPaymentAccount()"><i class="md md-add"></i> Create payment account</button>
+	</div>
+</ng-container>
+
+<ng-container *ngIf="details && account && app.header.activeTab === 'transactions'">
+	<button *ngIf="!transaction.show" class="btn btn-primary m-b-15" (click)="transaction.show = true"><i class="md md-add"></i> Add manual transaction</button>
+
+	<div *ngIf="transaction.show" class="card-box">
+		<h2>New transaction</h2>
+		<div class="form-horizontal">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Transaction type</label>
+				<div class="col-sm-3">
+					<select class="form-control" [(ngModel)]="transaction.type">
+						<optgroup label="Credit">
+							<option value="cash">Cash payment</option>
+							<option value="other_credit">Other credit</option>
+						</optgroup>
+						<optgroup label="Debit">
+							<option value="refund">Refund</option>
+							<option value="other_debit">Other debit</option>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Amount</label>
+				<div class="col-sm-3">
+					<div class="input-group">
+						<span class="input-group-addon">&pound;</span>
+						<input class="form-control text-right" [(ngModel)]="transaction.amount">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Description</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="transaction.description">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Transaction reference</label>
+				<div class="col-sm-5">
+					<input class="form-control" [(ngModel)]="transaction.transaction_ref">
+				</div>
+			</div>
+		</div>
+		<hr>
+		<p class="text-info"><i class="md md-info"></i> Adding a manual payment may automatically mark some or all outstanding invoices as paid, depending on the amount. Invoices with pending Direct Debit payments will be ignored.</p>
+		<p class="text-info">Payments will be allocated to the oldest oustanding invoice first. If the payment is for a specific invoice, you can mark it as paid before adding the payment in order to avoid allocating it to the oldest one.</p>
+		<hr>
+		<div class="pull-right">
+			<button class="btn btn-default" (click)="transaction.show = false" [disabled]="disabled">Cancel</button>
+			<button class="btn btn-primary" (click)="addTransaction()" [disabled]="disabled">Add transaction</button>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+
+	<div class="card-box">
+		<h2>Account</h2>
+		<h1 [ngClass]="{ 'text-success' : account.outstanding >= 0, 'text-danger' : account.outstanding < 0 }">{{Math.abs(account.outstanding) | decimal:2:2:true:'GBP'}}</h1>
+		<p *ngIf="account.outstanding < 0">in debit</p>
+		<p *ngIf="account.outstanding > 0">in credit</p>
+		<a href="{{account.url}}" target="_blank" class="btn btn-default btn-sm"><i class="md md-open-in-new"></i> Open account page</a>
+	</div>
+
+	<div class="card-box">
+		<table class="table table-striped table-hover vam">
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th colspan="2">Description</th>
+					<th>Reference</th>
+					<th class="text-right">Amount</th>
+					<th class="shrink nowrap">Status</th>
+					<th class="shrink"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let t of account.transactions">
+					<td>{{t.create_datetime | mySQLDateToISO | date:'shortDate'}}</td>
+					<td class="shrink p-r-0" style="font-size: 1.2em;">
+						<i *ngIf="t.type === 'invoice'" class="md md-credit-card" title="Invoice"></i>
+						<i *ngIf="t.type === 'refund'" class="md md-undo" title="Refund"></i>
+						<i *ngIf="t.type === 'dd'" class="md md-account-balance" title="Direct Debit"></i>
+						<i *ngIf="t.type === 'card'" class="md md-credit-card" title="Card"></i>
+						<i *ngIf="t.type === 'cash'" class="md md-mail" title="Cash"></i>
+						<i *ngIf="t.type === 'other_credit'" class="md md-add-circle-outline" title="Other credit"></i>
+						<i *ngIf="t.type === 'other_debit'" class="md md-remove-circle-outline" title="Other debit"></i>
+					</td>
+					<td>{{t.description}}</td>
+					<td>{{t.transaction_ref}}</td>
+					<td class="text-right">{{t.amount | decimal:2:2:true:'GBP'}}</td>
+					<td class="text-center shrink nowrap">
+						<span *ngIf="t.status === 'pending'" class="badge badge-default">Processing</span>
+						<span *ngIf="t.status === 'ok'" class="badge badge-success">Completed</span>
+						<span *ngIf="t.type !== 'invoice' && t.status === 'fail'" class="badge badge-danger">Failed</span>
+						<span *ngIf="t.type === 'invoice' && t.status === 'fail'" class="badge badge-danger">Cancelled</span>
+					</td>
+					<td class="shrink nowrap">
+						<a *ngIf="t.can_cancel" class="btn btn-sm btn-danger" (click)="cancelTransaction(t)"><i class="md md-close"></i> Cancel payment</a>
+					</td>
+				</tr>
+				<tr *ngIf="account.transactions.length === 0">
+					<td colspan="6">No transactions found.</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</ng-container>
+
+<app-billing-invoices *ngIf="details && app.header.activeTab === 'invoices'"></app-billing-invoices>
+<app-billing-clients *ngIf="details && app.header.activeTab === 'clients'"></app-billing-clients>
+<app-billing-sites *ngIf="details && app.header.activeTab === 'sites'"></app-billing-sites>

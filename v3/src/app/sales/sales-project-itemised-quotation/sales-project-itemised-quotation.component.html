@@ -1,0 +1,52 @@
+<div *ngIf="data" class="card-box print" style="max-width: 1000px; margin: auto;">
+	<h2 class="m-0">
+		Itemised Quotation <span class="subtitle">without labour</span>
+		<span class="pull-right">Quote #{{data.project.project_no}}</span>
+	</h2>
+	<hr>
+
+	<div class="row">
+		<div class="col-sm-6">
+			<div class="large">{{data.project.description}}</div>
+			<div *ngFor="let line of projectAddress">{{line}}</div>
+		</div>
+		<div class="col-sm-6">
+			<div class="large">{{data.customer.name}}</div>
+			<div *ngFor="let line of customerAddress">{{line}}</div>
+		</div>
+	</div>
+	<br>
+
+	<table class="table no-border">
+		<thead>
+			<tr class="bottom-border">
+				<th class="shrink"></th>
+				<th>Model</th>
+				<th>Description</th>
+				<th>SKU</th>
+				<th class="text-right">Quantity</th>
+				<th class="text-right">Unit Price</th>
+				<th class="text-right">Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let p of data.products">
+				<td class="shrink">
+					<div class="product-image-container">
+						<img *ngIf="p.image_url" class="product-image" [src]="p.image_url">
+					</div>
+				</td>
+				<td>{{p.model}}</td>
+				<td>{{p.description}}</td>
+				<td>{{p.sku}}</td>
+				<td class="text-right">{{p.quantity | decimal:0:4}}</td>
+				<td class="text-right">{{p.unit_price | decimal:2:2:true:'GBP'}}</td>
+				<td class="text-right">{{p.total | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+			<tr class="large total">
+				<td class="text-right" colspan="6">Grand Total:</td>
+				<td class="text-right top-border">{{total | decimal:2:2:true:'GBP'}}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
