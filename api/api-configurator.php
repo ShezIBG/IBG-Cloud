@@ -3,7 +3,7 @@
 require_once 'shared-api.php';
 
 class API extends SharedAPI {
-	// Updated with Henrys changes to the configurator - monitoring bus type
+	// Updated with Henrys changes to the configurator - monitoring bus type.
 	/**
 	 * Entity names ALWAYS match their tables. The only exception are special
 	 * custom entities which cannot have any CRUD operations applied to them.
